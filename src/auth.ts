@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { SignJWT, jwtVerify, createRemoteJWKSet } from "jose";
+import { randomUUID } from "crypto";
 import db from "./db";
 
 const IS_PROD = process.env.NODE_ENV === "production";
@@ -70,6 +71,17 @@ export async function authGoogle(req: Request, res: Response) {
   } catch {
     res.status(401).json({ error: "token de Google inválido" });
   }
+}
+
+/** Sesión de INVITADO (web sin login): crea una cuenta anónima ligada al
+ *  navegador (deviceId) para que la IA funcione sin registro. La cuenta real
+ *  (Apple/Google) es opcional y sirve para sincronizar entre dispositivos.
+ *  Producción: conviene limitar la creación por IP (anti-abuso del free-tier). */
+export async function authGuest(req: Request, res: Response) {
+  const deviceId = (req.body?.deviceId || "").toString().trim().slice(0, 64);
+  const id = `guest:${deviceId || randomUUID()}`;
+  upsertUser(id, "", "guest");
+  res.json({ token: await issueToken(id, ""), email: "", guest: true });
 }
 
 /** SOLO pruebas: login por email sin verificar. Desactívalo en producción. */
