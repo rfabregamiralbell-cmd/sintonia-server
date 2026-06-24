@@ -11,6 +11,7 @@ if (IS_PROD && (RAW_SECRET.length < 24)) {
 const secret = new TextEncoder().encode(RAW_SECRET || "dev-secret-change-me");
 const APPLE_CLIENT_ID = process.env.APPLE_CLIENT_ID || "";
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || "";
+const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET || "";
 
 const appleJWKS = createRemoteJWKSet(new URL("https://appleid.apple.com/auth/keys"));
 const googleJWKS = createRemoteJWKSet(new URL("https://www.googleapis.com/oauth2/v3/certs"));
@@ -70,6 +71,45 @@ export async function authGoogle(req: Request, res: Response) {
     res.json({ token: await issueToken(id, email), email });
   } catch {
     res.status(401).json({ error: "token de Google inválido" });
+  }
+}
+
+/** WEB: login con Google por código (Authorization Code + PKCE). El navegador
+ *  obtiene un `code`; aquí lo canjeamos con el client_secret (seguro en servidor),
+ *  verificamos el id_token y emitimos sesión propia. Requiere GOOGLE_CLIENT_ID y
+ *  GOOGLE_CLIENT_SECRET. */
+export async function authGoogleWeb(req: Request, res: Response) {
+  try {
+    const { code, codeVerifier, redirectUri } = req.body || {};
+    if (!code || !redirectUri) return res.status(400).json({ error: "code y redirectUri requeridos" });
+    if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) return res.status(500).json({ error: "google web no configurado" });
+    const params = new URLSearchParams({
+      code,
+      client_id: GOOGLE_CLIENT_ID,
+      client_secret: GOOGLE_CLIENT_SECRET,
+      redirect_uri: redirectUri,
+      grant_type: "authorization_code",
+    });
+    if (codeVerifier) params.set("code_verifier", codeVerifier);
+    const r = await fetch("https://oauth2.googleapis.com/token", {
+      method: "POST",
+      headers: { "content-type": "application/x-www-form-urlencoded" },
+      body: params.toString(),
+    });
+    if (!r.ok) return res.status(401).json({ error: "intercambio con Google falló" });
+    const data: any = await r.json();
+    const idToken = data.id_token;
+    if (!idToken) return res.status(401).json({ error: "sin id_token" });
+    const { payload } = await jwtVerify(idToken, googleJWKS, {
+      issuer: ["https://accounts.google.com", "accounts.google.com"],
+      audience: GOOGLE_CLIENT_ID,
+    });
+    const id = `google:${payload.sub}`;
+    const email = (payload.email as string) || "";
+    upsertUser(id, email, "google");
+    res.json({ token: await issueToken(id, email), email });
+  } catch {
+    res.status(401).json({ error: "login de Google inválido" });
   }
 }
 

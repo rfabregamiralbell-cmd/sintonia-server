@@ -1,7 +1,7 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
-import { authApple, authGoogle, authDev, authGuest, requireAuth } from "./auth";
+import { authApple, authGoogle, authGoogleWeb, authDev, authGuest, requireAuth } from "./auth";
 import { commentary } from "./commentary";
 import { getUsage, setBudget, resetUsage } from "./me";
 import { publish, browse, getOne, remove } from "./stations";
@@ -21,6 +21,7 @@ app.get("/health", (_req, res) => res.json({ ok: true }));
 // Autenticación (el móvil manda el idToken nativo; dev = solo pruebas)
 app.post("/auth/apple", authApple);
 app.post("/auth/google", authGoogle);
+app.post("/auth/google/web", authGoogleWeb); // web: login Google por código (PKCE)
 app.post("/auth/guest", authGuest); // web sin login: sesión de invitado
 app.post("/auth/dev", authDev);
 
