@@ -19,9 +19,8 @@ COPY src ./src
 RUN npm run build
 
 ENV NODE_ENV=production
-# DB_PATH debe apuntar a un disco persistente montado (p. ej. /data/sintonia.db)
-ENV DB_PATH=/data/sintonia.db
-ENV PORT=8787
+# PORT y DB_PATH los controla el host (Render inyecta PORT; DB_PATH como variable
+# de entorno: /tmp/sintonia.db para prueba sin disco, /data/sintonia.db con disco).
 EXPOSE 8787
 
 CMD ["node", "dist/index.js"]
