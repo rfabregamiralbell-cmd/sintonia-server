@@ -1,0 +1,19 @@
+# Dependencias y build
+node_modules/
+dist/
+
+# Secretos — NUNCA subir
+.env
+.env.*
+!.env.example
+
+# Base de datos SQLite (datos locales)
+*.db
+*.db-wal
+*.db-shm
+sintonia.db*
+
+# Logs y temporales
+*.log
+npm-debug.log*
+.DS_Store
