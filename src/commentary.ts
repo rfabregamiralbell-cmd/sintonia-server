@@ -64,6 +64,13 @@ function buildPrompt(p: any): string {
   if (p.djName) s += `Te llamas ${p.djName}.\n`;
   s += `Trata al oyente de "${p.treatment}".\n`;
   s += `Nivel de detalle: ${p.depth}/5.\n`;
+  if (p.depth >= 4) {
+    s += `Modo análisis profundo: profundiza de verdad. Aporta contexto histórico, ` +
+      `detalles de composición y producción, teoría musical explicada de forma accesible, ` +
+      `anécdotas verificables y conexiones con otros artistas, obras o movimientos. ` +
+      `Prioriza lo más revelador y sorprendente, con densidad alta de información interesante ` +
+      `y cero relleno. Encadena ideas con criterio, no enumeres.\n`;
+  }
   s += `Idioma de salida: ${p.outLang}.\n`;
   if (p.catchphrase) s += `Si encaja, abre con tu muletilla: "${p.catchphrase}".\n`;
   if (p.avoidRepeat && p.recent && p.recent.length) s += `No repitas lo ya comentado sobre: ${p.recent.join("; ")}.\n`;
@@ -111,7 +118,9 @@ export async function commentary(req: AuthedRequest, res: Response) {
       recent: Array.isArray(b.recent) ? b.recent : [],
     };
 
-    const maxTokens = Math.max(120, Math.min(700, Math.round(p.duration * 3.5) + 40));
+    // La longitud escala con la duración pedida. Tope alto para permitir
+    // análisis densos y largos (web/escritorio), acotado por presupuesto/cap diario.
+    const maxTokens = Math.max(120, Math.min(1200, Math.round(p.duration * 4) + 60));
 
     const r = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
