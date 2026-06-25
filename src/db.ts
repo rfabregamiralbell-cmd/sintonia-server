@@ -45,5 +45,6 @@ addCol("subscribed", "subscribed INTEGER NOT NULL DEFAULT 0");
 addCol("sub_provider", "sub_provider TEXT");
 addCol("sub_until", "sub_until INTEGER NOT NULL DEFAULT 0");
 addCol("stripe_customer", "stripe_customer TEXT");
+addCol("content", "content TEXT"); // emisoras + historial sincronizados (JSON)
 
 export default db;

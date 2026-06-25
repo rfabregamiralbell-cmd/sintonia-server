@@ -3,7 +3,7 @@ import express from "express";
 import cors from "cors";
 import { authApple, authGoogle, authGoogleWeb, authDev, authGuest, requireAuth } from "./auth";
 import { commentary } from "./commentary";
-import { getUsage, setBudget, resetUsage } from "./me";
+import { getUsage, setBudget, resetUsage, syncSave, syncLoad } from "./me";
 import { publish, browse, getOne, remove } from "./stations";
 import { checkout, webhook, status, verifyApple, verifyGoogle } from "./billing";
 import { recognize } from "./recognize";
@@ -14,7 +14,7 @@ app.use(cors());
 // Stripe webhook: necesita el body crudo y va ANTES de express.json().
 app.post("/billing/webhook", express.raw({ type: "application/json" }), webhook);
 
-app.use(express.json({ limit: "2mb" }));
+app.use(express.json({ limit: "5mb" }));
 
 app.get("/health", (_req, res) => res.json({ ok: true }));
 
@@ -30,6 +30,8 @@ app.post("/commentary", requireAuth, commentary);
 app.get("/me/usage", requireAuth, getUsage);
 app.post("/me/budget", requireAuth, setBudget);
 app.post("/me/reset", requireAuth, resetUsage);
+app.post("/me/sync", requireAuth, syncSave); // guarda emisoras + historial del usuario
+app.get("/me/sync", requireAuth, syncLoad);  // recupera emisoras + historial del usuario
 
 // Emisoras en la nube
 app.post("/stations", requireAuth, publish);
