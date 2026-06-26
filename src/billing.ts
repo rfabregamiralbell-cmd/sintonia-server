@@ -70,7 +70,10 @@ export async function checkout(req: AuthedRequest, res: Response) {
 
 /** Webhook de Stripe. Necesita el body crudo (ver index.ts). */
 export async function webhook(req: Request, res: Response) {
-  if (!stripe || !STRIPE_WEBHOOK_SECRET) return res.status(500).end();
+  // Si Stripe aún no está configurado (faltan claves), respondemos 200 para que
+  // Stripe pueda VALIDAR la URL al crear el webhook. No hay nada que verificar
+  // todavía. En cuanto STRIPE_WEBHOOK_SECRET esté puesto, se verifica la firma.
+  if (!stripe || !STRIPE_WEBHOOK_SECRET) return res.status(200).json({ received: true, note: "stripe sin configurar" });
   let event: Stripe.Event;
   try {
     const sig = req.headers["stripe-signature"] as string;
