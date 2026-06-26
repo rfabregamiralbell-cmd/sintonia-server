@@ -3,6 +3,7 @@ import express from "express";
 import cors from "cors";
 import { authApple, authGoogle, authGoogleWeb, authDev, authGuest, requireAuth } from "./auth";
 import { commentary } from "./commentary";
+import { program } from "./program";
 import { getUsage, setBudget, resetUsage, syncSave, syncLoad } from "./me";
 import { publish, browse, getOne, remove } from "./stations";
 import { checkout, webhook, status, verifyApple, verifyGoogle } from "./billing";
@@ -26,7 +27,8 @@ app.post("/auth/guest", authGuest); // web sin login: sesión de invitado
 app.post("/auth/dev", authDev);
 
 // IA (requiere sesión)
-app.post("/commentary", requireAuth, commentary);
+app.post("/commentary", requireAuth, commentary); // 1 locutor (freemium)
+app.post("/program", requireAuth, program); // varios locutores (premium / BYOK)
 app.get("/me/usage", requireAuth, getUsage);
 app.post("/me/budget", requireAuth, setBudget);
 app.post("/me/reset", requireAuth, resetUsage);
