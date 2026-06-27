@@ -59,6 +59,7 @@ function buildPrompt(p: any): string {
   s += p.moment === "Presentación"
     ? `Presenta la próxima canción antes de que suene: ${p.track}${p.artist ? " de " + p.artist : ""}.\n`
     : `Comenta la canción que suena: ${p.track}${p.artist ? " de " + p.artist : ""}.\n`;
+  if (p.prevTrack) s += `Acabas de pinchar "${p.prevTrack}": haz una transición de DJ, cierra esa y enlaza con la nueva.\n`;
   s += `Dimensiones a analizar: ${dims}.\n`;
   if (themes) s += `Enfoque temático prioritario: ${themes}.\n`;
   s += `Estilo del locutor: ${p.tone}.\n`;
@@ -118,6 +119,7 @@ export async function commentary(req: AuthedRequest, res: Response) {
       catchphrase: b.catchphrase ?? "",
       avoidRepeat: !!b.avoidRepeat,
       moment: b.moment ?? "Comentario",
+      prevTrack: b.prevTrack ?? "",
       recent: Array.isArray(b.recent) ? b.recent : [],
     };
 
