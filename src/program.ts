@@ -2,6 +2,7 @@ import { Response } from "express";
 import db from "./db";
 import { AuthedRequest } from "./auth";
 import { isSubscribed, checkSubscribed } from "./billing";
+import { fetchT } from "./fetchT";
 
 // Programa = conversación entre VARIOS locutores (entrada, debate, cierre).
 // Es la función PREMIUM: el cliente envía {system, prompt} ya construidos
@@ -58,10 +59,12 @@ export async function program(req: AuthedRequest, res: Response) {
 
     // Multi-locutor es PREMIUM: sin BYOK y sin suscripción no se permite.
     if (!userKey) {
-      if (!(await checkSubscribed(userId, req.email))) return res.status(402).json({ error: "subscription" });
+      const subscribed = await checkSubscribed(userId, req.email);
+      if (!subscribed) return res.status(402).json({ error: "subscription" });
       if (dailyExceeded(userId)) return res.status(429).json({ error: "límite diario alcanzado" });
       if (rateLimited(userId)) return res.status(429).json({ error: "límite por hora alcanzado" });
-      if (u.budget > 0 && u.spend >= u.budget) return res.status(402).json({ error: "budget" });
+      // El presupuesto NO bloquea a suscriptores (aquí siempre lo son).
+      if (!subscribed && u.budget > 0 && u.spend >= u.budget) return res.status(402).json({ error: "budget" });
     }
 
     const b: any = req.body ?? {};
@@ -69,11 +72,11 @@ export async function program(req: AuthedRequest, res: Response) {
     const prompt = typeof b.prompt === "string" ? b.prompt : "";
     if (!prompt) return res.status(400).json({ error: "prompt requerido" });
 
-    const r = await fetch("https://api.anthropic.com/v1/messages", {
+    const r = await fetchT("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: { "x-api-key": key, "anthropic-version": "2023-06-01", "content-type": "application/json" },
       body: JSON.stringify({ model: MODEL, max_tokens: 1000, system, messages: [{ role: "user", content: prompt }] }),
-    });
+    }, 60000);
 
     if (!r.ok) return res.status(502).json({ error: "modelo " + r.status });
     const data: any = await r.json();

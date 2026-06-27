@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { SignJWT, jwtVerify, createRemoteJWKSet } from "jose";
 import { randomUUID } from "crypto";
 import db from "./db";
+import { fetchT } from "./fetchT";
 
 const IS_PROD = process.env.NODE_ENV === "production";
 const RAW_SECRET = process.env.JWT_SECRET || "";
@@ -92,11 +93,11 @@ export async function authGoogleWeb(req: Request, res: Response) {
       grant_type: "authorization_code",
     });
     if (codeVerifier) params.set("code_verifier", codeVerifier);
-    const r = await fetch("https://oauth2.googleapis.com/token", {
+    const r = await fetchT("https://oauth2.googleapis.com/token", {
       method: "POST",
       headers: { "content-type": "application/x-www-form-urlencoded" },
       body: params.toString(),
-    });
+    }, 15000);
     if (!r.ok) return res.status(401).json({ error: "intercambio con Google falló" });
     const data: any = await r.json();
     const idToken = data.id_token;

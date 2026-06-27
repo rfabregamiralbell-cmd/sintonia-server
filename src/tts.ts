@@ -1,6 +1,7 @@
 import { Response } from "express";
 import { AuthedRequest } from "./auth";
 import { checkSubscribed } from "./billing";
+import { fetchT } from "./fetchT";
 
 // Voces PREMIUM incluidas: usa la clave de ElevenLabs de la ORGANIZACIÓN (no del
 // usuario) y solo se permite a suscriptores. Así el usuario (un abuelo) no pone
@@ -30,13 +31,14 @@ export async function tts(req: AuthedRequest, res: Response) {
     if (!text) return res.status(400).json({ error: "text requerido" });
     const voiceId = (req.body?.voiceId || DEFAULT_VOICE).toString();
 
-    const r = await fetch(
+    const r = await fetchT(
       `https://api.elevenlabs.io/v1/text-to-speech/${encodeURIComponent(voiceId)}?output_format=mp3_44100_128`,
       {
         method: "POST",
         headers: { "xi-api-key": ELEVEN_KEY, "content-type": "application/json", accept: "audio/mpeg" },
         body: JSON.stringify({ text, model_id: MODEL, voice_settings: { stability: 0.5, similarity_boost: 0.75 } }),
-      }
+      },
+      60000
     );
     if (!r.ok) {
       let msg = `elevenlabs ${r.status}`;

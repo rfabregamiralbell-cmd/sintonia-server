@@ -2,6 +2,7 @@ import { Response } from "express";
 import db from "./db";
 import { AuthedRequest } from "./auth";
 import { isSubscribed, checkSubscribed } from "./billing";
+import { fetchT } from "./fetchT";
 
 const REQUIRE_SUB = (process.env.REQUIRE_SUBSCRIPTION ?? "1") !== "0";
 const FREE_TIER_CALLS = Number(process.env.FREE_TIER_CALLS ?? "10"); // comentarios gratis antes de pedir plan
@@ -91,10 +92,12 @@ export async function commentary(req: AuthedRequest, res: Response) {
 
     if (!userKey) {
       const onFreeTier = u.calls < FREE_TIER_CALLS;
-      if (REQUIRE_SUB && !onFreeTier && !(await checkSubscribed(userId, req.email))) return res.status(402).json({ error: "subscription" });
+      const subscribed = (REQUIRE_SUB && !onFreeTier) ? await checkSubscribed(userId, req.email) : isSubscribed(u);
+      if (REQUIRE_SUB && !onFreeTier && !subscribed) return res.status(402).json({ error: "subscription" });
       if (dailyExceeded(userId)) return res.status(429).json({ error: "límite diario alcanzado" });
       if (rateLimited(userId)) return res.status(429).json({ error: "límite por hora alcanzado" });
-      if (u.budget > 0 && u.spend >= u.budget) return res.status(402).json({ error: "budget" });
+      // El presupuesto NO aplica a suscriptores (pagan): solo protege coste de free-tier/BYOK-incluido.
+      if (!subscribed && u.budget > 0 && u.spend >= u.budget) return res.status(402).json({ error: "budget" });
     }
 
     const b: any = req.body ?? {};
@@ -122,11 +125,11 @@ export async function commentary(req: AuthedRequest, res: Response) {
     // análisis densos y largos (web/escritorio), acotado por presupuesto/cap diario.
     const maxTokens = Math.max(120, Math.min(1200, Math.round(p.duration * 4) + 60));
 
-    const r = await fetch("https://api.anthropic.com/v1/messages", {
+    const r = await fetchT("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: { "x-api-key": key, "anthropic-version": "2023-06-01", "content-type": "application/json" },
       body: JSON.stringify({ model: MODEL, max_tokens: maxTokens, system: DJ_SYSTEM, messages: [{ role: "user", content: buildPrompt(p) }] }),
-    });
+    }, 60000);
 
     if (!r.ok) return res.status(502).json({ error: "modelo " + r.status });
     const data: any = await r.json();

@@ -1,5 +1,6 @@
 import { Response } from "express";
 import { AuthedRequest } from "./auth";
+import { fetchT } from "./fetchT";
 
 const AUDD_TOKEN = process.env.AUDD_TOKEN || "";
 const RL_MAX = Number(process.env.RECOGNIZE_LIMIT_HOUR ?? "60");
@@ -38,7 +39,7 @@ export async function recognize(req: AuthedRequest, res: Response) {
     form.append("api_token", AUDD_TOKEN);
     form.append("file", new Blob([bytes]), "clip.m4a");
 
-    const r = await fetch("https://api.audd.io/", { method: "POST", body: form as any });
+    const r = await fetchT("https://api.audd.io/", { method: "POST", body: form as any }, 20000);
     const data: any = await r.json();
     if (data.status !== "success" || !data.result) {
       return res.status(404).json({ error: "sin coincidencia" });

@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import db from "./db";
 import { AuthedRequest } from "./auth";
+import { fetchT } from "./fetchT";
 
 // ---------------------------------------------------------------------------
 // Estado de suscripción
@@ -15,6 +16,13 @@ function setSub(userId: string, provider: string, until: number) {
   db.prepare(
     "UPDATE users SET subscribed = 1, sub_provider = ?, sub_until = ? WHERE id = ?"
   ).run(provider, until, userId);
+}
+
+// Fin del período de una suscripción Stripe en ms. En la API nueva
+// `current_period_end` se movió a items.data[]; leemos ambos sitios.
+function subUntilMs(sub: any): number {
+  const cpe = sub?.current_period_end ?? sub?.items?.data?.[0]?.current_period_end ?? 0;
+  return cpe ? cpe * 1000 : 0;
 }
 function clearSub(userId: string) {
   db.prepare("UPDATE users SET subscribed = 0 WHERE id = ?").run(userId);
@@ -83,17 +91,34 @@ export async function webhook(req: Request, res: Response) {
     return res.status(400).send("firma inválida");
   }
 
+  // Idempotencia: si ya procesamos este evento, no repetir (Stripe reenvía).
+  try {
+    const seen = db.prepare("SELECT 1 FROM stripe_events WHERE id = ?").get(event.id);
+    if (seen) return res.json({ received: true, duplicate: true });
+    db.prepare("INSERT OR IGNORE INTO stripe_events (id, ts) VALUES (?, ?)").run(event.id, Date.now());
+  } catch { /* si la tabla falla, seguimos: reconcile es idempotente de facto */ }
+
   try {
     if (
       event.type === "customer.subscription.created" ||
       event.type === "customer.subscription.updated" ||
-      event.type === "customer.subscription.deleted"
+      event.type === "customer.subscription.deleted" ||
+      event.type === "customer.subscription.paused" ||
+      event.type === "customer.subscription.resumed"
     ) {
       const sub = event.data.object as Stripe.Subscription;
       const userId = (sub.metadata?.userId as string) || (await userIdFromCustomer(sub.customer as string));
       // Recalcula mirando TODAS las suscripciones del cliente: una suscripción
       // incompleta o cancelada NO debe borrar el estado si hay otra activa.
       await reconcileSubscription(userId, sub.customer as string);
+    } else if (
+      event.type === "invoice.payment_failed" ||
+      event.type === "invoice.paid"
+    ) {
+      // Impago/pago: reconciliar por cliente (un impago acaba quitando el premium).
+      const inv = event.data.object as Stripe.Invoice;
+      const customer = inv.customer as string;
+      await reconcileSubscription(await userIdFromCustomer(customer), customer);
     }
   } catch {
     /* no romper el webhook: Stripe reintenta */
@@ -117,7 +142,7 @@ async function reconcileSubscription(userId: string | null, customerId: string |
     const trial = await stripe.subscriptions.list({ customer: customerId, status: "trialing", limit: 1 });
     sub = trial.data[0];
   }
-  if (sub) setSub(userId, "stripe", ((sub as any).current_period_end ?? 0) * 1000);
+  if (sub) setSub(userId, "stripe", subUntilMs(sub));
   else clearSub(userId);
 }
 
@@ -142,7 +167,7 @@ export async function checkSubscribed(userId: string, email?: string | null): Pr
       }
       if (sub) {
         db.prepare("UPDATE users SET subscribed = 1, sub_provider = 'stripe', sub_until = ?, stripe_customer = ? WHERE id = ?")
-          .run(((sub as any).current_period_end ?? 0) * 1000, c.id, userId);
+          .run(subUntilMs(sub), c.id, userId);
         subNegCache.delete(userId);
         return true;
       }
@@ -184,7 +209,7 @@ export async function verifyApple(req: AuthedRequest, res: Response) {
   }
 }
 async function appleVerify(url: string, body: string): Promise<any> {
-  const r = await fetch(url, { method: "POST", headers: { "content-type": "application/json" }, body });
+  const r = await fetchT(url, { method: "POST", headers: { "content-type": "application/json" }, body }, 15000);
   return r.json();
 }
 
@@ -206,7 +231,7 @@ export async function verifyGoogle(req: AuthedRequest, res: Response) {
       `https://androidpublisher.googleapis.com/androidpublisher/v3/applications/` +
       `${encodeURIComponent(GOOGLE_PACKAGE_NAME)}/purchases/subscriptions/` +
       `${encodeURIComponent(productId)}/tokens/${encodeURIComponent(purchaseToken)}`;
-    const r = await fetch(url, { headers: { authorization: `Bearer ${token}` } });
+    const r = await fetchT(url, { headers: { authorization: `Bearer ${token}` } }, 15000);
     if (!r.ok) return res.status(402).json({ error: "token inválido", status: r.status });
     const data: any = await r.json();
     const until = Number(data.expiryTimeMillis || 0);

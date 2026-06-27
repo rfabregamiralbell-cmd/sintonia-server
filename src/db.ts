@@ -32,6 +32,12 @@ CREATE TABLE IF NOT EXISTS stations (
 
 CREATE INDEX IF NOT EXISTS idx_stations_public ON stations(is_public, created_at);
 CREATE INDEX IF NOT EXISTS idx_stations_owner ON stations(owner_id);
+
+-- Eventos de Stripe ya procesados (idempotencia del webhook).
+CREATE TABLE IF NOT EXISTS stripe_events (
+  id TEXT PRIMARY KEY,
+  ts INTEGER NOT NULL
+);
 `);
 
 // Migración segura: añade columnas de suscripción si no existen.
