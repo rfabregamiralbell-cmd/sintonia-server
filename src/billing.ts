@@ -63,8 +63,8 @@ export async function checkout(req: AuthedRequest, res: Response) {
       cancel_url: `${APP_BASE_URL}/billing/cancel`,
     });
     res.json({ url: session.url });
-  } catch {
-    res.status(500).json({ error: "checkout" });
+  } catch (e: any) {
+    res.status(500).json({ error: "checkout", detail: String(e?.message || e) });
   }
 }
 
