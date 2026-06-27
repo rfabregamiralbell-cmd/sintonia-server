@@ -8,6 +8,7 @@ import { getUsage, setBudget, resetUsage, syncSave, syncLoad } from "./me";
 import { publish, browse, getOne, remove } from "./stations";
 import { checkout, webhook, status, verifyApple, verifyGoogle } from "./billing";
 import { recognize } from "./recognize";
+import { tts } from "./tts";
 
 const app = express();
 app.use(cors());
@@ -29,6 +30,7 @@ app.post("/auth/dev", authDev);
 // IA (requiere sesión)
 app.post("/commentary", requireAuth, commentary); // 1 locutor (freemium)
 app.post("/program", requireAuth, program); // varios locutores (premium / BYOK)
+app.post("/tts", requireAuth, tts); // voces premium ElevenLabs incluidas (solo suscriptores)
 app.get("/me/usage", requireAuth, getUsage);
 app.post("/me/budget", requireAuth, setBudget);
 app.post("/me/reset", requireAuth, resetUsage);
