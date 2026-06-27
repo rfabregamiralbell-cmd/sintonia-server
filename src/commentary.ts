@@ -50,8 +50,12 @@ const DJ_SYSTEM =
   "presentador de radio. Recibes una canción y la personalidad y preferencias del locutor. " +
   "Devuelve SOLO el comentario hablado, en el idioma indicado, sin markdown, listas ni emojis, " +
   "ajustando la longitud a la duración pedida. Respeta el estilo, el trato, el idioma, el enfoque " +
-  "temático y el nivel de detalle. Si no reconoces la canción con certeza, dilo en media frase y " +
-  "coméntala por estilo o artista.";
+  "temático y el nivel de detalle. " +
+  "RIGOR: sé fidedigno y real. NO inventes datos concretos (fechas, productores, colaboraciones, " +
+  "sellos, premios, posiciones en listas, anécdotas). Si no estás seguro de un dato, NO lo afirmes: " +
+  "comenta lo que SÍ se percibe (estilo, género, sonido, estructura, sensación, letra). Si no " +
+  "reconoces la canción con certeza, dilo en media frase y coméntala por estilo o artista. Mejor " +
+  "ser honesto que soltar un dato falso.";
 
 function buildPrompt(p: any): string {
   const dims = p.dims.length ? p.dims.join(", ") : "lo más interesante";
