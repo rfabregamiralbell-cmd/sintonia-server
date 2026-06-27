@@ -20,10 +20,11 @@ function clearSub(userId: string) {
   db.prepare("UPDATE users SET subscribed = 0 WHERE id = ?").run(userId);
 }
 
-export function status(req: AuthedRequest, res: Response) {
-  const u: any = db.prepare("SELECT subscribed, sub_provider, sub_until FROM users WHERE id = ?").get(req.userId!);
+export async function status(req: AuthedRequest, res: Response) {
+  const subscribed = await checkSubscribed(req.userId!, req.email);
+  const u: any = db.prepare("SELECT sub_provider, sub_until FROM users WHERE id = ?").get(req.userId!);
   res.json({
-    subscribed: isSubscribed(u),
+    subscribed,
     provider: u?.sub_provider ?? null,
     until: u?.sub_until ?? 0,
   });
@@ -118,6 +119,37 @@ async function reconcileSubscription(userId: string | null, customerId: string |
   }
   if (sub) setSub(userId, "stripe", ((sub as any).current_period_end ?? 0) * 1000);
   else clearSub(userId);
+}
+
+// Auto-reconciliación: ¿el usuario está suscrito? Mira la BD; si no consta (p. ej.
+// la BD efímera de Render se borró en un deploy) y tenemos su email, pregunta a
+// Stripe por un cliente con suscripción activa y RESTAURA el estado en la BD.
+// Así el Premium de una cuenta real sobrevive aunque se pierda la BD.
+const subNegCache = new Map<string, number>(); // userId -> ts del último "no" (evita martillear Stripe)
+export async function checkSubscribed(userId: string, email?: string | null): Promise<boolean> {
+  const u: any = db.prepare("SELECT subscribed, sub_until, stripe_customer FROM users WHERE id = ?").get(userId);
+  if (isSubscribed(u)) return true;
+  if (!stripe || !email) return false;
+  if (Date.now() - (subNegCache.get(userId) || 0) < 60_000) return false; // no consultar Stripe más de 1/min
+  try {
+    const customers = await stripe.customers.list({ email, limit: 5 });
+    for (const c of customers.data) {
+      const active = await stripe.subscriptions.list({ customer: c.id, status: "active", limit: 1 });
+      let sub = active.data[0];
+      if (!sub) {
+        const trial = await stripe.subscriptions.list({ customer: c.id, status: "trialing", limit: 1 });
+        sub = trial.data[0];
+      }
+      if (sub) {
+        db.prepare("UPDATE users SET subscribed = 1, sub_provider = 'stripe', sub_until = ?, stripe_customer = ? WHERE id = ?")
+          .run(((sub as any).current_period_end ?? 0) * 1000, c.id, userId);
+        subNegCache.delete(userId);
+        return true;
+      }
+    }
+  } catch { /* si Stripe falla, no concedemos premium por las bravas */ }
+  subNegCache.set(userId, Date.now());
+  return false;
 }
 
 // ---------------------------------------------------------------------------

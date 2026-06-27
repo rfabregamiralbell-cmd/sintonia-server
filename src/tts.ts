@@ -1,7 +1,6 @@
 import { Response } from "express";
-import db from "./db";
 import { AuthedRequest } from "./auth";
-import { isSubscribed } from "./billing";
+import { checkSubscribed } from "./billing";
 
 // Voces PREMIUM incluidas: usa la clave de ElevenLabs de la ORGANIZACIÓN (no del
 // usuario) y solo se permite a suscriptores. Así el usuario (un abuelo) no pone
@@ -24,8 +23,7 @@ export async function tts(req: AuthedRequest, res: Response) {
   try {
     if (!ELEVEN_KEY) return res.status(500).json({ error: "voces premium no configuradas (falta ELEVENLABS_KEY)" });
 
-    const u: any = db.prepare("SELECT subscribed, sub_until FROM users WHERE id = ?").get(req.userId!);
-    if (!u || !isSubscribed(u)) return res.status(402).json({ error: "subscription" }); // voces premium = solo suscriptores
+    if (!(await checkSubscribed(req.userId!, req.email))) return res.status(402).json({ error: "subscription" }); // voces premium = solo suscriptores
     if (rateLimited(req.userId!)) return res.status(429).json({ error: "límite por hora alcanzado" });
 
     const text = (req.body?.text || "").toString().slice(0, 1500);

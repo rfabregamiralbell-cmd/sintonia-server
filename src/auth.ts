@@ -18,6 +18,7 @@ const googleJWKS = createRemoteJWKSet(new URL("https://www.googleapis.com/oauth2
 
 export interface AuthedRequest extends Request {
   userId?: string;
+  email?: string;
 }
 
 function upsertUser(id: string, email: string, provider: string) {
@@ -141,6 +142,7 @@ export async function requireAuth(req: AuthedRequest, res: Response, next: NextF
     if (!t) return res.status(401).json({ error: "no autenticado" });
     const { payload } = await jwtVerify(t, secret);
     req.userId = payload.sub as string;
+    req.email = (payload.email as string) || "";
     next();
   } catch {
     res.status(401).json({ error: "sesión inválida o caducada" });

@@ -1,7 +1,7 @@
 import { Response } from "express";
 import db from "./db";
 import { AuthedRequest } from "./auth";
-import { isSubscribed } from "./billing";
+import { isSubscribed, checkSubscribed } from "./billing";
 
 // Programa = conversación entre VARIOS locutores (entrada, debate, cierre).
 // Es la función PREMIUM: el cliente envía {system, prompt} ya construidos
@@ -58,7 +58,7 @@ export async function program(req: AuthedRequest, res: Response) {
 
     // Multi-locutor es PREMIUM: sin BYOK y sin suscripción no se permite.
     if (!userKey) {
-      if (!isSubscribed(u)) return res.status(402).json({ error: "subscription" });
+      if (!(await checkSubscribed(userId, req.email))) return res.status(402).json({ error: "subscription" });
       if (dailyExceeded(userId)) return res.status(429).json({ error: "límite diario alcanzado" });
       if (rateLimited(userId)) return res.status(429).json({ error: "límite por hora alcanzado" });
       if (u.budget > 0 && u.spend >= u.budget) return res.status(402).json({ error: "budget" });

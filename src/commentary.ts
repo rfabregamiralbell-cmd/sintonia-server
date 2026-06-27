@@ -1,7 +1,7 @@
 import { Response } from "express";
 import db from "./db";
 import { AuthedRequest } from "./auth";
-import { isSubscribed } from "./billing";
+import { isSubscribed, checkSubscribed } from "./billing";
 
 const REQUIRE_SUB = (process.env.REQUIRE_SUBSCRIPTION ?? "1") !== "0";
 const FREE_TIER_CALLS = Number(process.env.FREE_TIER_CALLS ?? "10"); // comentarios gratis antes de pedir plan
@@ -91,7 +91,7 @@ export async function commentary(req: AuthedRequest, res: Response) {
 
     if (!userKey) {
       const onFreeTier = u.calls < FREE_TIER_CALLS;
-      if (REQUIRE_SUB && !isSubscribed(u) && !onFreeTier) return res.status(402).json({ error: "subscription" });
+      if (REQUIRE_SUB && !onFreeTier && !(await checkSubscribed(userId, req.email))) return res.status(402).json({ error: "subscription" });
       if (dailyExceeded(userId)) return res.status(429).json({ error: "límite diario alcanzado" });
       if (rateLimited(userId)) return res.status(429).json({ error: "límite por hora alcanzado" });
       if (u.budget > 0 && u.spend >= u.budget) return res.status(402).json({ error: "budget" });
