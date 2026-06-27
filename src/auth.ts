@@ -143,6 +143,9 @@ export async function requireAuth(req: AuthedRequest, res: Response, next: NextF
     const { payload } = await jwtVerify(t, secret);
     req.userId = payload.sub as string;
     req.email = (payload.email as string) || "";
+    // Auto-cura la fila de usuario (la BD de Render es efímera y puede borrarse):
+    // si el token es válido pero no hay fila, la recreamos.
+    upsertUser(req.userId, req.email, (req.userId.split(":")[0] || "session"));
     next();
   } catch {
     res.status(401).json({ error: "sesión inválida o caducada" });
