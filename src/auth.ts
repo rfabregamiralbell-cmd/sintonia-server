@@ -67,6 +67,7 @@ export async function authGoogle(req: Request, res: Response) {
       issuer: ["https://accounts.google.com", "accounts.google.com"],
       audience: GOOGLE_CLIENT_ID,
     });
+    if (payload.email_verified !== true) return res.status(401).json({ error: "email de Google no verificado" });
     const id = `google:${payload.sub}`;
     const email = (payload.email as string) || "";
     upsertUser(id, email, "google");
@@ -106,6 +107,7 @@ export async function authGoogleWeb(req: Request, res: Response) {
       issuer: ["https://accounts.google.com", "accounts.google.com"],
       audience: GOOGLE_CLIENT_ID,
     });
+    if (payload.email_verified !== true) return res.status(401).json({ error: "email de Google no verificado" });
     const id = `google:${payload.sub}`;
     const email = (payload.email as string) || "";
     upsertUser(id, email, "google");

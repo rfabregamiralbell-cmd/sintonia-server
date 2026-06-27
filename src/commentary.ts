@@ -97,9 +97,12 @@ export async function commentary(req: AuthedRequest, res: Response) {
     if (!u) return res.status(401).json({ error: "usuario no encontrado" });
 
     if (!userKey) {
-      const onFreeTier = u.calls < FREE_TIER_CALLS;
+      // El free-tier es SOLO para cuentas reales (Google/Apple), no para invitados:
+      // así un atacante no puede crear miles de invitados para IA gratis infinita.
+      const isGuest = userId.startsWith("guest:");
+      const onFreeTier = !isGuest && u.calls < FREE_TIER_CALLS;
       const subscribed = (REQUIRE_SUB && !onFreeTier) ? await checkSubscribed(userId, req.email) : isSubscribed(u);
-      if (REQUIRE_SUB && !onFreeTier && !subscribed) return res.status(402).json({ error: "subscription" });
+      if (REQUIRE_SUB && !onFreeTier && !subscribed) return res.status(402).json({ error: isGuest ? "login" : "subscription" });
       if (dailyExceeded(userId)) return res.status(429).json({ error: "límite diario alcanzado" });
       if (rateLimited(userId)) return res.status(429).json({ error: "límite por hora alcanzado" });
       if (globalCapHit()) return res.status(503).json({ error: "servicio saturado, prueba más tarde" }); // tope de gasto global

@@ -61,7 +61,7 @@ export async function program(req: AuthedRequest, res: Response) {
     // Multi-locutor es PREMIUM: sin BYOK y sin suscripción no se permite.
     if (!userKey) {
       const subscribed = await checkSubscribed(userId, req.email);
-      if (!subscribed) return res.status(402).json({ error: "subscription" });
+      if (!subscribed) return res.status(402).json({ error: userId.startsWith("guest:") ? "login" : "subscription" });
       if (dailyExceeded(userId)) return res.status(429).json({ error: "límite diario alcanzado" });
       if (rateLimited(userId)) return res.status(429).json({ error: "límite por hora alcanzado" });
       if (globalCapHit()) return res.status(503).json({ error: "servicio saturado, prueba más tarde" }); // tope de gasto global
