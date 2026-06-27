@@ -64,5 +64,24 @@ app.post("/billing/google", requireAuth, verifyGoogle); // Google Play token
 // Reconocimiento ambiente (audio en base64 -> AudD)
 app.post("/recognize", ipLimit(60), requireAuth, recognize);
 
+// Validación de configuración al arrancar: avisa (no rompe) de claves que faltan,
+// para diagnosticar en los logs de Render por qué algo no funciona en producción.
+function checkEnv() {
+  const want: Record<string, string> = {
+    ANTHROPIC_KEY: "IA incluida (/commentary, /program)",
+    DB_PATH: "BD persistente (sin esto, se pierde todo en cada deploy)",
+    STRIPE_SECRET: "cobro Stripe", STRIPE_PRICE_ID: "precio Stripe", STRIPE_WEBHOOK_SECRET: "verificación del webhook Stripe",
+    ELEVENLABS_KEY: "voces premium (/tts)", AUDD_TOKEN: "reconocimiento (/recognize)",
+    GOOGLE_CLIENT_ID: "login Google",
+  };
+  const missing = Object.entries(want).filter(([k]) => !process.env[k]).map(([k, v]) => `  - ${k}: ${v}`);
+  if (missing.length) console.warn("[config] faltan variables de entorno:\n" + missing.join("\n"));
+  if (process.env.NODE_ENV === "production" && process.env.ALLOW_DEV_AUTH === "1") {
+    console.warn("[config] ⚠️ ALLOW_DEV_AUTH=1 EN PRODUCCIÓN: bypass de autenticación, ponlo a 0.");
+  }
+  const cap = Number(process.env.GLOBAL_DAILY_CAP ?? "0");
+  console.log(cap > 0 ? `[config] tope de gasto global: ${cap}/día` : "[config] sin tope de gasto global (GLOBAL_DAILY_CAP=0)");
+}
+
 const PORT = Number(process.env.PORT ?? "8787");
-app.listen(PORT, () => console.log("SINTONÍA server en http://localhost:" + PORT));
+app.listen(PORT, () => { checkEnv(); console.log("SINTONÍA server en http://localhost:" + PORT); });

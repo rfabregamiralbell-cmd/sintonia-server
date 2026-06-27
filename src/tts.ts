@@ -48,7 +48,8 @@ export async function tts(req: AuthedRequest, res: Response) {
     const buf = Buffer.from(await r.arrayBuffer());
     res.setHeader("content-type", "audio/mpeg");
     res.send(buf);
-  } catch {
+  } catch (e) {
+    console.error("tts:", e);
     res.status(500).json({ error: "interno" });
   }
 }

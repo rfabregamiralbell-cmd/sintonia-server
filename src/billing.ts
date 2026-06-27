@@ -120,8 +120,8 @@ export async function webhook(req: Request, res: Response) {
       const customer = inv.customer as string;
       await reconcileSubscription(await userIdFromCustomer(customer), customer);
     }
-  } catch {
-    /* no romper el webhook: Stripe reintenta */
+  } catch (e) {
+    console.error("webhook reconcile:", e);   // no romper el webhook: Stripe reintenta
   }
   res.json({ received: true });
 }

@@ -3,6 +3,7 @@ import db from "./db";
 import { AuthedRequest } from "./auth";
 import { isSubscribed, checkSubscribed } from "./billing";
 import { fetchT } from "./fetchT";
+import { globalCapHit, addGlobalSpend } from "./globalbudget";
 
 // Programa = conversación entre VARIOS locutores (entrada, debate, cierre).
 // Es la función PREMIUM: el cliente envía {system, prompt} ya construidos
@@ -63,6 +64,7 @@ export async function program(req: AuthedRequest, res: Response) {
       if (!subscribed) return res.status(402).json({ error: "subscription" });
       if (dailyExceeded(userId)) return res.status(429).json({ error: "límite diario alcanzado" });
       if (rateLimited(userId)) return res.status(429).json({ error: "límite por hora alcanzado" });
+      if (globalCapHit()) return res.status(503).json({ error: "servicio saturado, prueba más tarde" }); // tope de gasto global
       // El presupuesto NO bloquea a suscriptores (aquí siempre lo son).
       if (!subscribed && u.budget > 0 && u.spend >= u.budget) return res.status(402).json({ error: "budget" });
     }
@@ -90,6 +92,7 @@ export async function program(req: AuthedRequest, res: Response) {
       db.prepare(
         "UPDATE users SET spend = spend + ?, calls = calls + 1, input_tokens = input_tokens + ?, output_tokens = output_tokens + ? WHERE id = ?"
       ).run(charged, usage.input_tokens, usage.output_tokens, userId);
+      addGlobalSpend(charged); // acumula al tope de gasto global del día
     }
 
     const after: any = db.prepare("SELECT spend, budget, calls, subscribed, sub_until FROM users WHERE id = ?").get(userId);
@@ -103,7 +106,8 @@ export async function program(req: AuthedRequest, res: Response) {
       freeRemaining: Math.max(0, FREE_TIER_CALLS - (after.calls ?? 0)),
       subscribed: isSubscribed(after),
     });
-  } catch {
+  } catch (e) {
+    console.error("program:", e);
     res.status(500).json({ error: "interno" });
   }
 }

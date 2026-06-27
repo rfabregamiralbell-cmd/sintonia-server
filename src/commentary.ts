@@ -3,6 +3,7 @@ import db from "./db";
 import { AuthedRequest } from "./auth";
 import { isSubscribed, checkSubscribed } from "./billing";
 import { fetchT } from "./fetchT";
+import { globalCapHit, addGlobalSpend } from "./globalbudget";
 
 const REQUIRE_SUB = (process.env.REQUIRE_SUBSCRIPTION ?? "1") !== "0";
 const FREE_TIER_CALLS = Number(process.env.FREE_TIER_CALLS ?? "10"); // comentarios gratis antes de pedir plan
@@ -97,6 +98,7 @@ export async function commentary(req: AuthedRequest, res: Response) {
       if (REQUIRE_SUB && !onFreeTier && !subscribed) return res.status(402).json({ error: "subscription" });
       if (dailyExceeded(userId)) return res.status(429).json({ error: "límite diario alcanzado" });
       if (rateLimited(userId)) return res.status(429).json({ error: "límite por hora alcanzado" });
+      if (globalCapHit()) return res.status(503).json({ error: "servicio saturado, prueba más tarde" }); // tope de gasto global
       // El presupuesto NO aplica a suscriptores (pagan): solo protege coste de free-tier/BYOK-incluido.
       if (!subscribed && u.budget > 0 && u.spend >= u.budget) return res.status(402).json({ error: "budget" });
     }
@@ -145,6 +147,7 @@ export async function commentary(req: AuthedRequest, res: Response) {
       db.prepare(
         "UPDATE users SET spend = spend + ?, calls = calls + 1, input_tokens = input_tokens + ?, output_tokens = output_tokens + ? WHERE id = ?"
       ).run(charged, usage.input_tokens, usage.output_tokens, userId);
+      addGlobalSpend(charged); // acumula al tope de gasto global del día
     }
 
     const after: any = db.prepare("SELECT spend, budget, calls, subscribed, sub_until FROM users WHERE id = ?").get(userId);
@@ -159,7 +162,8 @@ export async function commentary(req: AuthedRequest, res: Response) {
       freeRemaining,
       subscribed: isSubscribed(after),
     });
-  } catch {
+  } catch (e) {
+    console.error("commentary:", e);
     res.status(500).json({ error: "interno" });
   }
 }
