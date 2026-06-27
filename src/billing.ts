@@ -83,18 +83,16 @@ export async function webhook(req: Request, res: Response) {
   }
 
   try {
-    if (event.type === "customer.subscription.updated" || event.type === "customer.subscription.created") {
+    if (
+      event.type === "customer.subscription.created" ||
+      event.type === "customer.subscription.updated" ||
+      event.type === "customer.subscription.deleted"
+    ) {
       const sub = event.data.object as Stripe.Subscription;
       const userId = (sub.metadata?.userId as string) || (await userIdFromCustomer(sub.customer as string));
-      if (userId) {
-        const active = sub.status === "active" || sub.status === "trialing";
-        if (active) setSub(userId, "stripe", (sub.current_period_end ?? 0) * 1000);
-        else clearSub(userId);
-      }
-    } else if (event.type === "customer.subscription.deleted") {
-      const sub = event.data.object as Stripe.Subscription;
-      const userId = (sub.metadata?.userId as string) || (await userIdFromCustomer(sub.customer as string));
-      if (userId) clearSub(userId);
+      // Recalcula mirando TODAS las suscripciones del cliente: una suscripción
+      // incompleta o cancelada NO debe borrar el estado si hay otra activa.
+      await reconcileSubscription(userId, sub.customer as string);
     }
   } catch {
     /* no romper el webhook: Stripe reintenta */
@@ -105,6 +103,21 @@ export async function webhook(req: Request, res: Response) {
 async function userIdFromCustomer(customerId: string): Promise<string | null> {
   const u: any = db.prepare("SELECT id FROM users WHERE stripe_customer = ?").get(customerId);
   return u?.id ?? null;
+}
+
+// Recalcula el estado del usuario preguntando a Stripe si el cliente tiene
+// ALGUNA suscripción activa o en prueba (robusto a múltiples suscripciones:
+// una incompleta/cancelada no pisa a la activa).
+async function reconcileSubscription(userId: string | null, customerId: string | null) {
+  if (!userId || !customerId) return;
+  const active = await stripe.subscriptions.list({ customer: customerId, status: "active", limit: 1 });
+  let sub = active.data[0];
+  if (!sub) {
+    const trial = await stripe.subscriptions.list({ customer: customerId, status: "trialing", limit: 1 });
+    sub = trial.data[0];
+  }
+  if (sub) setSub(userId, "stripe", ((sub as any).current_period_end ?? 0) * 1000);
+  else clearSub(userId);
 }
 
 // ---------------------------------------------------------------------------
