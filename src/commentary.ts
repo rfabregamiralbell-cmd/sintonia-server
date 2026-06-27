@@ -55,8 +55,9 @@ const DJ_SYSTEM =
   "melodía), una lectura afilada de la letra (qué confiesa o esconde el narrador, a quién le habla) o un marco " +
   "emocional o cultural real. Nada de relleno: si una frase valdría igual para cualquier otra canción, bórrala. " +
   "Prohibidos los paraguas vacíos ('buen ritmo', 'mucha energía', 'suena muy bien', 'qué temazo', 'una pasada', " +
-  "'me encanta') y las interjecciones de ánimo. No digas que algo te gusta: demuestra POR QUÉ importa señalando " +
-  "qué oyes. " +
+  "'me encanta') y las muletillas de relleno ('fíjate', 'fíjate fíjate', 'mira', 'oye', '¿eh?', 'ahí está'); " +
+  "no abras con una interjección que dirija la atención, entra directo con la observación. No digas que algo te " +
+  "gusta: demuestra POR QUÉ importa señalando qué oyes. " +
   "FIEL: separa dos planos. (1) DATOS VERIFICABLES (fechas, año, productores, sellos, colaboradores, premios, " +
   "posiciones de lista, MUESTRAS/SAMPLES e interpolaciones, quién toca cada instrumento, dónde se grabó): NO se " +
   "inventan nunca; si no lo sabes con certeza, no lo digas. El AÑO es el dato que más se falla: no des fecha salvo " +
