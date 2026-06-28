@@ -22,7 +22,9 @@ function setSub(userId: string, provider: string, until: number) {
 // `current_period_end` se movió a items.data[]; leemos ambos sitios.
 function subUntilMs(sub: any): number {
   const cpe = sub?.current_period_end ?? sub?.items?.data?.[0]?.current_period_end ?? 0;
-  return cpe ? cpe * 1000 : 0;
+  // Si Stripe no trae el fin de período, NO conceder premium perpetuo: caducidad conservadora
+  // (~32 días). El reconcile periódico (checkSubscribed) la renueva si la suscripción sigue activa.
+  return cpe ? cpe * 1000 : (Date.now() + 32 * 24 * 60 * 60 * 1000);
 }
 function clearSub(userId: string) {
   db.prepare("UPDATE users SET subscribed = 0 WHERE id = ?").run(userId);

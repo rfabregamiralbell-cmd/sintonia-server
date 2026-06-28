@@ -40,7 +40,10 @@ export async function recognize(req: AuthedRequest, res: Response) {
     form.append("file", new Blob([bytes]), "clip.m4a");
 
     const r = await fetchT("https://api.audd.io/", { method: "POST", body: form as any }, 20000);
+    if (!r.ok) return res.status(502).json({ error: `reconocimiento no disponible (AudD HTTP ${r.status})` });
     const data: any = await r.json();
+    // status "error" (cuota/credenciales de AudD) NO es "sin coincidencia": es un fallo del servicio.
+    if (data.status === "error") return res.status(502).json({ error: "reconocimiento no disponible: " + (data?.error?.error_message || "error de AudD") });
     if (data.status !== "success" || !data.result) {
       return res.status(404).json({ error: "sin coincidencia" });
     }
