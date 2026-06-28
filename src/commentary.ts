@@ -67,6 +67,16 @@ const DJ_SYSTEM =
   "suena, elige SIEMPRE describir lo que suena. Si no reconoces la canción, no pasa nada: coméntala por lo que oyes.";
 
 function buildPrompt(p: any): string {
+  // Modo ANUNCIO: no suena música, hay un corte publicitario; reacciona al corte.
+  if (p.moment === "Anuncio") {
+    let s = `Soy tu oyente. Escucho en ${p.platform}. Ahora mismo NO suena música: ha entrado un ANUNCIO / corte publicitario. Reacciona al corte EN DIRECTO con naturalidad y un punto de humor cómplice (NO sabes qué anuncian ni lo promociones): un respiro mientras vuelve la música. Breve y con vida.\n`;
+    s += `Estilo del locutor: ${p.tone}.\n`;
+    if (p.djName) s += `Te llamas ${p.djName}.\n`;
+    s += `Trata al oyente de "${p.treatment}".\n`;
+    if (p.catchphrase) s += `Si encaja, abre con tu muletilla: "${p.catchphrase}".\n`;
+    s += `Idioma de salida: ${p.outLang}. Frase hablada (sin markdown ni emojis). Apunta a unos ${p.duration} segundos.`;
+    return s;
+  }
   const dims = p.dims.length ? p.dims.join(", ") : "lo más interesante";
   const themes = p.themes && p.themes.length ? p.themes.join(", ") : "";
   let s = `Soy tu oyente. Escucho en ${p.platform}. `;
