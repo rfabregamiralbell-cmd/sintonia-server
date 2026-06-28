@@ -37,6 +37,11 @@ app.get("/health", (_req, res) => res.json({ ok: true }));
 // cualquier otra ruta pasa de largo a los handlers de la API de abajo.
 app.use(express.static(path.join(__dirname, "..", "public")));
 
+// Páginas de retorno de Stripe Checkout (billing.ts usa /billing/ok y /billing/cancel).
+const PUBLIC = path.join(__dirname, "..", "public");
+app.get("/billing/ok", (_req, res) => res.sendFile(path.join(PUBLIC, "success.html")));
+app.get("/billing/cancel", (_req, res) => res.sendFile(path.join(PUBLIC, "cancel.html")));
+
 // Autenticación (el móvil manda el idToken nativo; dev = solo pruebas)
 app.post("/auth/apple", authApple);
 app.post("/auth/google", authGoogle);
