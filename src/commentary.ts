@@ -85,6 +85,8 @@ function buildPrompt(p: any): string {
     : `Comenta la canción que suena: ${p.track}${p.artist ? " de " + p.artist : ""}.\n`;
   if (p.prevTrack) s += `Acabas de pinchar "${p.prevTrack}": haz una transición de DJ, cierra esa y enlaza con la nueva.\n`;
   if (p.liveCtx) s += `${p.liveCtx} Hablas EN DIRECTO, reaccionando a lo que suena en este instante (no como un guion).\n`;
+  if (p.recentSaid && p.recentSaid.length) s += `YA HAS DICHO ESTO en comentarios anteriores de la sesión — NO lo repitas (ni ideas, ni frases, ni la misma apertura ni estructura): busca un ángulo y unas palabras NUEVAS. Ya dicho: ${p.recentSaid.map((x: string) => `"${String(x).slice(0, 160)}"`).join(" / ")}.\n`;
+  s += `Varía el RITMO: mezcla alguna frase corta con una reflexión más personal o una duda; no encadenes sentencias densas e iguales. Suena a alguien pensando en voz alta EN DIRECTO, no a un informe leído.\n`;
   s += `Dimensiones a analizar: ${dims}.\n`;
   if (themes) s += `Enfoque temático prioritario: ${themes}.\n`;
   s += `Estilo del locutor: ${p.tone}.\n`;
@@ -151,6 +153,7 @@ export async function commentary(req: AuthedRequest, res: Response) {
       liveCtx: typeof b.liveCtx === "string" ? b.liveCtx : "",
       prevTrack: b.prevTrack ?? "",
       recent: Array.isArray(b.recent) ? b.recent : [],
+      recentSaid: Array.isArray(b.recentSaid) ? b.recentSaid : [],
     };
 
     // La longitud escala con la duración pedida. Tope alto para permitir
