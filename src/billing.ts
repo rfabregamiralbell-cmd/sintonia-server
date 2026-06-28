@@ -47,7 +47,10 @@ import Stripe from "stripe";
 const STRIPE_SECRET = process.env.STRIPE_SECRET || "";
 const STRIPE_PRICE_ID = process.env.STRIPE_PRICE_ID || "";
 const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET || "";
-const APP_BASE_URL = process.env.APP_BASE_URL || "https://sintonia.app";
+// Dominio para los retornos de Checkout. Si no se define APP_BASE_URL, usa el dominio
+// que Render inyecta automáticamente (RENDER_EXTERNAL_URL) -> /billing/ok y /billing/cancel
+// resuelven solos sin configurar nada. Último recurso: el dominio de marca.
+const APP_BASE_URL = (process.env.APP_BASE_URL || process.env.RENDER_EXTERNAL_URL || "https://sintonia.app").replace(/\/$/, "");
 const stripe = STRIPE_SECRET ? new Stripe(STRIPE_SECRET) : (null as any);
 
 /** Crea una sesión de Checkout y devuelve la URL para abrir en el navegador. */
