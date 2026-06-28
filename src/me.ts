@@ -15,10 +15,8 @@ export function setBudget(req: AuthedRequest, res: Response) {
   getUsage(req, res);
 }
 
-export function resetUsage(req: AuthedRequest, res: Response) {
-  db.prepare("UPDATE users SET spend = 0, calls = 0, input_tokens = 0, output_tokens = 0 WHERE id = ?").run(req.userId);
-  getUsage(req, res);
-}
+// resetUsage ELIMINADO a propósito: permitía al propio usuario poner calls/spend a 0
+// (los contadores anti-abuso del free-tier y del presupuesto) -> IA gratis ilimitada.
 
 // --- Sincronización de contenido del usuario (emisoras + historial) ---
 export function syncSave(req: AuthedRequest, res: Response) {

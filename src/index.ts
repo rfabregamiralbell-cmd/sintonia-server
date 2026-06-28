@@ -4,7 +4,7 @@ import cors from "cors";
 import { authApple, authGoogle, authGoogleWeb, authDev, authGuest, requireAuth } from "./auth";
 import { commentary } from "./commentary";
 import { program } from "./program";
-import { getUsage, setBudget, resetUsage, syncSave, syncLoad } from "./me";
+import { getUsage, setBudget, syncSave, syncLoad } from "./me";
 import { publish, browse, getOne, remove } from "./stations";
 import { checkout, webhook, status, verifyApple, verifyGoogle } from "./billing";
 import { recognize } from "./recognize";
@@ -36,7 +36,8 @@ app.post("/auth/apple", authApple);
 app.post("/auth/google", authGoogle);
 app.post("/auth/google/web", authGoogleWeb); // web: login Google por código (PKCE)
 app.post("/auth/guest", ipLimit(20), authGuest); // web sin login: sesión de invitado (máx 20/h por IP)
-app.post("/auth/dev", authDev);
+// /auth/dev (login de pruebas sin verificar) NO se registra en producción. Con tope por IP además.
+if (process.env.NODE_ENV !== "production") app.post("/auth/dev", ipLimit(20), authDev);
 
 // IA (requiere sesión). ipLimit añade un tope por IP además del tope por usuario,
 // para que ni siquiera BYOK (x-user-key) ni invitados puedan martillear.
@@ -45,7 +46,7 @@ app.post("/program", ipLimit(120), requireAuth, program); // varios locutores (p
 app.post("/tts", requireAuth, tts); // voces premium ElevenLabs incluidas (solo suscriptores)
 app.get("/me/usage", requireAuth, getUsage);
 app.post("/me/budget", requireAuth, setBudget);
-app.post("/me/reset", requireAuth, resetUsage);
+// /me/reset ELIMINADO: reseteaba el contador de free-tier y el gasto -> IA gratis ilimitada.
 app.post("/me/sync", requireAuth, syncSave); // guarda emisoras + historial del usuario
 app.get("/me/sync", requireAuth, syncLoad);  // recupera emisoras + historial del usuario
 
@@ -76,12 +77,26 @@ function checkEnv() {
   };
   const missing = Object.entries(want).filter(([k]) => !process.env[k]).map(([k, v]) => `  - ${k}: ${v}`);
   if (missing.length) console.warn("[config] faltan variables de entorno:\n" + missing.join("\n"));
-  if (process.env.NODE_ENV === "production" && process.env.ALLOW_DEV_AUTH === "1") {
-    console.warn("[config] ⚠️ ALLOW_DEV_AUTH=1 EN PRODUCCIÓN: bypass de autenticación, ponlo a 0.");
+  const IS_PROD = process.env.NODE_ENV === "production";
+  // dev-auth en prod: la ruta /auth/dev ya NO se registra en producción y authDev la rechaza,
+  // así que el bypass está neutralizado; avisamos fuerte para que quiten la variable igualmente.
+  if (IS_PROD && process.env.ALLOW_DEV_AUTH === "1") {
+    console.error("[config] ⚠️ ALLOW_DEV_AUTH=1 en producción (ignorado: /auth/dev está desactivada). Quita esa variable.");
   }
   const cap = Number(process.env.GLOBAL_DAILY_CAP ?? "0");
+  if (IS_PROD && !(cap > 0)) {
+    // Aviso FUERTE (no abortamos para no tumbar un server en marcha): el breaker de gasto
+    // está desactivado. Pon GLOBAL_DAILY_CAP>0 en Render para protegerte de una factura desbocada.
+    console.error("[config] ⚠️⚠️ GLOBAL_DAILY_CAP=0 en producción: SIN tope de gasto contra tu factura. Pon un número (€/día) ya.");
+  }
   console.log(cap > 0 ? `[config] tope de gasto global: ${cap}/día` : "[config] sin tope de gasto global (GLOBAL_DAILY_CAP=0)");
+  // Aviso fuerte si la BD parece efímera en producción (sin disco persistente -> se pierde todo).
+  const dbp = process.env.DB_PATH || "";
+  if (IS_PROD && (!dbp || dbp.startsWith("/tmp") || !dbp.startsWith("/"))) {
+    console.error("[config] ⚠️ DB_PATH no parece un disco persistente (" + (dbp || "ausente") + "): se perderán usuarios/contadores/idempotencia en cada reinicio. Monta un disco y usa DB_PATH=/data/sintonia.db");
+  }
 }
 
 const PORT = Number(process.env.PORT ?? "8787");
-app.listen(PORT, () => { checkEnv(); console.log("SINTONÍA server en http://localhost:" + PORT); });
+checkEnv();   // valida ANTES de escuchar: aborta en problemas críticos de producción
+app.listen(PORT, () => { console.log("SINTONÍA server en http://localhost:" + PORT); });

@@ -111,7 +111,9 @@ export async function commentary(req: AuthedRequest, res: Response) {
   try {
     const userId = req.userId!;
     const userKeyHeader = req.headers["x-user-key"];
-    const userKey = typeof userKeyHeader === "string" ? userKeyHeader : "";
+    // BYOK SOLO si parece una clave real de Anthropic; si no, NO salta el gating (va por managed).
+    const rawUserKey = typeof userKeyHeader === "string" ? userKeyHeader.trim() : "";
+    const userKey = (/^sk-ant-/.test(rawUserKey) && rawUserKey.length > 20) ? rawUserKey : "";
     const key = userKey || ANTHROPIC_KEY; // BYOK usa la clave del usuario.
     if (!key) return res.status(500).json({ error: "falta clave de IA" });
 

@@ -1,0 +1,45 @@
+# Infra-as-code para Render. OJO: el plan FREE no admite discos persistentes;
+# para el disco hace falta un plan de pago (starter o superior). Sin disco, la BD
+# es efímera y se pierde TODO en cada deploy/reinicio (usuarios, contadores anti-abuso,
+# idempotencia del webhook). Aplica este blueprint (o crea el disco + DB_PATH a mano en el panel).
+services:
+  - type: web
+    name: sintonia-server
+    runtime: docker
+    plan: starter            # necesario para disco persistente (free no lo permite)
+    healthCheckPath: /health
+    disk:
+      name: sintonia-data
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DB_PATH
+        value: /data/sintonia.db   # BD en el disco persistente
+      # Secretos y config: se ponen en el panel de Render (no en el repo).
+      - key: JWT_SECRET            # OBLIGATORIO (>=24 chars, largo y aleatorio)
+        sync: false
+      - key: REQUIRE_SUBSCRIPTION  # "1" para activar el muro de free-tier/suscripción
+        sync: false
+      - key: GLOBAL_DAILY_CAP      # OBLIGATORIO en prod (>0): tope de gasto/día contra tu factura
+        sync: false
+      - key: ANTHROPIC_KEY
+        sync: false
+      - key: STRIPE_SECRET
+        sync: false
+      - key: STRIPE_PRICE_ID
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: ELEVENLABS_KEY
+        sync: false
+      - key: AUDD_TOKEN
+        sync: false
+      - key: ALLOWED_ORIGINS
+        sync: false
+      # ALLOW_DEV_AUTH NO debe existir en producción (el arranque aborta si está a 1).

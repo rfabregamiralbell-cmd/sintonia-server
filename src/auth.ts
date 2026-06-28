@@ -5,11 +5,17 @@ import db from "./db";
 import { fetchT } from "./fetchT";
 
 const IS_PROD = process.env.NODE_ENV === "production";
+// JWT_SECRET es OBLIGATORIO SIEMPRE (también en local): sin esto, un secreto de respaldo
+// público en el código permitiría FORJAR tokens y suplantar a cualquier usuario.
 const RAW_SECRET = process.env.JWT_SECRET || "";
-if (IS_PROD && (RAW_SECRET.length < 24)) {
-  throw new Error("JWT_SECRET ausente o demasiado corto: define un secreto largo y aleatorio en producción.");
+if (RAW_SECRET.length < 24) {
+  throw new Error("JWT_SECRET ausente o demasiado corto (mínimo 24 caracteres): define un secreto largo y aleatorio. En local ponlo en tu .env.");
 }
-const secret = new TextEncoder().encode(RAW_SECRET || "dev-secret-change-me");
+// Si alguna vez se usó el secreto de respaldo viejo, ese valor ya NO sirve (hay que rotar).
+if (RAW_SECRET === "dev-secret-change-me") {
+  throw new Error("JWT_SECRET es el valor de ejemplo: cámbialo por uno largo y aleatorio.");
+}
+const secret = new TextEncoder().encode(RAW_SECRET);
 const APPLE_CLIENT_ID = process.env.APPLE_CLIENT_ID || "";
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || "";
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET || "";
@@ -128,8 +134,11 @@ export async function authGuest(req: Request, res: Response) {
   res.json({ token: await issueToken(id, ""), email: "", guest: true });
 }
 
-/** SOLO pruebas: login por email sin verificar. Desactívalo en producción. */
+/** SOLO pruebas: login por email sin verificar. NUNCA en producción. */
 export async function authDev(req: Request, res: Response) {
+  // Defensa en profundidad: aunque el arranque ya aborta si IS_PROD && ALLOW_DEV_AUTH=1,
+  // aquí también lo negamos en producción pase lo que pase (sin esto sería un bypass total).
+  if (IS_PROD) return res.status(403).json({ error: "dev auth no disponible" });
   if (process.env.ALLOW_DEV_AUTH !== "1") return res.status(403).json({ error: "dev auth deshabilitado" });
   const email = (req.body?.email || "").toString().trim();
   if (!email) return res.status(400).json({ error: "email requerido" });

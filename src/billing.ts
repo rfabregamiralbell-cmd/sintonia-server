@@ -91,12 +91,11 @@ export async function webhook(req: Request, res: Response) {
     return res.status(400).send("firma inválida");
   }
 
-  // Idempotencia: si ya procesamos este evento, no repetir (Stripe reenvía).
+  // Idempotencia: si YA procesamos (con éxito) este evento, no repetir (Stripe reenvía).
   try {
     const seen = db.prepare("SELECT 1 FROM stripe_events WHERE id = ?").get(event.id);
     if (seen) return res.json({ received: true, duplicate: true });
-    db.prepare("INSERT OR IGNORE INTO stripe_events (id, ts) VALUES (?, ?)").run(event.id, Date.now());
-  } catch { /* si la tabla falla, seguimos: reconcile es idempotente de facto */ }
+  } catch { /* si la tabla falla, seguimos */ }
 
   try {
     if (
@@ -120,10 +119,14 @@ export async function webhook(req: Request, res: Response) {
       const customer = inv.customer as string;
       await reconcileSubscription(await userIdFromCustomer(customer), customer);
     }
+    // Marca el evento como procesado SOLO tras reconciliar con éxito (idempotencia correcta).
+    try { db.prepare("INSERT OR IGNORE INTO stripe_events (id, ts) VALUES (?, ?)").run(event.id, Date.now()); } catch { /* idempotencia best-effort */ }
+    return res.json({ received: true });
   } catch (e) {
-    console.error("webhook reconcile:", e);   // no romper el webhook: Stripe reintenta
+    console.error("webhook reconcile:", e);
+    // NO lo marcamos como procesado y devolvemos 5xx para que Stripe REINTENTE.
+    return res.status(500).json({ error: "reconcile failed, retry please" });
   }
-  res.json({ received: true });
 }
 
 async function userIdFromCustomer(customerId: string): Promise<string | null> {
