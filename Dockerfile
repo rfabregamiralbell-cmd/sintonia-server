@@ -18,6 +18,9 @@ COPY tsconfig.json ./
 COPY src ./src
 RUN npm run build
 
+# Landing estática (web del producto) servida por Express en la raíz del dominio.
+COPY public ./public
+
 ENV NODE_ENV=production
 # PORT y DB_PATH los controla el host (Render inyecta PORT; DB_PATH como variable
 # de entorno: /tmp/sintonia.db para prueba sin disco, /data/sintonia.db con disco).

@@ -1,4 +1,5 @@
 import "dotenv/config";
+import path from "path";
 import express from "express";
 import cors from "cors";
 import { authApple, authGoogle, authGoogleWeb, authDev, authGuest, requireAuth } from "./auth";
@@ -30,6 +31,11 @@ app.post("/billing/webhook", express.raw({ type: "application/json" }), webhook)
 app.use(express.json({ limit: "5mb" }));
 
 app.get("/health", (_req, res) => res.json({ ok: true }));
+
+// Landing estática (web del producto) servida desde /public en la raíz del dominio.
+// Solo responde a ficheros que EXISTEN (index.html, privacy.html, success.html, cancel.html);
+// cualquier otra ruta pasa de largo a los handlers de la API de abajo.
+app.use(express.static(path.join(__dirname, "..", "public")));
 
 // Autenticación (el móvil manda el idToken nativo; dev = solo pruebas)
 app.post("/auth/apple", authApple);

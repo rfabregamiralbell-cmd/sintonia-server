@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Locutor — Tu radio personal en Windows</title>
+<meta name="description" content="Locutor reconoce lo que suena en Spotify, YouTube Music o donde sea, y unos locutores con IA lo comentan en voz alta. Como una emisora hecha para ti. Sin micrófono." />
+<meta name="theme-color" content="#0E0A08" />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Locutor — La radio que habla de tu música" />
+<meta property="og:description" content="Reconoce lo que suena en tu PC y unos locutores con IA lo comentan en voz alta. Sin micrófono, sin grabar. Tu emisora personal en Windows." />
+<meta property="og:locale" content="es_ES" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Locutor — La radio que habla de tu música" />
+<meta name="twitter:description" content="Tu emisora personal en Windows: reconoce lo que suena y lo comenta en voz alta. Sin micrófono." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23F4A52A' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='2'/%3E%3Cpath d='M4.93 19.07a10 10 0 0 1 0-14.14M7.76 16.24a6 6 0 0 1 0-8.49M16.24 7.76a6 6 0 0 1 0 8.49M19.07 4.93a10 10 0 0 1 0 14.14'/%3E%3C/svg%3E" />
+<style>
+  :root{
+    --bg:#0E0A08; --surface:#191210; --surface2:#231913; --line:#3B2B21;
+    --text:#EFE7DA; --dim:#8C7B6D; --amber:#F4A52A; --amber2:#FFC15E; --green:#3FBF7F; --onair:#FF3B2F;
+    --mono:"SFMono-Regular",ui-monospace,"Cascadia Code","Consolas",monospace;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.6;-webkit-font-smoothing:antialiased}
+  a{color:var(--amber);text-decoration:none}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 22px}
+  .mono{font-family:var(--mono);letter-spacing:.04em}
+  .amber{color:var(--amber)}
+
+  /* Nav */
+  nav{position:sticky;top:0;z-index:50;background:rgba(14,10,8,.82);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+  nav .wrap{display:flex;align-items:center;justify-content:space-between;height:62px}
+  .brand{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-weight:700;font-size:18px;letter-spacing:.14em}
+  .brand svg{color:var(--amber)}
+  .nav-links{display:flex;gap:26px;align-items:center}
+  .nav-links a{color:var(--dim);font-size:14px}
+  .nav-links a:hover{color:var(--text)}
+  .btn{display:inline-block;background:var(--amber);color:#211404;font-weight:700;padding:11px 20px;border-radius:9px;font-size:14px;border:0;cursor:pointer;transition:transform .12s,background .12s}
+  .btn:hover{background:var(--amber2);transform:translateY(-1px)}
+  .btn.ghost{background:transparent;color:var(--text);border:1px solid var(--line)}
+  .btn.ghost:hover{border-color:var(--amber);background:transparent}
+  .btn.big{padding:15px 30px;font-size:16px}
+
+  /* Hero */
+  header{position:relative;overflow:hidden;padding:84px 0 64px;text-align:center}
+  header::before{content:"";position:absolute;inset:0;background:
+    radial-gradient(900px 420px at 50% -8%, rgba(244,165,42,.16), transparent 70%);pointer-events:none}
+  .tally{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;color:var(--dim);
+    border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 15px;margin-bottom:26px}
+  .dot{width:9px;height:9px;border-radius:50%;background:var(--onair);box-shadow:0 0 0 0 rgba(255,59,47,.5);animation:pulse 2s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,59,47,.45)}70%{box-shadow:0 0 0 9px rgba(255,59,47,0)}100%{box-shadow:0 0 0 0 rgba(255,59,47,0)}}
+  h1{font-size:clamp(36px,6vw,62px);line-height:1.05;margin:0 0 18px;letter-spacing:-.02em;font-weight:800}
+  h1 .amber{background:linear-gradient(120deg,var(--amber),var(--amber2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .lead{font-size:clamp(17px,2.4vw,21px);color:var(--dim);max-width:680px;margin:0 auto 32px}
+  .cta-row{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+  .trust{margin-top:22px;font-family:var(--mono);font-size:12.5px;color:var(--dim)}
+  .trust b{color:var(--green);font-weight:700}
+
+  /* Mock window */
+  .mock{margin:54px auto 0;max-width:560px;background:var(--surface);border:1px solid var(--line);border-radius:16px;
+    box-shadow:0 30px 80px rgba(0,0,0,.5);overflow:hidden;text-align:left}
+  .mock-bar{display:flex;align-items:center;gap:7px;padding:12px 14px;border-bottom:1px solid var(--line);background:var(--surface2)}
+  .mock-bar i{width:11px;height:11px;border-radius:50%;background:#3B2B21}
+  .mock-bar span{margin-left:8px;font-family:var(--mono);font-size:12px;color:var(--dim)}
+  .mock-body{padding:20px}
+  .mock-now{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:.2em}
+  .mock-track{font-size:18px;margin:5px 0 16px}
+  .mock-air{font-family:var(--mono);font-size:11px;color:var(--amber);letter-spacing:.2em;margin-bottom:6px}
+  .mock-speaker{font-family:var(--mono);font-size:12px;color:var(--onair);letter-spacing:.1em;margin-bottom:8px}
+  .mock-text{font-size:14.5px;color:#D8CFC0;min-height:96px}
+  .mock-track,.mock-fade{transition:opacity .45s ease}
+  .is-fading{opacity:0}
+  .reveal{opacity:0;transform:translateY(18px);transition:opacity .6s ease,transform .6s ease}
+  .reveal.in{opacity:1;transform:none}
+  .vu{display:inline-flex;gap:3px;margin-left:8px;vertical-align:middle}
+  .vu i{width:3px;height:12px;background:var(--amber);border-radius:2px;animation:vu .9s infinite ease-in-out}
+  .vu i:nth-child(2){animation-delay:.15s}.vu i:nth-child(3){animation-delay:.3s}.vu i:nth-child(4){animation-delay:.45s}
+  @keyframes vu{0%,100%{height:5px}50%{height:14px}}
+
+  /* Sections */
+  section{padding:72px 0;border-top:1px solid var(--line)}
+  .sec-lbl{font-family:var(--mono);font-size:12px;letter-spacing:.22em;color:var(--amber);text-align:center;margin-bottom:12px}
+  h2{font-size:clamp(26px,3.6vw,38px);text-align:center;margin:0 0 14px;letter-spacing:-.01em}
+  .sec-sub{text-align:center;color:var(--dim);max-width:620px;margin:0 auto 46px}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:24px}
+  .card .ico{width:42px;height:42px;border-radius:11px;background:var(--surface2);display:flex;align-items:center;justify-content:center;color:var(--amber);margin-bottom:14px}
+  .card h3{margin:0 0 7px;font-size:18px}
+  .card p{margin:0;color:var(--dim);font-size:14.5px}
+
+  /* Steps */
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;counter-reset:s}
+  .step{position:relative;padding:24px;background:var(--surface);border:1px solid var(--line);border-radius:14px}
+  .step::before{counter-increment:s;content:counter(s);font-family:var(--mono);font-size:28px;font-weight:700;color:var(--amber);display:block;margin-bottom:10px}
+  .step h3{margin:0 0 6px;font-size:17px}.step p{margin:0;color:var(--dim);font-size:14px}
+
+  /* Privacy banner */
+  .privacy{background:linear-gradient(180deg,var(--surface),var(--surface2));border:1px solid var(--line);border-radius:18px;padding:40px;text-align:center}
+  .privacy .ico{width:54px;height:54px;border-radius:14px;background:rgba(63,191,127,.12);color:var(--green);display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
+  .privacy h2{margin-bottom:10px}
+  .privacy p{color:var(--dim);max-width:600px;margin:0 auto}
+
+  /* Pricing */
+  .prices{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;max-width:760px;margin:0 auto}
+  .price{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:30px}
+  .price.feat{border-color:var(--amber);box-shadow:0 0 0 1px var(--amber),0 20px 50px rgba(244,165,42,.1)}
+  .price .tag{font-family:var(--mono);font-size:12px;letter-spacing:.18em;color:var(--dim)}
+  .price.feat .tag{color:var(--amber)}
+  .price .amt{font-size:40px;font-weight:800;margin:8px 0 2px}
+  .price .amt small{font-size:15px;color:var(--dim);font-weight:400}
+  .price ul{list-style:none;padding:0;margin:18px 0 24px}
+  .price li{padding:7px 0 7px 26px;position:relative;color:#D8CFC0;font-size:14.5px}
+  .price li::before{content:"✓";position:absolute;left:0;color:var(--green);font-weight:700}
+  .price li.no{color:var(--dim)}.price li.no::before{content:"—";color:var(--line)}
+
+  /* FAQ */
+  .faq{max-width:760px;margin:0 auto}
+  details{border:1px solid var(--line);border-radius:12px;padding:4px 20px;margin-bottom:12px;background:var(--surface)}
+  summary{cursor:pointer;padding:16px 0;font-weight:600;list-style:none;display:flex;justify-content:space-between;align-items:center}
+  summary::-webkit-details-marker{display:none}
+  summary::after{content:"+";color:var(--amber);font-size:22px;font-weight:400}
+  details[open] summary::after{content:"–"}
+  details p{margin:0 0 16px;color:var(--dim);font-size:14.5px}
+
+  /* Final CTA + footer */
+  .final{text-align:center}
+  footer{border-top:1px solid var(--line);padding:34px 0;color:var(--dim);font-size:13px}
+  footer .wrap{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+  footer a{color:var(--dim)}footer a:hover{color:var(--amber)}
+
+  @media(max-width:760px){.grid,.steps,.prices{grid-template-columns:1fr}.nav-links a:not(.btn){display:none}}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav><div class="wrap">
+  <div class="brand">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="2"/><path d="M4.93 19.07a10 10 0 0 1 0-14.14M7.76 16.24a6 6 0 0 1 0-8.49M16.24 7.76a6 6 0 0 1 0 8.49M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+    LOCUTOR
+  </div>
+  <div class="nav-links">
+    <a href="#como">Cómo funciona</a>
+    <a href="#precios">Precios</a>
+    <a href="#privacidad">Privacidad</a>
+    <a class="btn" href="#descargar">Descargar</a>
+  </div>
+</div></nav>
+
+<!-- HERO -->
+<header><div class="wrap">
+  <div class="tally"><span class="dot"></span> ON AIR · TU EMISORA, AHORA MISMO</div>
+  <h1>La radio que habla<br>de <span class="amber">tu</span> música.</h1>
+  <p class="lead">Locutor reconoce lo que suena en Spotify, YouTube Music o donde sea, y unos locutores con inteligencia artificial lo comentan en voz alta. Una emisora hecha solo para ti.</p>
+  <div class="cta-row">
+    <a class="btn big" href="#descargar">▶ Descargar para Windows</a>
+    <a class="btn ghost big" href="#como">Ver cómo funciona</a>
+  </div>
+  <p class="trust"><b>Sin micrófono</b> · <b>No graba sonido</b> · Funciona con lo que ya escuchas</p>
+
+  <!-- Mockup -->
+  <div class="mock">
+    <div class="mock-bar"><i></i><i></i><i></i><span>Locutor</span></div>
+    <div class="mock-body">
+      <div class="mock-now">SONANDO AHORA</div>
+      <div class="mock-track" id="mTrack">David Bisbal — Dígale</div>
+      <div class="mock-air">EN EL AIRE <span class="vu"><i></i><i></i><i></i><i></i></span></div>
+      <div class="mock-fade" id="mFade">
+        <div class="mock-speaker" id="mSpeaker">LA HISTORIADORA</div>
+        <div class="mock-text" id="mText">"Dígale arranca con una guitarra que casi susurra antes de que Bisbal entre, y cuando entra lo hace desde abajo. La canción es un recado: no le habla a ella, le pide a alguien que le hable por él. Eso ya te dice todo sobre el estado de ese hombre."</div>
+      </div>
+    </div>
+  </div>
+</div></header>
+
+<!-- FEATURES -->
+<section id="features"><div class="wrap">
+  <div class="sec-lbl">QUÉ HACE</div>
+  <h2>No es una playlist. Es una emisora.</h2>
+  <p class="sec-sub">Pon la música donde quieras. Locutor escucha lo que ya suena en tu PC y lo convierte en programa.</p>
+  <div class="grid">
+    <div class="card"><div class="ico">🎧</div><h3>Reconoce lo que suena</h3><p>Detecta el título y el artista de Spotify, YouTube Music o cualquier app, usando Windows. Sin micrófono y sin grabar nada.</p></div>
+    <div class="card"><div class="ico">🗣️</div><h3>Locutores con carácter</h3><p>El Musicólogo, La Historiadora, El Productor… cada uno con su voz y su mirada. En Premium dialogan entre ellos como una tertulia.</p></div>
+    <div class="card"><div class="ico">⚡</div><h3>En directo, al momento</h3><p>Comentan la canción según va sonando —la entrada, el estribillo, la recta final— como expertos reaccionando en tiempo real.</p></div>
+    <div class="card"><div class="ico">🔊</div><h3>Voz neural natural</h3><p>Voces realistas incluidas gratis. La música baja sola mientras hablan y vuelve al terminar. Cero configuración.</p></div>
+    <div class="card"><div class="ico">🎙️</div><h3>Modo podcast continuo</h3><p>Un programa que no para: enlaza una canción con la siguiente como una radio de verdad mientras tú solo escuchas.</p></div>
+    <div class="card"><div class="ico">🔑</div><h3>IA incluida o la tuya</h3><p>Funciona de fábrica sin configurar nada. ¿Tienes tu propia clave de IA? Conéctala y úsala sin límites.</p></div>
+  </div>
+</div></section>
+
+<!-- CAST -->
+<section id="locutores"><div class="wrap">
+  <div class="sec-lbl">EL ELENCO</div>
+  <h2>Cada uno oye algo distinto.</h2>
+  <p class="sec-sub">Locutores con personalidad propia. En Premium se pasan el testigo y discuten la canción como una tertulia de verdad. ¿Quieres otro? Créalo tú.</p>
+  <div class="grid">
+    <div class="card"><div class="ico">🎼</div><h3>El Musicólogo</h3><p style="color:var(--amber);font-family:var(--mono);font-size:12px;letter-spacing:.08em;margin:0 0 8px">ARMONÍA Y TEORÍA · DIDÁCTICO</p><p>Te explica por qué ese acorde no resuelve y por qué se te queda dentro.</p></div>
+    <div class="card"><div class="ico">📚</div><h3>La Historiadora</h3><p style="color:var(--amber);font-family:var(--mono);font-size:12px;letter-spacing:.08em;margin:0 0 8px">CONTEXTO Y ESCENA · SOBRIA</p><p>Sitúa el tema en su época y su movimiento, sin soltar un dato que no sepa.</p></div>
+    <div class="card"><div class="ico">🎚️</div><h3>El Productor</h3><p style="color:var(--amber);font-family:var(--mono);font-size:12px;letter-spacing:.08em;margin:0 0 8px">PRODUCCIÓN Y MEZCLA · APASIONADO</p><p>Oye la reverb, la voz doblada, dónde entra la batería. La cocina del sonido.</p></div>
+  </div>
+</div></section>
+
+<!-- HOW -->
+<section id="como"><div class="wrap">
+  <div class="sec-lbl">CÓMO FUNCIONA</div>
+  <h2>Listo en treinta segundos.</h2>
+  <p class="sec-sub">Pensado para que lo use cualquiera. Entras con Google y ya está.</p>
+  <div class="steps">
+    <div class="step"><h3>Abre Locutor</h3><p>Entra con tu cuenta de Google. Sin instalar nada raro, sin claves, sin manuales.</p></div>
+    <div class="step"><h3>Pon música</h3><p>En Spotify, YouTube Music o lo que uses. Locutor reconoce solo lo que está sonando.</p></div>
+    <div class="step"><h3>Escucha el programa</h3><p>Los locutores comentan tus canciones en voz alta. Tú a lo tuyo; ellos ponen la radio.</p></div>
+  </div>
+</div></section>
+
+<!-- PRIVACY -->
+<section id="privacidad"><div class="wrap">
+  <div class="privacy">
+    <div class="ico">🛡️</div>
+    <h2>Tu música es tuya.</h2>
+    <p>Locutor <b style="color:var(--text)">no usa el micrófono y no graba sonido</b>. Solo lee el título y el artista de lo que ya está sonando, para poder comentarlo. Tus claves se guardan cifradas en tu propio PC. Nada de publicidad, nada de vender tus datos.</p>
+    <p style="margin-top:14px"><a href="privacy.html">Leer la política de privacidad →</a></p>
+  </div>
+</div></section>
+
+<!-- PRICING -->
+<section id="precios"><div class="wrap">
+  <div class="sec-lbl">PRECIOS</div>
+  <h2>Empieza gratis.</h2>
+  <p class="sec-sub">Prueba la emisora sin pagar. Sube a Premium cuando quieras la tertulia completa.</p>
+  <div class="prices">
+    <div class="price">
+      <div class="tag">GRATIS</div>
+      <div class="amt">0€</div>
+      <ul>
+        <li>IA incluida (con un límite diario)</li>
+        <li>Un locutor comentando</li>
+        <li>Voz neural natural</li>
+        <li>Reconoce lo que suena</li>
+        <li class="no">Tertulia entre varios locutores</li>
+        <li class="no">Comentarios largos</li>
+      </ul>
+      <a class="btn ghost" href="#descargar" style="width:100%;text-align:center">Descargar</a>
+    </div>
+    <div class="price feat">
+      <div class="tag">★ PREMIUM</div>
+      <div class="amt">4,99€ <small>/mes</small></div>
+      <ul>
+        <li>Varios locutores en <b style="color:var(--text)">diálogo</b></li>
+        <li>Comentarios largos (hasta 2 min)</li>
+        <li>Sin límite diario</li>
+        <li>Modo podcast continuo</li>
+        <li>Voz neural premium</li>
+        <li>Cancela cuando quieras</li>
+      </ul>
+      <a class="btn" href="#descargar" style="width:100%;text-align:center">Hazte Premium</a>
+    </div>
+  </div>
+  <p style="text-align:center;color:var(--dim);font-size:13px;margin-top:22px">¿Prefieres tu propia IA? Con tu clave (BYOK) usas Locutor sin límites y sin coste de suscripción.</p>
+</div></section>
+
+<!-- FAQ -->
+<section><div class="wrap">
+  <div class="sec-lbl">PREGUNTAS</div>
+  <h2>Lo que sueles preguntar.</h2>
+  <div class="faq" style="margin-top:40px">
+    <details open><summary>¿Usa el micrófono o graba lo que escucho?</summary><p>No. Locutor solo lee el título y el artista de la canción que ya está sonando, a través de Windows. No accede al micrófono ni graba ningún audio.</p></details>
+    <details><summary>¿Funciona con Spotify gratis?</summary><p>Sí. Funciona con Spotify (gratis o Premium), YouTube Music y la mayoría de apps que muestran la canción en Windows. Locutor solo necesita saber qué suena.</p></details>
+    <details><summary>¿Necesito una clave de inteligencia artificial?</summary><p>No. Trae IA incluida y funciona de fábrica. Si tienes tu propia clave (Claude o Gemini), puedes conectarla y usarla sin límites.</p></details>
+    <details><summary>¿En qué sistemas funciona?</summary><p>En Windows 10 y Windows 11. Es una aplicación de escritorio; se descarga y se abre, sin complicaciones.</p></details>
+    <details><summary>¿Puedo cancelar Premium?</summary><p>Cuando quieras, desde tu cuenta. El pago lo gestiona Stripe de forma segura; nosotros no guardamos tu tarjeta.</p></details>
+  </div>
+</div></section>
+
+<!-- FINAL CTA -->
+<section id="descargar" class="final"><div class="wrap">
+  <div class="sec-lbl">EMPIEZA</div>
+  <h2>Pon la radio. La tuya.</h2>
+  <p class="sec-sub">Descarga Locutor para Windows y deja que tus canciones tengan quien las cuente.</p>
+  <a class="btn big" href="#" id="downloadBtn">▶ Descargar para Windows · Gratis</a>
+  <p class="trust" style="margin-top:18px">Windows 10/11 · Sin micrófono · IA incluida</p>
+</div></section>
+
+<!-- FOOTER -->
+<footer><div class="wrap">
+  <div class="brand" style="font-size:15px">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="2"/><path d="M4.93 19.07a10 10 0 0 1 0-14.14M16.24 7.76a6 6 0 0 1 0 8.49"/></svg>
+    LOCUTOR
+  </div>
+  <div style="display:flex;gap:22px;flex-wrap:wrap">
+    <a href="privacy.html">Política de privacidad</a>
+    <a href="mailto:rfabregamiralbell@gmail.com">Contacto</a>
+  </div>
+  <div>© 2026 Locutor</div>
+</div></footer>
+
+<script>
+  // Maqueta "en directo": va pasando canción + comentario real con fundido.
+  var DEMO = [
+    {t:"David Bisbal — Dígale", s:"LA HISTORIADORA", x:'"Dígale arranca con una guitarra que casi susurra antes de que Bisbal entre, y cuando entra lo hace desde abajo. La canción es un recado: le pide a alguien que le hable por él."'},
+    {t:"Daft Punk — Get Lucky", s:"EL PRODUCTOR", x:'"Ese bajo de Nile Rodgers no para quieto un segundo, y la voz pasa por el vocoder solo lo justo para sonar a máquina con corazón. Está hecho para que no puedas quedarte sentado."'},
+    {t:"Radiohead — Weird Fishes", s:"EL MUSICÓLOGO", x:'"Fíjate cómo las dos guitarras tejen un patrón que nunca cae donde lo esperas. Es un arpegio que te mece y te marea a la vez, y por eso engancha tanto."'},
+    {t:"Rosalía — Despechá", s:"LA HISTORIADORA", x:'"Coge el mambo dominicano y lo vuelve verano puro. Tres minutos de nada que se te clavan: la economía es la jugada, aquí no sobra ni un compás."'}
+  ];
+  (function(){
+    var i=0, fade=document.getElementById('mFade'), tr=document.getElementById('mTrack'),
+        sp=document.getElementById('mSpeaker'), tx=document.getElementById('mText');
+    if(!fade) return;
+    setInterval(function(){
+      i=(i+1)%DEMO.length;
+      fade.classList.add('is-fading'); tr.classList.add('is-fading');
+      setTimeout(function(){
+        tr.textContent=DEMO[i].t; sp.textContent=DEMO[i].s; tx.textContent=DEMO[i].x;
+        fade.classList.remove('is-fading'); tr.classList.remove('is-fading');
+      },450);
+    },5200);
+  })();
+
+  // Aparición suave al hacer scroll.
+  (function(){
+    var els=document.querySelectorAll('.card,.step,.price,.privacy,h2,.sec-sub,.faq details');
+    els.forEach(function(e){e.classList.add('reveal')});
+    if(!('IntersectionObserver' in window)){els.forEach(function(e){e.classList.add('in')});return;}
+    var io=new IntersectionObserver(function(en){
+      en.forEach(function(x){if(x.isIntersecting){x.target.classList.add('in');io.unobserve(x.target);}});
+    },{threshold:.12});
+    els.forEach(function(e){io.observe(e)});
+  })();
+</script>
+</body>
+</html>

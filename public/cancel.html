@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex" />
+<title>Locutor — Pago cancelado</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23F4A52A' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='2'/%3E%3Cpath d='M4.93 19.07a10 10 0 0 1 0-14.14M16.24 7.76a6 6 0 0 1 0 8.49'/%3E%3C/svg%3E" />
+<style>
+  :root{--bg:#0E0A08;--surface:#191210;--line:#3B2B21;--text:#EFE7DA;--dim:#8C7B6D;--amber:#F4A52A;--amber2:#FFC15E}
+  *{box-sizing:border-box}
+  body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;
+    background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;text-align:center}
+  .box{max-width:460px}
+  .badge{width:78px;height:78px;border-radius:50%;background:var(--surface);border:1px solid var(--line);color:var(--dim);
+    display:flex;align-items:center;justify-content:center;margin:0 auto 22px;font-size:34px}
+  h1{font-size:30px;margin:0 0 12px;letter-spacing:-.01em}
+  p{color:var(--dim);font-size:16px;line-height:1.6;margin:0 0 22px}
+  .row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+  .btn{display:inline-block;background:var(--amber);color:#211404;font-weight:700;padding:13px 26px;border-radius:9px;font-size:15px;text-decoration:none;transition:background .12s}
+  .btn:hover{background:var(--amber2)}
+  .btn.ghost{background:transparent;color:var(--text);border:1px solid var(--line)}
+  .btn.ghost:hover{border-color:var(--amber)}
+  .brand{margin-top:32px;font-family:ui-monospace,monospace;letter-spacing:.16em;font-size:13px;color:var(--dim)}
+</style>
+</head>
+<body>
+  <div class="box">
+    <div class="badge">↺</div>
+    <h1>Pago cancelado</h1>
+    <p>No se ha cobrado nada. Puedes seguir usando Locutor gratis, y hacerte Premium cuando quieras.</p>
+    <div class="row">
+      <a class="btn" href="index.html#precios">Ver Premium otra vez</a>
+      <a class="btn ghost" href="index.html">Volver al inicio</a>
+    </div>
+    <div class="brand">◉ LOCUTOR</div>
+  </div>
+</body>
+</html>
