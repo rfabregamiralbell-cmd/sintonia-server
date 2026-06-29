@@ -5,6 +5,7 @@ import { isSubscribed, checkSubscribed } from "./billing";
 import { fetchT } from "./fetchT";
 import { globalCapHit, addGlobalSpend } from "./globalbudget";
 import { fetchMusicFacts, factsLine } from "./musicdata";
+import { dailyExceeded } from "./dailycap";
 
 // Programa = conversación entre VARIOS locutores (entrada, debate, cierre).
 // Es la función PREMIUM: el cliente envía {system, prompt} ya construidos
@@ -21,20 +22,7 @@ const PRICE_OUT = 15 / 1000000;
 const MARKUP = Number(process.env.MARKUP ?? "0.15");
 const RL_MAX = Number(process.env.RATE_LIMIT_HOUR ?? "120");
 
-// Topes por usuario (en memoria; para multi-instancia, mover a Redis).
-const daily = new Map<string, { n: number; day: string }>();
-function dailyExceeded(userId: string): boolean {
-  if (DAILY_CAP <= 0) return false;
-  const day = new Date().toISOString().slice(0, 10);
-  const d = daily.get(userId);
-  if (!d || d.day !== day) {
-    daily.set(userId, { n: 1, day });
-    return false;
-  }
-  if (d.n >= DAILY_CAP) return true;
-  d.n++;
-  return false;
-}
+// dailyExceeded ahora vive en ./dailycap (persistido en SQLite, sobrevive a reinicios).
 const buckets = new Map<string, { n: number; reset: number }>();
 function rateLimited(userId: string): boolean {
   const now = Date.now();
@@ -61,12 +49,13 @@ export async function program(req: AuthedRequest, res: Response) {
     const u: any = db.prepare("SELECT * FROM users WHERE id = ?").get(userId);
     if (!u) return res.status(401).json({ error: "usuario no encontrado" });
 
+    // Rate-limit por hora a TODOS (incluido BYOK): nadie martillea el servidor.
+    if (rateLimited(userId)) return res.status(429).json({ error: "límite por hora alcanzado" });
     // Multi-locutor es PREMIUM: sin BYOK y sin suscripción no se permite.
     if (!userKey) {
       const subscribed = await checkSubscribed(userId, req.email);
       if (!subscribed) return res.status(402).json({ error: userId.startsWith("guest:") ? "login" : "subscription" });
       if (dailyExceeded(userId)) return res.status(429).json({ error: "límite diario alcanzado" });
-      if (rateLimited(userId)) return res.status(429).json({ error: "límite por hora alcanzado" });
       if (!subscribed && globalCapHit()) return res.status(503).json({ error: "servicio saturado, prueba más tarde" }); // no corta a quien paga
       // El presupuesto NO bloquea a suscriptores (aquí siempre lo son).
       if (!subscribed && u.budget > 0 && u.spend >= u.budget) return res.status(402).json({ error: "budget" });

@@ -32,8 +32,10 @@ export async function recognize(req: AuthedRequest, res: Response) {
     const b64 = req.body?.audio;
     if (!b64 || typeof b64 !== "string") return res.status(400).json({ error: "audio requerido" });
 
+    if (b64.length > 2_500_000) return res.status(413).json({ error: "audio demasiado grande" }); // ~1.8MB binario
     const bytes = Buffer.from(b64, "base64");
     if (bytes.length < 1000) return res.status(400).json({ error: "audio demasiado corto" });
+    if (bytes.length > 1_500_000) return res.status(413).json({ error: "audio demasiado grande" }); // un clip real son segundos
 
     const form = new FormData();
     form.append("api_token", AUDD_TOKEN);

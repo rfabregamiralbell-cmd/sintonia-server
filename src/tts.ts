@@ -2,6 +2,11 @@ import { Response } from "express";
 import { AuthedRequest } from "./auth";
 import { checkSubscribed } from "./billing";
 import { fetchT } from "./fetchT";
+import { globalCapHit, addGlobalSpend } from "./globalbudget";
+import { dailyExceeded } from "./dailycap";
+
+// Coste aprox. de ElevenLabs por carácter (eleven_multilingual_v2). Para el cap de gasto.
+const TTS_COST_PER_CHAR = Number(process.env.TTS_COST_PER_CHAR ?? "0.0003");
 
 // Voces PREMIUM incluidas: usa la clave de ElevenLabs de la ORGANIZACIÓN (no del
 // usuario) y solo se permite a suscriptores. Así el usuario (un abuelo) no pone
@@ -9,7 +14,7 @@ import { fetchT } from "./fetchT";
 const ELEVEN_KEY = process.env.ELEVENLABS_KEY || "";
 const DEFAULT_VOICE = process.env.ELEVENLABS_VOICE_ID || "21m00Tcm4TlvDq8ikWAM"; // voz por defecto
 const MODEL = process.env.ELEVENLABS_MODEL || "eleven_multilingual_v2";
-const RL_MAX = Number(process.env.TTS_LIMIT_HOUR ?? "400"); // turnos/hora por usuario (protege la clave)
+const RL_MAX = Number(process.env.TTS_LIMIT_HOUR ?? "200"); // turnos/hora por usuario (protege la clave)
 
 const buckets = new Map<string, { n: number; reset: number }>();
 function rateLimited(userId: string): boolean {
@@ -26,9 +31,12 @@ export async function tts(req: AuthedRequest, res: Response) {
 
     if (!(await checkSubscribed(req.userId!, req.email))) return res.status(402).json({ error: "subscription" }); // voces premium = solo suscriptores
     if (rateLimited(req.userId!)) return res.status(429).json({ error: "límite por hora alcanzado" });
+    if (dailyExceeded(req.userId!)) return res.status(429).json({ error: "límite diario alcanzado" });
+    if (globalCapHit()) return res.status(503).json({ error: "servicio saturado, prueba más tarde" }); // ahora /tts también cuenta para el tope de gasto
 
     const text = (req.body?.text || "").toString().slice(0, 1500);
     if (!text) return res.status(400).json({ error: "text requerido" });
+    addGlobalSpend(text.length * TTS_COST_PER_CHAR); // suma el coste de la voz al gasto del día
     const voiceId = (req.body?.voiceId || DEFAULT_VOICE).toString();
 
     const r = await fetchT(

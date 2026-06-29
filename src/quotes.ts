@@ -64,20 +64,27 @@ async function receptionFromWiki(lang: string, artist: string, title: string): P
   return `[${page} · ${lang}.wikipedia] ${text.slice(0, 2200)}`;
 }
 
-// Devuelve el texto de recepción crítica (en/es) o "" si no hay.
-export async function fetchReception(artistRaw: string, titleRaw: string): Promise<string> {
+// Devuelve el texto de recepción crítica (en/es) o "" si no hay. `outLang` decide la
+// preferencia de idioma de la cita (para que a un oyente en español le salga, si existe,
+// una reseña en español en vez de una en inglés).
+export async function fetchReception(artistRaw: string, titleRaw: string, outLang = ""): Promise<string> {
   if (!ENABLED) return "";
   const artist = clean(artistRaw), title = clean(titleRaw);
   if (!artist || !title) return "";
-  const k = (artist + "|" + title).toLowerCase();
+  const preferEs = /espa|spanish|\bes\b/i.test(outLang);
+  const k = (artist + "|" + title + "|" + (preferEs ? "es" : "en")).toLowerCase();
   const hit = cache.get(k);
   if (hit && Date.now() - hit.at < TTL) return hit.text;
 
   let text = "";
   try {
-    // Inglés primero (es donde están Pitchfork/Rolling Stone/etc.), luego español.
-    text = await receptionFromWiki("en", artist, title);
-    if (!text) text = await receptionFromWiki("es", artist, title);
+    // En PARALELO (antes era secuencial en->es, hasta ~20s). Preferimos el idioma del oyente
+    // y caemos al otro si en su idioma no hay reseña.
+    const [en, es] = await Promise.all([
+      receptionFromWiki("en", artist, title).catch(() => ""),
+      receptionFromWiki("es", artist, title).catch(() => ""),
+    ]);
+    text = preferEs ? (es || en) : (en || es);
   } catch { text = ""; }
 
   cache.set(k, { text, at: Date.now() });

@@ -6,25 +6,11 @@ import { fetchT } from "./fetchT";
 import { globalCapHit, addGlobalSpend } from "./globalbudget";
 import { fetchMusicFacts, factsLine } from "./musicdata";
 import { fetchReception } from "./quotes";
+import { dailyExceeded } from "./dailycap";
 
 const REQUIRE_SUB = (process.env.REQUIRE_SUBSCRIPTION ?? "1") !== "0";
 const FREE_TIER_CALLS = Number(process.env.FREE_TIER_CALLS ?? "10"); // comentarios gratis antes de pedir plan
-const DAILY_CAP = Number(process.env.DAILY_CAP ?? "200"); // tope diario por usuario (protege margen)
-
-// Tope diario por usuario (en memoria; para multi-instancia, mover a Redis).
-const daily = new Map<string, { n: number; day: string }>();
-function dailyExceeded(userId: string): boolean {
-  if (DAILY_CAP <= 0) return false;
-  const day = new Date().toISOString().slice(0, 10);
-  const d = daily.get(userId);
-  if (!d || d.day !== day) {
-    daily.set(userId, { n: 1, day });
-    return false;
-  }
-  if (d.n >= DAILY_CAP) return true;
-  d.n++;
-  return false;
-}
+// dailyExceeded ahora vive en ./dailycap (persistido en SQLite, sobrevive a reinicios).
 
 const ANTHROPIC_KEY = process.env.ANTHROPIC_KEY || "";
 const MODEL = "claude-sonnet-4-6";
@@ -138,20 +124,6 @@ export async function commentary(req: AuthedRequest, res: Response) {
     const u: any = db.prepare("SELECT * FROM users WHERE id = ?").get(userId);
     if (!u) return res.status(401).json({ error: "usuario no encontrado" });
 
-    if (!userKey) {
-      // El free-tier es SOLO para cuentas reales (Google/Apple), no para invitados:
-      // así un atacante no puede crear miles de invitados para IA gratis infinita.
-      const isGuest = userId.startsWith("guest:");
-      const onFreeTier = !isGuest && u.calls < FREE_TIER_CALLS;
-      const subscribed = (REQUIRE_SUB && !onFreeTier) ? await checkSubscribed(userId, req.email) : isSubscribed(u);
-      if (REQUIRE_SUB && !onFreeTier && !subscribed) return res.status(402).json({ error: isGuest ? "login" : "subscription" });
-      if (dailyExceeded(userId)) return res.status(429).json({ error: "límite diario alcanzado" });
-      if (rateLimited(userId)) return res.status(429).json({ error: "límite por hora alcanzado" });
-      if (!subscribed && globalCapHit()) return res.status(503).json({ error: "servicio saturado, prueba más tarde" }); // tope de gasto: NO corta a quien paga
-      // El presupuesto NO aplica a suscriptores (pagan): solo protege coste de free-tier/BYOK-incluido.
-      if (!subscribed && u.budget > 0 && u.spend >= u.budget) return res.status(402).json({ error: "budget" });
-    }
-
     const b: any = req.body ?? {};
     if (!b.track) return res.status(400).json({ error: "track requerido" });
 
@@ -184,17 +156,38 @@ export async function commentary(req: AuthedRequest, res: Response) {
       reception: "",
     };
 
+    // --- Gates (parte 1): autorización y rate-limit. El cupo diario de COSTE va DESPUÉS del
+    // enriquecimiento, para que el modo cita SIN reseña no gaste cupo del usuario. ---
+    let subscribed = true;
+    if (!userKey) {
+      // El free-tier es SOLO para cuentas reales (Google/Apple), no para invitados.
+      const isGuest = userId.startsWith("guest:");
+      const onFreeTier = !isGuest && u.calls < FREE_TIER_CALLS;
+      subscribed = (REQUIRE_SUB && !onFreeTier) ? await checkSubscribed(userId, req.email) : isSubscribed(u);
+      if (REQUIRE_SUB && !onFreeTier && !subscribed) return res.status(402).json({ error: isGuest ? "login" : "subscription" });
+    }
+    // Rate-limit por hora a TODOS (incluido BYOK): nadie martillea el servidor ni los servicios externos.
+    if (rateLimited(userId)) return res.status(429).json({ error: "límite por hora alcanzado" });
+
     // Enriquecimiento (best-effort, cacheado): citas reales (Wikipedia) para style="cita";
     // datos verificados (MusicBrainz) para el resto. Si no hay nada, sigue sin ello.
     if (p.moment !== "Anuncio" && p.track) {
       if (p.style === "cita") {
-        try { p.reception = await fetchReception(p.artist, p.track); } catch { /* sin reseñas */ }
+        try { p.reception = await fetchReception(p.artist, p.track, p.outLang); } catch { /* sin reseñas */ }
         // Modo CITA sin reseña real -> no se dice NADA (ni mensaje ni comentario): se ahorra
         // la llamada al modelo y el cliente no reproduce nada. NO cuenta como uso.
         if (!p.reception) return res.json({ text: "", noQuote: true, usage: { input_tokens: 0, output_tokens: 0 } });
       } else {
         try { p.factsLine = factsLine(await fetchMusicFacts(p.artist, p.track)); } catch { /* sin datos */ }
       }
+    }
+
+    // --- Gates (parte 2): coste (cupo diario / presupuesto / cap global). Solo IA managed.
+    // Aquí ya hemos pasado el modo cita-sin-reseña (que salió sin gastar cupo). ---
+    if (!userKey) {
+      if (dailyExceeded(userId)) return res.status(429).json({ error: "límite diario alcanzado" });
+      if (!subscribed && globalCapHit()) return res.status(503).json({ error: "servicio saturado, prueba más tarde" }); // no corta a quien paga
+      if (!subscribed && u.budget > 0 && u.spend >= u.budget) return res.status(402).json({ error: "budget" });
     }
 
     // La longitud escala con la duración pedida. Tope alto para permitir
