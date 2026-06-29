@@ -147,7 +147,7 @@ export async function commentary(req: AuthedRequest, res: Response) {
       if (REQUIRE_SUB && !onFreeTier && !subscribed) return res.status(402).json({ error: isGuest ? "login" : "subscription" });
       if (dailyExceeded(userId)) return res.status(429).json({ error: "límite diario alcanzado" });
       if (rateLimited(userId)) return res.status(429).json({ error: "límite por hora alcanzado" });
-      if (globalCapHit()) return res.status(503).json({ error: "servicio saturado, prueba más tarde" }); // tope de gasto global
+      if (!subscribed && globalCapHit()) return res.status(503).json({ error: "servicio saturado, prueba más tarde" }); // tope de gasto: NO corta a quien paga
       // El presupuesto NO aplica a suscriptores (pagan): solo protege coste de free-tier/BYOK-incluido.
       if (!subscribed && u.budget > 0 && u.spend >= u.budget) return res.status(402).json({ error: "budget" });
     }
@@ -155,25 +155,30 @@ export async function commentary(req: AuthedRequest, res: Response) {
     const b: any = req.body ?? {};
     if (!b.track) return res.status(400).json({ error: "track requerido" });
 
+    // Cap DURO de toda entrada del cliente: evita (a) URLs gigantes a MusicBrainz/Wikipedia,
+    // (b) inflar input_tokens/factura metiendo megabytes en el prompt a Anthropic, (c) abuso.
+    const cap = (s: any, n: number) => String(s ?? "").slice(0, n);
+    const capArr = (a: any, n: number, len: number) => (Array.isArray(a) ? a.slice(0, n).map((x) => cap(x, len)) : []);
+
     const p = {
-      track: b.track,
-      artist: b.artist ?? "",
-      dims: Array.isArray(b.focuses) ? b.focuses : b.focus ? [b.focus] : [],
-      themes: Array.isArray(b.themes) ? b.themes : [],
-      tone: b.tone ?? "Cercano",
+      track: cap(b.track, 200),
+      artist: cap(b.artist, 120),
+      dims: Array.isArray(b.focuses) ? capArr(b.focuses, 8, 60) : b.focus ? [cap(b.focus, 60)] : [],
+      themes: capArr(b.themes, 8, 60),
+      tone: cap(b.tone || "Cercano", 160),
       depth: Number(b.depth) || 3,
-      duration: Number(b.duration) > 0 ? Number(b.duration) : 25,
-      platform: b.platform ?? "Apple Music",
-      djName: b.djName ?? "",
-      outLang: b.outLang ?? "Español",
-      treatment: b.treatment ?? "tú",
-      catchphrase: b.catchphrase ?? "",
+      duration: Number(b.duration) > 0 ? Math.min(180, Number(b.duration)) : 25,
+      platform: cap(b.platform || "Apple Music", 40),
+      djName: cap(b.djName, 60),
+      outLang: cap(b.outLang || "Español", 30),
+      treatment: cap(b.treatment || "tú", 40),
+      catchphrase: cap(b.catchphrase, 80),
       avoidRepeat: !!b.avoidRepeat,
-      moment: b.moment ?? "Comentario",
-      liveCtx: typeof b.liveCtx === "string" ? b.liveCtx : "",
-      prevTrack: b.prevTrack ?? "",
-      recent: Array.isArray(b.recent) ? b.recent : [],
-      recentSaid: Array.isArray(b.recentSaid) ? b.recentSaid : [],
+      moment: cap(b.moment || "Comentario", 30),
+      liveCtx: cap(b.liveCtx, 600),
+      prevTrack: cap(b.prevTrack, 200),
+      recent: capArr(b.recent, 8, 200),
+      recentSaid: capArr(b.recentSaid, 8, 240),
       style: typeof b.style === "string" ? b.style : "denso", // nombrar | ligero | denso | cita
       factsLine: "",
       reception: "",
@@ -184,6 +189,9 @@ export async function commentary(req: AuthedRequest, res: Response) {
     if (p.moment !== "Anuncio" && p.track) {
       if (p.style === "cita") {
         try { p.reception = await fetchReception(p.artist, p.track); } catch { /* sin reseñas */ }
+        // Modo CITA sin reseña real -> no se dice NADA (ni mensaje ni comentario): se ahorra
+        // la llamada al modelo y el cliente no reproduce nada. NO cuenta como uso.
+        if (!p.reception) return res.json({ text: "", noQuote: true, usage: { input_tokens: 0, output_tokens: 0 } });
       } else {
         try { p.factsLine = factsLine(await fetchMusicFacts(p.artist, p.track)); } catch { /* sin datos */ }
       }

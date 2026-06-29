@@ -20,9 +20,19 @@ export function setBudget(req: AuthedRequest, res: Response) {
 
 // --- Sincronización de contenido del usuario (emisoras + historial) ---
 export function syncSave(req: AuthedRequest, res: Response) {
-  const stations = Array.isArray(req.body?.stations) ? req.body.stations : [];
-  const history = Array.isArray(req.body?.history) ? req.body.history : [];
-  const content = JSON.stringify({ stations, history }).slice(0, 2_000_000); // tope 2MB
+  let stations = Array.isArray(req.body?.stations) ? req.body.stations : [];
+  let history = Array.isArray(req.body?.history) ? req.body.history : [];
+  // Recortamos por NÚMERO de elementos (no por bytes a mitad de JSON, que corrompía el
+  // contenido y al recargar perdía TODO en silencio). Cota generosa y siempre JSON válido.
+  stations = stations.slice(0, 200);
+  history = history.slice(0, 500);
+  let content = JSON.stringify({ stations, history });
+  // Red de seguridad por tamaño: si aún excede, se va recortando el historial (siempre válido).
+  while (content.length > 2_000_000 && history.length > 0) {
+    history = history.slice(0, Math.floor(history.length / 2));
+    content = JSON.stringify({ stations, history });
+  }
+  if (content.length > 2_000_000) return res.status(413).json({ error: "demasiado contenido" });
   db.prepare("UPDATE users SET content = ? WHERE id = ?").run(content, req.userId);
   res.json({ ok: true });
 }

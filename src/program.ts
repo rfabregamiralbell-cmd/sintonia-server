@@ -67,7 +67,7 @@ export async function program(req: AuthedRequest, res: Response) {
       if (!subscribed) return res.status(402).json({ error: userId.startsWith("guest:") ? "login" : "subscription" });
       if (dailyExceeded(userId)) return res.status(429).json({ error: "límite diario alcanzado" });
       if (rateLimited(userId)) return res.status(429).json({ error: "límite por hora alcanzado" });
-      if (globalCapHit()) return res.status(503).json({ error: "servicio saturado, prueba más tarde" }); // tope de gasto global
+      if (!subscribed && globalCapHit()) return res.status(503).json({ error: "servicio saturado, prueba más tarde" }); // no corta a quien paga
       // El presupuesto NO bloquea a suscriptores (aquí siempre lo son).
       if (!subscribed && u.budget > 0 && u.spend >= u.budget) return res.status(402).json({ error: "budget" });
     }
@@ -84,9 +84,12 @@ export async function program(req: AuthedRequest, res: Response) {
     const system = userKey ? clientSystem : (SERVER_SYSTEM + "\n\n" + clientSystem);
 
     // Datos VERIFICADOS (MusicBrainz) para datos curiosos ciertos en la conversación.
+    // Cap duro de track/artist antes de ir a la URL externa (evita URLs gigantes/abuso).
+    const bTrack = (typeof b.track === "string" ? b.track : "").slice(0, 200);
+    const bArtist = (typeof b.artist === "string" ? b.artist : "").slice(0, 120);
     let facts = "";
-    if (typeof b.track === "string" && b.track.trim()) {
-      try { facts = factsLine(await fetchMusicFacts(typeof b.artist === "string" ? b.artist : "", b.track)); } catch { /* sin datos */ }
+    if (bTrack.trim()) {
+      try { facts = factsLine(await fetchMusicFacts(bArtist, bTrack)); } catch { /* sin datos */ }
     }
     const userPrompt = facts ? prompt + "\n\n" + facts : prompt;
 

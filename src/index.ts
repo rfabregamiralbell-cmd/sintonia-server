@@ -2,6 +2,7 @@ import "dotenv/config";
 import path from "path";
 import express from "express";
 import cors from "cors";
+import db from "./db";
 import { authApple, authGoogle, authGoogleWeb, authDev, authGuest, requireAuth } from "./auth";
 import { commentary } from "./commentary";
 import { program } from "./program";
@@ -30,7 +31,11 @@ app.post("/billing/webhook", express.raw({ type: "application/json" }), webhook)
 
 app.use(express.json({ limit: "5mb" }));
 
-app.get("/health", (_req, res) => res.json({ ok: true }));
+app.get("/health", (_req, res) => {
+  // Comprueba también que la BD responde (no solo que el proceso vive).
+  try { db.prepare("SELECT 1").get(); return res.json({ ok: true, db: true }); }
+  catch { return res.status(503).json({ ok: false, db: false }); }
+});
 
 // Landing estática (web del producto) servida desde /public en la raíz del dominio.
 // Solo responde a ficheros que EXISTEN (index.html, privacy.html, success.html, cancel.html);

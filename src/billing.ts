@@ -78,7 +78,8 @@ export async function checkout(req: AuthedRequest, res: Response) {
     });
     res.json({ url: session.url });
   } catch (e: any) {
-    res.status(500).json({ error: "checkout", detail: String(e?.message || e) });
+    console.error("checkout:", e?.message || e);   // el detalle solo en el log del servidor
+    res.status(500).json({ error: "No se pudo iniciar el pago. Inténtalo de nuevo." });
   }
 }
 

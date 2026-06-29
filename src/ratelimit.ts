@@ -7,8 +7,10 @@ type Bucket = { n: number; reset: number };
 const store = new Map<string, Bucket>();
 
 function clientIp(req: Request): string {
-  const xff = (req.headers["x-forwarded-for"] as string) || "";
-  return xff.split(",")[0].trim() || req.ip || "unknown";
+  // req.ip ya es la IP REAL resuelta por Express con `trust proxy: 1` (la que añade el
+  // proxy de Render). NO parsear X-Forwarded-For a mano: su primer valor es falsificable
+  // por el cliente y permitiría rotar IP en cada petición y saltarse el rate-limit.
+  return req.ip || "unknown";
 }
 
 export function ipLimit(max: number, windowMs = 3600_000) {
