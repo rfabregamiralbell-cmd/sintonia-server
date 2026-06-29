@@ -4,6 +4,7 @@ import { AuthedRequest } from "./auth";
 import { isSubscribed, checkSubscribed } from "./billing";
 import { fetchT } from "./fetchT";
 import { globalCapHit, addGlobalSpend } from "./globalbudget";
+import { fetchMusicFacts, factsLine } from "./musicdata";
 
 const REQUIRE_SUB = (process.env.REQUIRE_SUBSCRIPTION ?? "1") !== "0";
 const FREE_TIER_CALLS = Number(process.env.FREE_TIER_CALLS ?? "10"); // comentarios gratis antes de pedir plan
@@ -84,6 +85,7 @@ function buildPrompt(p: any): string {
     ? `Presenta la próxima canción antes de que suene: ${p.track}${p.artist ? " de " + p.artist : ""}.\n`
     : `Comenta la canción que suena: ${p.track}${p.artist ? " de " + p.artist : ""}.\n`;
   if (p.prevTrack) s += `Acabas de pinchar "${p.prevTrack}": haz una transición de DJ, cierra esa y enlaza con la nueva.\n`;
+  if (p.factsLine) s += `${p.factsLine}\n`;
   if (p.liveCtx) s += `${p.liveCtx} Hablas EN DIRECTO, reaccionando a lo que suena en este instante (no como un guion).\n`;
   if (p.recentSaid && p.recentSaid.length) s += `YA HAS DICHO ESTO en comentarios anteriores de la sesión — NO lo repitas (ni ideas, ni frases, ni la misma apertura ni estructura): busca un ángulo y unas palabras NUEVAS. Ya dicho: ${p.recentSaid.map((x: string) => `"${String(x).slice(0, 160)}"`).join(" / ")}.\n`;
   s += `Varía el RITMO: mezcla alguna frase corta con una reflexión más personal o una duda; no encadenes sentencias densas e iguales. Suena a alguien pensando en voz alta EN DIRECTO, no a un informe leído.\n`;
@@ -160,7 +162,14 @@ export async function commentary(req: AuthedRequest, res: Response) {
       recent: Array.isArray(b.recent) ? b.recent : [],
       recentSaid: Array.isArray(b.recentSaid) ? b.recentSaid : [],
       style: typeof b.style === "string" ? b.style : "denso", // nombrar | ligero (gratis) | denso (premium)
+      factsLine: "",
     };
+
+    // Datos VERIFICADOS de MusicBrainz (año, origen, género…) para datos curiosos ciertos.
+    // Best-effort y cacheado; si no hay track real o no encuentra, sigue sin datos.
+    if (p.moment !== "Anuncio" && p.track) {
+      try { p.factsLine = factsLine(await fetchMusicFacts(p.artist, p.track)); } catch { /* sin datos */ }
+    }
 
     // La longitud escala con la duración pedida. Tope alto para permitir
     // análisis densos y largos (web/escritorio), acotado por presupuesto/cap diario.
