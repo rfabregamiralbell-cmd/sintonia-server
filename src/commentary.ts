@@ -206,7 +206,6 @@ export async function commentary(req: AuthedRequest, res: Response) {
       budget: after.budget,
       remaining: after.budget > 0 ? Math.max(0, after.budget - after.spend) : null,
       freeRemaining,
-      _facts: p.factsLine || "",   // DIAGNÓSTICO temporal: ¿llegaron datos de MusicBrainz?
       subscribed: isSubscribed(after),
     });
   } catch (e) {
