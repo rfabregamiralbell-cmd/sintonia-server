@@ -5,6 +5,7 @@ import { isSubscribed, checkSubscribed } from "./billing";
 import { fetchT } from "./fetchT";
 import { globalCapHit, addGlobalSpend } from "./globalbudget";
 import { fetchMusicFacts, factsLine } from "./musicdata";
+import { fetchReception } from "./quotes";
 
 const REQUIRE_SUB = (process.env.REQUIRE_SUBSCRIPTION ?? "1") !== "0";
 const FREE_TIER_CALLS = Number(process.env.FREE_TIER_CALLS ?? "10"); // comentarios gratis antes de pedir plan
@@ -84,6 +85,18 @@ function buildPrompt(p: any): string {
   s += p.moment === "Presentación"
     ? `Presenta la próxima canción antes de que suene: ${p.track}${p.artist ? " de " + p.artist : ""}.\n`
     : `Comenta la canción que suena: ${p.track}${p.artist ? " de " + p.artist : ""}.\n`;
+  // Tipo de locución "CITA": NO opines tú; copia una reseña REAL y atribúyela. Cero invención.
+  if (p.style === "cita") {
+    if (p.reception) {
+      s += `MODO CITA. Aquí tienes la RECEPCIÓN CRÍTICA REAL de este tema (extraída de Wikipedia, que cita medios reales): «${p.reception}».\n`;
+      s += `Tu locución: presenta el tema en media frase y luego CITA TEXTUAL —palabra por palabra, entre comillas— UNA (o como mucho dos) frases de un crítico o medio que aparezcan EN ESE TEXTO, atribuyéndolas al medio o autor EXACTO que las firma (por ejemplo: «La revista Pitchfork escribió, cito textualmente: "…"»). PROHIBIDO inventar, parafrasear, traducir libremente o cambiar una sola palabra de la cita: cópiala LITERAL del texto de arriba. No añadas opinión tuya. Si en ese texto no hay ninguna frase entrecomillada claramente atribuible a un medio o crítico, di en una frase que de este tema aún no encuentras reseñas que citar.\n`;
+    } else {
+      s += `MODO CITA, pero de este tema NO hay reseñas de crítica para citar (aún). Dilo con naturalidad en una frase ("de ${p.track} todavía no encuentro reseñas de crítica que citar") y NADA más: no inventes ninguna cita ni te la atribuyas a nadie.\n`;
+    }
+    s += `Estilo del locutor: ${p.tone}. ${p.djName ? "Te llamas " + p.djName + ". " : ""}Trata al oyente de "${p.treatment}".\n`;
+    s += `Idioma de salida: ${p.outLang}. Frase hablada (sin markdown ni emojis). Apunta a unos ${p.duration} segundos.`;
+    return s;
+  }
   if (p.prevTrack) s += `Acabas de pinchar "${p.prevTrack}": haz una transición de DJ, cierra esa y enlaza con la nueva.\n`;
   if (p.factsLine) s += `${p.factsLine}\n`;
   if (p.liveCtx) s += `${p.liveCtx} Hablas EN DIRECTO, reaccionando a lo que suena en este instante (no como un guion).\n`;
@@ -161,14 +174,19 @@ export async function commentary(req: AuthedRequest, res: Response) {
       prevTrack: b.prevTrack ?? "",
       recent: Array.isArray(b.recent) ? b.recent : [],
       recentSaid: Array.isArray(b.recentSaid) ? b.recentSaid : [],
-      style: typeof b.style === "string" ? b.style : "denso", // nombrar | ligero (gratis) | denso (premium)
+      style: typeof b.style === "string" ? b.style : "denso", // nombrar | ligero | denso | cita
       factsLine: "",
+      reception: "",
     };
 
-    // Datos VERIFICADOS de MusicBrainz (año, origen, género…) para datos curiosos ciertos.
-    // Best-effort y cacheado; si no hay track real o no encuentra, sigue sin datos.
+    // Enriquecimiento (best-effort, cacheado): citas reales (Wikipedia) para style="cita";
+    // datos verificados (MusicBrainz) para el resto. Si no hay nada, sigue sin ello.
     if (p.moment !== "Anuncio" && p.track) {
-      try { p.factsLine = factsLine(await fetchMusicFacts(p.artist, p.track)); } catch { /* sin datos */ }
+      if (p.style === "cita") {
+        try { p.reception = await fetchReception(p.artist, p.track); } catch { /* sin reseñas */ }
+      } else {
+        try { p.factsLine = factsLine(await fetchMusicFacts(p.artist, p.track)); } catch { /* sin datos */ }
+      }
     }
 
     // La longitud escala con la duración pedida. Tope alto para permitir
