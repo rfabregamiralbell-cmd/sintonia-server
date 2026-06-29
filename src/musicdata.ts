@@ -91,5 +91,5 @@ export function factsLine(f: MusicFacts | null): string {
   if (f.area) bits.push(`origen: ${f.area}`);
   if (f.genres && f.genres.length) bits.push(`géneros: ${f.genres.join(", ")}`);
   if (!bits.length) return "";
-  return `DATOS VERIFICADOS (ciertos, de base de datos musical — puedes CITARLOS con seguridad si vienen a cuento, pero NO los enumeres como una ficha; intégralos con naturalidad y solo si aportan): ${bits.join("; ")}.`;
+  return `DATOS VERIFICADOS (ciertos, de base de datos musical): ${bits.join("; ")}. TEJE en el comentario AL MENOS UNO de estos datos como una curiosidad real, con naturalidad y en el momento que encaje (NO como una ficha ni los enumeres todos): son ESTOS los únicos datos duros que puedes afirmar; el resto, descríbelo por lo que suena.`;
 }
