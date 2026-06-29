@@ -87,13 +87,16 @@ function buildPrompt(p: any): string {
   if (p.liveCtx) s += `${p.liveCtx} Hablas EN DIRECTO, reaccionando a lo que suena en este instante (no como un guion).\n`;
   if (p.recentSaid && p.recentSaid.length) s += `YA HAS DICHO ESTO en comentarios anteriores de la sesión — NO lo repitas (ni ideas, ni frases, ni la misma apertura ni estructura): busca un ángulo y unas palabras NUEVAS. Ya dicho: ${p.recentSaid.map((x: string) => `"${String(x).slice(0, 160)}"`).join(" / ")}.\n`;
   s += `Varía el RITMO: mezcla alguna frase corta con una reflexión más personal o una duda; no encadenes sentencias densas e iguales. Suena a alguien pensando en voz alta EN DIRECTO, no a un informe leído.\n`;
+  // Estilo de contenido (gratis = ligero/curioso · premium = denso).
+  if (p.style === "nombrar") s += `Modo MÍNIMO: solo di QUÉ suena —${p.track}${p.artist ? " de " + p.artist : ""}— con una pincelada de color, en UNA frase. Nada de análisis.\n`;
+  else if (p.style === "ligero") s += `Modo LIGERO: NADA de análisis denso ni enumerar varias cosas. Suelta UN solo apunte curioso, fresco y con chispa sobre lo que oyes —un detalle del sonido, una imagen, un guiño de radio—, en una o dos frases. Sugerente, no exhaustivo; deja al oyente con ganas. (Sigues FIEL: no inventes datos.)\n`;
   s += `Dimensiones a analizar: ${dims}.\n`;
   if (themes) s += `Enfoque temático prioritario: ${themes}.\n`;
   s += `Estilo del locutor: ${p.tone}.\n`;
   if (p.djName) s += `Te llamas ${p.djName}.\n`;
   s += `Trata al oyente de "${p.treatment}".\n`;
   s += `Nivel de detalle: ${p.depth}/5.\n`;
-  if (p.depth >= 4) {
+  if (p.style === "denso" && p.depth >= 4) {
     s += `Modo análisis profundo: profundiza de verdad, con densidad alta de ideas y cero relleno. ` +
       `Detalles de composición, producción y teoría musical explicada de forma accesible, SIEMPRE ` +
       `partiendo de lo que se oye. Trae contexto, conexiones o anécdotas SOLO si estás seguro de que ` +
@@ -156,6 +159,7 @@ export async function commentary(req: AuthedRequest, res: Response) {
       prevTrack: b.prevTrack ?? "",
       recent: Array.isArray(b.recent) ? b.recent : [],
       recentSaid: Array.isArray(b.recentSaid) ? b.recentSaid : [],
+      style: typeof b.style === "string" ? b.style : "denso", // nombrar | ligero (gratis) | denso (premium)
     };
 
     // La longitud escala con la duración pedida. Tope alto para permitir
