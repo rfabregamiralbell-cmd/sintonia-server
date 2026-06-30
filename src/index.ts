@@ -11,6 +11,7 @@ import { publish, browse, getOne, remove } from "./stations";
 import { checkout, webhook, status, verifyApple, verifyGoogle } from "./billing";
 import { recognize } from "./recognize";
 import { tts } from "./tts";
+import { prefetch } from "./prefetch";
 import { ipLimit } from "./ratelimit";
 
 const app = express();
@@ -57,6 +58,7 @@ if (process.env.NODE_ENV !== "production") app.post("/auth/dev", ipLimit(20), au
 
 // IA (requiere sesión). ipLimit añade un tope por IP además del tope por usuario,
 // para que ni siquiera BYOK (x-user-key) ni invitados puedan martillear.
+app.post("/prefetch", ipLimit(240), requireAuth, prefetch); // precalienta cachés de datos/citas (sin IA, sin cupo)
 app.post("/commentary", ipLimit(120), requireAuth, commentary); // 1 locutor (freemium)
 app.post("/program", ipLimit(120), requireAuth, program); // varios locutores (premium / BYOK)
 app.post("/tts", requireAuth, tts); // voces premium ElevenLabs incluidas (solo suscriptores)
