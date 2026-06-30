@@ -205,6 +205,9 @@ export async function commentary(req: AuthedRequest, res: Response) {
     const text = (data.content ?? []).filter((x: any) => x.type === "text").map((x: any) => x.text).join("").trim();
     const usage = data.usage ?? { input_tokens: 0, output_tokens: 0 };
 
+    // Si el modelo no devolvió texto, NO cobramos ni gastamos cupo (sería cobrar por nada).
+    if (!text) return res.status(502).json({ error: "respuesta vacía del modelo", empty: true });
+
     let charged = 0;
     if (!userKey) {
       const raw = usage.input_tokens * PRICE_IN + usage.output_tokens * PRICE_OUT;

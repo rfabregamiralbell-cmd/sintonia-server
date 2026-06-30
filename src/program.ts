@@ -93,6 +93,13 @@ export async function program(req: AuthedRequest, res: Response) {
     const text = (data.content ?? []).filter((x: any) => x.type === "text").map((x: any) => x.text).join("").trim();
     const usage = data.usage ?? { input_tokens: 0, output_tokens: 0 };
 
+    // Valida que la salida ES el array JSON de turnos contratado; si no (o está vacío), NO
+    // cobramos ni gastamos cupo por una respuesta inservible.
+    const cleaned = text.replace(/```json/gi, "").replace(/```/g, "").trim();
+    let valid = false;
+    try { const a = JSON.parse(cleaned); valid = Array.isArray(a) && a.some((t: any) => t && t.speaker && t.line); } catch { /* no es JSON */ }
+    if (!valid) return res.status(502).json({ error: "respuesta no válida del modelo", empty: true });
+
     let charged = 0;
     if (!userKey) {
       const raw = usage.input_tokens * PRICE_IN + usage.output_tokens * PRICE_OUT;
