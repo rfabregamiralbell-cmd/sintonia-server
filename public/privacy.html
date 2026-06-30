@@ -23,7 +23,7 @@
 </head>
 <body>
   <h1>LOCUTOR · Política de privacidad</h1>
-  <p class="upd">Última actualización: 28 de junio de 2026</p>
+  <p class="upd">Última actualización: 30 de junio de 2026</p>
 
   <p>Locutor es una aplicación de escritorio para Windows que reconoce la canción que estás
   escuchando (en Spotify, YouTube Music, etc.) y hace que unos «locutores» con inteligencia
@@ -45,8 +45,9 @@
   <ul>
     <li><strong>Título y artista de la canción</strong> que suena. Lo lee el sistema de
     «reproduciendo ahora» de Windows (SMTC) y se envía a nuestro servidor para que la IA
-    escriba el comentario. <strong>No se accede al audio, no se graba nada, no se usa el
-    micrófono.</strong></li>
+    escriba el comentario; también se consulta con ese título/artista alguna base de datos
+    musical (MusicBrainz, Wikipedia) para añadir datos y reseñas reales. <strong>No se accede
+    al audio, no se graba nada, no se usa el micrófono.</strong></li>
     <li><strong>Correo electrónico</strong>: solo si decides <em>Entrar con Google</em>.
     Sirve para identificarte y gestionar tu plan. Sin iniciar sesión, usas la app como
     invitado.</li>
@@ -66,13 +67,16 @@
   <p>Para que la app funcione, algunos datos se envían a servicios de terceros, cada uno con
   su propia política de privacidad:</p>
   <ul>
-    <li><strong>Anthropic (Claude)</strong> — escribe el comentario. Recibe el título/artista
-    y el contexto del locutor. No recibe tu identidad.</li>
+    <li><strong>Anthropic (Claude)</strong> — escribe el comentario. Recibe el título/artista,
+    el contexto del locutor y, para enriquecer el comentario, los datos verificados de la
+    canción y (en el modo «Citas») el texto de la reseña crítica. No recibe tu identidad.</li>
+    <li><strong>MusicBrainz</strong> — base de datos musical abierta. Recibe el título/artista
+    para devolver datos verificados (año, origen, género).</li>
+    <li><strong>Wikipedia</strong> — en el modo «Citas», recibe el título/artista para buscar
+    la reseña crítica del tema y poder citarla con su fuente.</li>
     <li><strong>Google</strong> — solo para <em>Entrar con Google</em> (verifica tu correo).</li>
     <li><strong>Stripe</strong> — procesa los pagos de la suscripción.</li>
     <li><strong>Microsoft (Edge / Windows)</strong> — convierte el texto en voz neural.</li>
-    <li><strong>AudD</strong> — reconocimiento de canción (recibe título/artista) cuando hace
-    falta identificar lo que suena.</li>
     <li><strong>ElevenLabs</strong> — solo si activas voces premium con tu propia clave.</li>
     <li><strong>Render</strong> — aloja nuestro servidor.</li>
   </ul>
