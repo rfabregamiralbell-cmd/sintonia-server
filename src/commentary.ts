@@ -105,6 +105,7 @@ function buildPrompt(p: any): string {
       `dato dudoso. Prioriza lo más revelador y sorprendente. Encadena ideas con criterio, no enumeres.\n`;
   }
   s += `Idioma de salida: ${p.outLang}.\n`;
+  if (p.voiceRef) s += `IMITA esta VOZ de referencia: capta su ESENCIA —registro, ritmo, vocabulario, actitud y forma de las frases— y comenta la canción HABLANDO ASÍ. NO copies sus palabras ni comentes su contenido; absorbe su VOZ y aplícala. Referencia: «${p.voiceRef}».\n`;
   if (p.catchphrase) s += `Si encaja, abre con tu muletilla: "${p.catchphrase}".\n`;
   if (p.avoidRepeat && p.recent && p.recent.length) s += `No repitas lo ya comentado sobre: ${p.recent.join("; ")}.\n`;
   s += `Apunta a una locución de unos ${p.duration} segundos.`;
@@ -145,6 +146,7 @@ export async function commentary(req: AuthedRequest, res: Response) {
       outLang: cap(b.outLang || "Español", 30),
       treatment: cap(b.treatment || "tú", 40),
       catchphrase: cap(b.catchphrase, 80),
+      voiceRef: cap(b.voiceRef, 700),   // referencia de voz/estilo a imitar
       avoidRepeat: !!b.avoidRepeat,
       moment: cap(b.moment || "Comentario", 30),
       liveCtx: cap(b.liveCtx, 600),
