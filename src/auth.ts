@@ -35,10 +35,15 @@ function upsertUser(id: string, email: string, provider: string) {
   ).run(id, email, provider, Date.now());
 }
 
+const JWT_ISS = "locutor";
+const JWT_AUD = "locutor-app";
+
 async function issueToken(id: string, email: string): Promise<string> {
   return new SignJWT({ email })
     .setProtectedHeader({ alg: "HS256" })
     .setSubject(id)
+    .setIssuer(JWT_ISS)
+    .setAudience(JWT_AUD)
     .setIssuedAt()
     .setExpirationTime("60d")
     .sign(secret);
@@ -128,8 +133,12 @@ export async function authGoogleWeb(req: Request, res: Response) {
  *  (Apple/Google) es opcional y sirve para sincronizar entre dispositivos.
  *  Producción: conviene limitar la creación por IP (anti-abuso del free-tier). */
 export async function authGuest(req: Request, res: Response) {
-  const deviceId = (req.body?.deviceId || "").toString().trim().slice(0, 64);
-  const id = `guest:${deviceId || randomUUID()}`;
+  const raw = (req.body?.deviceId || "").toString().trim().slice(0, 64);
+  // Solo aceptamos el deviceId del cliente si tiene ENTROPÍA real (un UUID aleatorio): así
+  // nadie puede reclamar identidades predecibles tipo guest:1 / guest:admin para leer o
+  // pisar la sesión de otro invitado (IDOR). Si no la tiene, generamos uno aleatorio.
+  const hasEntropy = /^[A-Za-z0-9-]{16,64}$/.test(raw) && /[0-9]/.test(raw) && /[a-zA-Z]/.test(raw);
+  const id = `guest:${hasEntropy ? raw : randomUUID()}`;
   upsertUser(id, "", "guest");
   res.json({ token: await issueToken(id, ""), email: "", guest: true });
 }
@@ -152,7 +161,8 @@ export async function requireAuth(req: AuthedRequest, res: Response, next: NextF
     const h = req.headers.authorization || "";
     const t = h.startsWith("Bearer ") ? h.slice(7) : "";
     if (!t) return res.status(401).json({ error: "no autenticado" });
-    const { payload } = await jwtVerify(t, secret);
+    // Fija el algoritmo (defensa en profundidad contra confusión de algoritmos / alg:none).
+    const { payload } = await jwtVerify(t, secret, { algorithms: ["HS256"] });
     req.userId = payload.sub as string;
     req.email = (payload.email as string) || "";
     // Auto-cura la fila de usuario (la BD de Render es efímera y puede borrarse):

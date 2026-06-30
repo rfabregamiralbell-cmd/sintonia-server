@@ -88,7 +88,13 @@ export async function webhook(req: Request, res: Response) {
   // Si Stripe aún no está configurado (faltan claves), respondemos 200 para que
   // Stripe pueda VALIDAR la URL al crear el webhook. No hay nada que verificar
   // todavía. En cuanto STRIPE_WEBHOOK_SECRET esté puesto, se verifica la firma.
-  if (!stripe || !STRIPE_WEBHOOK_SECRET) return res.status(200).json({ received: true, note: "stripe sin configurar" });
+  // Stripe del todo sin configurar -> 200 para que Stripe pueda VALIDAR la URL al crear el
+  // webhook (aún no hay whsec_). Pero si STRIPE_SECRET está puesto y FALTA el whsec_, es una
+  // mala configuración que haría perder eventos en silencio: avisamos FUERTE en los logs.
+  if (!STRIPE_WEBHOOK_SECRET) {
+    if (stripe) console.error("[billing] ⚠️⚠️ STRIPE configurado pero FALTA STRIPE_WEBHOOK_SECRET: se están IGNORANDO eventos de Stripe (pagos no se reflejan). Pon el whsec_ en Render.");
+    return res.status(200).json({ received: true, note: "stripe sin configurar" });
+  }
   let event: Stripe.Event;
   try {
     const sig = req.headers["stripe-signature"] as string;
@@ -151,6 +157,12 @@ async function reconcileSubscription(userId: string | null, customerId: string |
     const trial = await stripe.subscriptions.list({ customer: customerId, status: "trialing", limit: 1 });
     sub = trial.data[0];
   }
+  if (!sub) {
+    // Periodo de GRACIA: un pago fallido (past_due) NO expulsa al instante; mantenemos
+    // Premium hasta el fin del periodo ya pagado, para no echar a quien está reintentando.
+    const pd = await stripe.subscriptions.list({ customer: customerId, status: "past_due", limit: 1 });
+    sub = pd.data[0];
+  }
   if (sub) setSub(userId, "stripe", subUntilMs(sub));
   else clearSub(userId);
 }
@@ -173,6 +185,10 @@ export async function checkSubscribed(userId: string, email?: string | null): Pr
       if (!sub) {
         const trial = await stripe.subscriptions.list({ customer: c.id, status: "trialing", limit: 1 });
         sub = trial.data[0];
+      }
+      if (!sub) {
+        const pd = await stripe.subscriptions.list({ customer: c.id, status: "past_due", limit: 1 }); // gracia
+        sub = pd.data[0];
       }
       if (sub) {
         db.prepare("UPDATE users SET subscribed = 1, sub_provider = 'stripe', sub_until = ?, stripe_customer = ? WHERE id = ?")
