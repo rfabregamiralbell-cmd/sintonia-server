@@ -7,6 +7,7 @@ import { globalCapHit, addGlobalSpend } from "./globalbudget";
 import { fetchMusicFacts, factsLine } from "./musicdata";
 import { fetchReception } from "./quotes";
 import { dailyExceeded } from "./dailycap";
+import { generate, GEMINI_ENABLED } from "./generate";
 
 const REQUIRE_SUB = (process.env.REQUIRE_SUBSCRIPTION ?? "1") !== "0";
 const FREE_TIER_CALLS = Number(process.env.FREE_TIER_CALLS ?? "10"); // comentarios gratis antes de pedir plan
@@ -119,8 +120,8 @@ export async function commentary(req: AuthedRequest, res: Response) {
     // BYOK SOLO si parece una clave real de Anthropic; si no, NO salta el gating (va por managed).
     const rawUserKey = typeof userKeyHeader === "string" ? userKeyHeader.trim() : "";
     const userKey = (/^sk-ant-/.test(rawUserKey) && rawUserKey.length > 20) ? rawUserKey : "";
-    const key = userKey || ANTHROPIC_KEY; // BYOK usa la clave del usuario.
-    if (!key) return res.status(500).json({ error: "falta clave de IA" });
+    // Hay con qué generar si: BYOK del usuario, o Gemini (motor principal), o Anthropic (org).
+    if (!userKey && !GEMINI_ENABLED && !ANTHROPIC_KEY) return res.status(500).json({ error: "falta clave de IA" });
 
     const u: any = db.prepare("SELECT * FROM users WHERE id = ?").get(userId);
     if (!u) return res.status(401).json({ error: "usuario no encontrado" });
@@ -196,27 +197,25 @@ export async function commentary(req: AuthedRequest, res: Response) {
     // análisis densos y largos (web/escritorio), acotado por presupuesto/cap diario.
     const maxTokens = Math.max(120, Math.min(1200, Math.round(p.duration * 4) + 60));
 
-    const r = await fetchT("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: { "x-api-key": key, "anthropic-version": "2023-06-01", "content-type": "application/json" },
-      body: JSON.stringify({ model: MODEL, max_tokens: maxTokens, system: DJ_SYSTEM, messages: [{ role: "user", content: buildPrompt(p) }] }),
-    }, 60000);
-
-    if (!r.ok) return res.status(502).json({ error: "modelo " + r.status });
-    const data: any = await r.json();
-    const text = (data.content ?? []).filter((x: any) => x.type === "text").map((x: any) => x.text).join("").trim();
-    const usage = data.usage ?? { input_tokens: 0, output_tokens: 0 };
+    // Motor PRINCIPAL Gemini (barato) si hay GEMINI_KEY; si no, Anthropic; BYOK usa su clave.
+    let gen;
+    try {
+      gen = await generate(DJ_SYSTEM, buildPrompt(p), maxTokens, userKey);
+    } catch (e) {
+      console.error("commentary gen:", e);
+      return res.status(502).json({ error: "modelo no disponible" });
+    }
+    const text = gen.text;
 
     // Si el modelo no devolvió texto, NO cobramos ni gastamos cupo (sería cobrar por nada).
     if (!text) return res.status(502).json({ error: "respuesta vacía del modelo", empty: true });
 
     let charged = 0;
     if (!userKey) {
-      const raw = usage.input_tokens * PRICE_IN + usage.output_tokens * PRICE_OUT;
-      charged = raw * (1 + MARKUP); // + mantenimiento
+      charged = gen.charged;
       db.prepare(
         "UPDATE users SET spend = spend + ?, calls = calls + 1, input_tokens = input_tokens + ?, output_tokens = output_tokens + ? WHERE id = ?"
-      ).run(charged, usage.input_tokens, usage.output_tokens, userId);
+      ).run(charged, gen.inTok, gen.outTok, userId);
       addGlobalSpend(charged); // acumula al tope de gasto global del día
     }
 
@@ -224,7 +223,7 @@ export async function commentary(req: AuthedRequest, res: Response) {
     const freeRemaining = Math.max(0, FREE_TIER_CALLS - (after.calls ?? 0));
     res.json({
       text,
-      usage,
+      usage: { input_tokens: gen.inTok, output_tokens: gen.outTok },
       charged,
       spend: after.spend,
       budget: after.budget,

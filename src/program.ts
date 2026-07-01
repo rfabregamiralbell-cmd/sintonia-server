@@ -6,6 +6,7 @@ import { fetchT } from "./fetchT";
 import { globalCapHit, addGlobalSpend } from "./globalbudget";
 import { fetchMusicFacts, factsLine } from "./musicdata";
 import { dailyExceeded } from "./dailycap";
+import { generate, GEMINI_ENABLED } from "./generate";
 
 // Programa = conversación entre VARIOS locutores (entrada, debate, cierre).
 // Es la función PREMIUM: el cliente envía {system, prompt} ya construidos
@@ -43,8 +44,7 @@ export async function program(req: AuthedRequest, res: Response) {
     // BYOK SOLO si parece una clave real de Anthropic; si no, NO salta el muro de pago.
     const rawUserKey = typeof userKeyHeader === "string" ? userKeyHeader.trim() : "";
     const userKey = (/^sk-ant-/.test(rawUserKey) && rawUserKey.length > 20) ? rawUserKey : "";
-    const key = userKey || ANTHROPIC_KEY; // BYOK usa la clave del usuario.
-    if (!key) return res.status(500).json({ error: "falta clave de IA" });
+    if (!userKey && !GEMINI_ENABLED && !ANTHROPIC_KEY) return res.status(500).json({ error: "falta clave de IA" });
 
     const u: any = db.prepare("SELECT * FROM users WHERE id = ?").get(userId);
     if (!u) return res.status(401).json({ error: "usuario no encontrado" });
@@ -82,16 +82,15 @@ export async function program(req: AuthedRequest, res: Response) {
     }
     const userPrompt = facts ? prompt + "\n\n" + facts : prompt;
 
-    const r = await fetchT("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: { "x-api-key": key, "anthropic-version": "2023-06-01", "content-type": "application/json" },
-      body: JSON.stringify({ model: MODEL, max_tokens: 1000, system, messages: [{ role: "user", content: userPrompt }] }),
-    }, 60000);
-
-    if (!r.ok) return res.status(502).json({ error: "modelo " + r.status });
-    const data: any = await r.json();
-    const text = (data.content ?? []).filter((x: any) => x.type === "text").map((x: any) => x.text).join("").trim();
-    const usage = data.usage ?? { input_tokens: 0, output_tokens: 0 };
+    // Motor PRINCIPAL Gemini (barato) si hay GEMINI_KEY; si no, Anthropic; BYOK usa su clave.
+    let gen;
+    try {
+      gen = await generate(system, userPrompt, 1000, userKey);
+    } catch (e) {
+      console.error("program gen:", e);
+      return res.status(502).json({ error: "modelo no disponible" });
+    }
+    const text = gen.text;
 
     // Valida que la salida ES el array JSON de turnos contratado; si no (o está vacío), NO
     // cobramos ni gastamos cupo por una respuesta inservible.
@@ -102,18 +101,17 @@ export async function program(req: AuthedRequest, res: Response) {
 
     let charged = 0;
     if (!userKey) {
-      const raw = usage.input_tokens * PRICE_IN + usage.output_tokens * PRICE_OUT;
-      charged = raw * (1 + MARKUP); // + mantenimiento
+      charged = gen.charged;
       db.prepare(
         "UPDATE users SET spend = spend + ?, calls = calls + 1, input_tokens = input_tokens + ?, output_tokens = output_tokens + ? WHERE id = ?"
-      ).run(charged, usage.input_tokens, usage.output_tokens, userId);
+      ).run(charged, gen.inTok, gen.outTok, userId);
       addGlobalSpend(charged); // acumula al tope de gasto global del día
     }
 
     const after: any = db.prepare("SELECT spend, budget, calls, subscribed, sub_until FROM users WHERE id = ?").get(userId);
     res.json({
       text,
-      usage,
+      usage: { input_tokens: gen.inTok, output_tokens: gen.outTok },
       charged,
       spend: after.spend,
       budget: after.budget,
