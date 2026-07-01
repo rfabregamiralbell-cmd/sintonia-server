@@ -11,6 +11,7 @@ import { publish, browse, getOne, remove } from "./stations";
 import { checkout, webhook, status, verifyApple, verifyGoogle } from "./billing";
 import { recognize } from "./recognize";
 import { tts } from "./tts";
+import { ttsGemini } from "./geminitts";
 import { prefetch } from "./prefetch";
 import { ipLimit } from "./ratelimit";
 
@@ -62,6 +63,7 @@ app.post("/prefetch", ipLimit(240), requireAuth, prefetch); // precalienta cachÃ
 app.post("/commentary", ipLimit(120), requireAuth, commentary); // 1 locutor (freemium)
 app.post("/program", ipLimit(120), requireAuth, program); // varios locutores (premium / BYOK)
 app.post("/tts", requireAuth, tts); // voces premium ElevenLabs incluidas (solo suscriptores)
+app.post("/tts-gemini", requireAuth, ttsGemini); // voz con Gemini TTS (single / multi-speaker â‰¤2)
 app.get("/me/usage", requireAuth, getUsage);
 app.post("/me/budget", requireAuth, setBudget);
 // /me/reset ELIMINADO: reseteaba el contador de free-tier y el gasto -> IA gratis ilimitada.
