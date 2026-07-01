@@ -63,7 +63,7 @@ app.post("/prefetch", ipLimit(240), requireAuth, prefetch); // precalienta cach�
 app.post("/commentary", ipLimit(120), requireAuth, commentary); // 1 locutor (freemium)
 app.post("/program", ipLimit(120), requireAuth, program); // varios locutores (premium / BYOK)
 app.post("/tts", requireAuth, tts); // voces premium ElevenLabs incluidas (solo suscriptores)
-app.post("/tts-gemini", requireAuth, ttsGemini); // voz con Gemini TTS (single / multi-speaker ≤2)
+app.post("/tts-gemini", ipLimit(240), requireAuth, ttsGemini); // voz con Gemini TTS (single / multi-speaker ≤2)
 app.get("/me/usage", requireAuth, getUsage);
 app.post("/me/budget", requireAuth, setBudget);
 // /me/reset ELIMINADO: reseteaba el contador de free-tier y el gasto -> IA gratis ilimitada.

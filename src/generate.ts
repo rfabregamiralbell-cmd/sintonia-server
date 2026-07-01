@@ -60,6 +60,10 @@ async function geminiGen(system: string, prompt: string, maxTokens: number): Pro
   if (!res.ok) throw new Error("gemini " + res.status + " " + JSON.stringify((res.data && res.data.error) || {}).slice(0, 200));
   const data: any = res.data || {};
   const text = ((data.candidates?.[0]?.content?.parts) || []).map((p: any) => (p && p.text) || "").join(" ").trim();
+  // Respuesta 200 pero SIN texto (bloqueo de seguridad, finishReason MAX_TOKENS con todo el
+  // presupuesto en "thinking", etc.): lo tratamos como fallo para que generate() ESCALE a
+  // Anthropic en vez de devolver un comentario vacío al usuario.
+  if (!text) throw new Error("gemini vacío (finishReason=" + String(data.candidates?.[0]?.finishReason || "?") + ")");
   const um = data.usageMetadata || {};
   return { text, inTok: Number(um.promptTokenCount) || 0, outTok: Number(um.candidatesTokenCount) || 0 };
 }
@@ -73,7 +77,11 @@ async function callGemini(model: string, system: string, prompt: string, maxToke
       body: JSON.stringify({
         system_instruction: { parts: [{ text: system || "" }] }, // FIJO -> prefijo cacheable
         contents: [{ role: "user", parts: [{ text: prompt || "" }] }], // VARIABLE
-        generationConfig: { maxOutputTokens: maxTokens, temperature: 0.8 },
+        // thinkingBudget:0 DESACTIVA el "pensamiento" de Gemini 2.5. Sin esto, el modelo de
+        // fallback (gemini-2.5-flash, con thinking ON por defecto) puede gastarse TODO
+        // maxOutputTokens razonando y devolver texto VACÍO. flash-lite ya no piensa; esto lo
+        // fija explícito para ambos.
+        generationConfig: { maxOutputTokens: maxTokens, temperature: 0.8, thinkingConfig: { thinkingBudget: 0 } },
       }),
     },
     60000
