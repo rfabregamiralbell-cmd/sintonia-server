@@ -48,7 +48,7 @@ export async function generate(system: string, prompt: string, maxTokens: number
 async function geminiGen(system: string, prompt: string, maxTokens: number): Promise<{ text: string; inTok: number; outTok: number }> {
   let res = await callGemini(GEMINI_MODEL, system, prompt, maxTokens);
   if (!res.ok && looksLikeModelMissing(res)) res = await callGemini(GEMINI_FALLBACK, system, prompt, maxTokens);
-  if (!res.ok) throw new Error("gemini " + res.status);
+  if (!res.ok) throw new Error("gemini " + res.status + " " + JSON.stringify((res.data && res.data.error) || {}).slice(0, 300));
   const data: any = res.data || {};
   const text = ((data.candidates?.[0]?.content?.parts) || []).map((p: any) => (p && p.text) || "").join(" ").trim();
   const um = data.usageMetadata || {};
