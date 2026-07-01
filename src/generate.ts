@@ -35,9 +35,16 @@ export async function generate(system: string, prompt: string, maxTokens: number
     return { ...r, charged: 0, engine: "anthropic-byok" };
   }
   if (GEMINI_KEY) {
-    const r = await geminiGen(system, prompt, maxTokens);
-    const charged = (r.inTok * PRICE.gemini.in + r.outTok * PRICE.gemini.out) * (1 + MARKUP);
-    return { ...r, charged, engine: "gemini" };
+    try {
+      const r = await geminiGen(system, prompt, maxTokens);
+      const charged = (r.inTok * PRICE.gemini.in + r.outTok * PRICE.gemini.out) * (1 + MARKUP);
+      return { ...r, charged, engine: "gemini" };
+    } catch (e) {
+      // Gemini saturado/caído (p. ej. 503 "high demand"): si hay clave Anthropic de la org,
+      // tiramos de ella para NO dejar al usuario sin respuesta (coste mayor puntual, fiable).
+      if (!ANTHROPIC_KEY) throw e;
+      console.warn("[gen] Gemini falló -> fallback Anthropic:", String((e as any)?.message || e).slice(0, 140));
+    }
   }
   const r = await anthropicGen(ANTHROPIC_KEY, system, prompt, maxTokens);
   const charged = (r.inTok * PRICE.anthropic.in + r.outTok * PRICE.anthropic.out) * (1 + MARKUP);
@@ -47,8 +54,10 @@ export async function generate(system: string, prompt: string, maxTokens: number
 // ── Gemini ────────────────────────────────────────────────────────────────────────────
 async function geminiGen(system: string, prompt: string, maxTokens: number): Promise<{ text: string; inTok: number; outTok: number }> {
   let res = await callGemini(GEMINI_MODEL, system, prompt, maxTokens);
-  if (!res.ok && looksLikeModelMissing(res)) res = await callGemini(GEMINI_FALLBACK, system, prompt, maxTokens);
-  if (!res.ok) throw new Error("gemini " + res.status + " " + JSON.stringify((res.data && res.data.error) || {}).slice(0, 300));
+  // Reintenta con el flash normal si el modelo barato NO está disponible O está SATURADO
+  // (503/429/"high demand"): el flash suele tener más capacidad.
+  if (!res.ok && isRetryable(res)) res = await callGemini(GEMINI_FALLBACK, system, prompt, maxTokens);
+  if (!res.ok) throw new Error("gemini " + res.status + " " + JSON.stringify((res.data && res.data.error) || {}).slice(0, 200));
   const data: any = res.data || {};
   const text = ((data.candidates?.[0]?.content?.parts) || []).map((p: any) => (p && p.text) || "").join(" ").trim();
   const um = data.usageMetadata || {};
@@ -73,11 +82,11 @@ async function callGemini(model: string, system: string, prompt: string, maxToke
   return { ok: r.ok, status: r.status, data };
 }
 
-function looksLikeModelMissing(res: { status: number; data: any }): boolean {
-  if (res.status === 404) return true;
+function isRetryable(res: { status: number; data: any }): boolean {
+  if (res.status === 404 || res.status === 429 || res.status === 503 || res.status === 500) return true;
   const err = res.data && res.data.error;
   const msg = String((err && (err.message || err.status)) || "");
-  return /not found|not supported|does not exist|unavailable|unsupported|no such model/i.test(msg);
+  return /not found|not supported|does not exist|unavailable|unsupported|no such model|overloaded|high demand|resource has been exhausted/i.test(msg);
 }
 
 // ── Anthropic ─────────────────────────────────────────────────────────────────────────

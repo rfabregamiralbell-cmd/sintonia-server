@@ -203,7 +203,7 @@ export async function commentary(req: AuthedRequest, res: Response) {
       gen = await generate(DJ_SYSTEM, buildPrompt(p), maxTokens, userKey);
     } catch (e) {
       console.error("commentary gen:", e);
-      return res.status(502).json({ error: "modelo no disponible", _debug: String((e as any) && ((e as any).message || e)).slice(0, 320) });
+      return res.status(502).json({ error: "modelo no disponible" });
     }
     const text = gen.text;
 
