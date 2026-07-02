@@ -110,10 +110,18 @@ export async function authGoogleWeb(req: Request, res: Response) {
       headers: { "content-type": "application/x-www-form-urlencoded" },
       body: params.toString(),
     }, 15000);
-    if (!r.ok) return res.status(401).json({ error: "intercambio con Google falló" });
-    const data: any = await r.json();
+    const data: any = await r.json().catch(() => ({}));
+    if (!r.ok) {
+      // Superficie el error REAL de Google para poder diagnosticar (antes se ocultaba):
+      //  invalid_client = client_secret de Render caducado/incorrecto;
+      //  invalid_grant  = code caducado/reusado o redirect_uri distinto;
+      //  redirect_uri_mismatch = el redirect no está registrado en Google Cloud.
+      const detail = data.error_description || data.error || `HTTP ${r.status}`;
+      console.warn("[auth/google/web] intercambio con Google falló:", detail);
+      return res.status(401).json({ error: "intercambio con Google falló", detail });
+    }
     const idToken = data.id_token;
-    if (!idToken) return res.status(401).json({ error: "sin id_token" });
+    if (!idToken) return res.status(401).json({ error: "sin id_token de Google" });
     const { payload } = await jwtVerify(idToken, googleJWKS, {
       issuer: ["https://accounts.google.com", "accounts.google.com"],
       audience: GOOGLE_CLIENT_ID,
@@ -123,8 +131,8 @@ export async function authGoogleWeb(req: Request, res: Response) {
     const email = (payload.email as string) || "";
     upsertUser(id, email, "google");
     res.json({ token: await issueToken(id, email), email });
-  } catch {
-    res.status(401).json({ error: "login de Google inválido" });
+  } catch (e: any) {
+    res.status(401).json({ error: "login de Google inválido", detail: String(e?.message || e).slice(0, 200) });
   }
 }
 
