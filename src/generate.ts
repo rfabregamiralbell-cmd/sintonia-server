@@ -20,6 +20,16 @@ const PRICE = {
 // ¿Está Gemini como motor principal? (para logs/diagnóstico)
 export const GEMINI_ENABLED = !!GEMINI_KEY;
 
+// Refuerzo de FIDELIDAD solo para Gemini. flash-lite es más "suelto" que Claude con las reglas
+// enterradas a mitad del system (medido: ~3/4 de comentarios usaban muletillas prohibidas y
+// ~1/4 inventaba un año). Re-afirmamos, AL FINAL y en corto, justo lo que más se viola — los
+// modelos débiles obedecen mejor lo último y más saliente. Es ADITIVO: no cambia el prompt del
+// dominio, solo lo refuerza; y solo se aplica al camino Gemini (Claude ya lo cumple).
+const GEMINI_FIDELITY =
+  "AVISO FINAL OBLIGATORIO: entra DIRECTO con la observación; PROHIBIDO empezar con o usar las " +
+  "muletillas 'fíjate', 'mira', 'oye', '¿eh?', 'ahí está', '¿no te parece?'. NO afirmes años, fechas, " +
+  "ni el origen de un sonido (samples, quién lo toca) salvo certeza absoluta; ante la duda, describe lo que se OYE.";
+
 export type GenResult = {
   text: string;
   inTok: number;
@@ -75,7 +85,8 @@ async function callGemini(model: string, system: string, prompt: string, maxToke
       method: "POST",
       headers: { "content-type": "application/json", "x-goog-api-key": GEMINI_KEY },
       body: JSON.stringify({
-        system_instruction: { parts: [{ text: system || "" }] }, // FIJO -> prefijo cacheable
+        // system FIJO (prefijo cacheable) + refuerzo de fidelidad al FINAL (lo más saliente para el modelo).
+        system_instruction: { parts: [{ text: (system || "") + "\n\n" + GEMINI_FIDELITY }] },
         contents: [{ role: "user", parts: [{ text: prompt || "" }] }], // VARIABLE
         // thinkingBudget:0 DESACTIVA el "pensamiento" de Gemini 2.5. Sin esto, el modelo de
         // fallback (gemini-2.5-flash, con thinking ON por defecto) puede gastarse TODO

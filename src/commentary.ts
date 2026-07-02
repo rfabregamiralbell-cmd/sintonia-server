@@ -96,7 +96,10 @@ function buildPrompt(p: any): string {
   if (themes) s += `Enfoque temático prioritario: ${themes}.\n`;
   s += `Estilo del locutor: ${p.tone}.\n`;
   if (p.djName) s += `Te llamas ${p.djName}.\n`;
+  if (p.charGender || p.charAge) s += `Encarnas a un personaje ${[p.charGender, p.charAge].filter(Boolean).join(" ")}: que se note en la actitud y la forma de hablar, sin caricatura.\n`;
   s += `Trata al oyente de "${p.treatment}".\n`;
+  if (p.listenerLevel) s += `Nivel del oyente: ${p.listenerLevel}. Ajusta a ese nivel el vocabulario y cuánto explicas (a un principiante, sin jerga; a un experto, sin obviedades).\n`;
+  if (p.persona) s += `INSTRUCCIÓN ESPECIAL de este locutor (respétala siempre, moldea su carácter): ${p.persona}\n`;
   s += `Nivel de detalle: ${p.depth}/5.\n`;
   if (p.style === "denso" && p.depth >= 4) {
     s += `Modo análisis profundo: profundiza de verdad, con densidad alta de ideas y cero relleno. ` +
@@ -148,6 +151,10 @@ export async function commentary(req: AuthedRequest, res: Response) {
       treatment: cap(b.treatment || "tú", 40),
       catchphrase: cap(b.catchphrase, 80),
       voiceRef: cap(b.voiceRef, 700),   // referencia de voz/estilo a imitar
+      listenerLevel: cap(b.listenerLevel, 30),  // nivel del oyente (principiante/aficionado/experto)
+      charGender: cap(b.charGender, 20),         // género del personaje (si no es neutro)
+      charAge: cap(b.charAge, 20),               // edad del personaje (si no es adulto)
+      persona: cap(b.persona, 400),              // instrucción personalizada del locutor
       avoidRepeat: !!b.avoidRepeat,
       moment: cap(b.moment || "Comentario", 30),
       liveCtx: cap(b.liveCtx, 600),
