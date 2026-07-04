@@ -6,14 +6,17 @@ import { fetchT } from "./fetchT";
 //
 // Precios por token ($). Gemini 2.5 Flash-Lite es mucho más barato, sobre todo en SALIDA.
 const GEMINI_KEY = process.env.GEMINI_KEY || "";
-const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash-lite"; // fácil de cambiar por env
-const GEMINI_FALLBACK = "gemini-2.5-flash"; // si el modelo barato no está disponible
+// Modelo PRINCIPAL: gemini-2.5-flash (medido: 0 muletillas y comentarios más ricos que flash-lite,
+// que dejaba pasar ~1/4; sigue las instrucciones bastante mejor). Coste aún ínfimo (~5x más barato
+// que Claude). Configurable por env; para máximo ahorro, poner GEMINI_MODEL=gemini-2.5-flash-lite.
+const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+const GEMINI_FALLBACK = "gemini-2.5-flash-lite"; // en saturación (503/429): más barato y con más capacidad
 const ANTHROPIC_KEY = process.env.ANTHROPIC_KEY || "";
 const ANTHROPIC_MODEL = "claude-sonnet-4-6";
 const MARKUP = Number(process.env.MARKUP ?? "0.15");
 
 const PRICE = {
-  gemini: { in: 0.1 / 1e6, out: 0.4 / 1e6 },
+  gemini: { in: 0.3 / 1e6, out: 2.5 / 1e6 },   // precio de gemini-2.5-flash (para el cap de gasto)
   anthropic: { in: 3 / 1e6, out: 15 / 1e6 },
 };
 
@@ -29,6 +32,17 @@ const GEMINI_FIDELITY =
   "AVISO FINAL OBLIGATORIO: entra DIRECTO con la observación; PROHIBIDO empezar con o usar las " +
   "muletillas 'fíjate', 'mira', 'oye', '¿eh?', 'ahí está', '¿no te parece?'. NO afirmes años, fechas, " +
   "ni el origen de un sonido (samples, quién lo toca) salvo certeza absoluta; ante la duda, describe lo que se OYE.";
+
+// POST-FILTRO determinista: si el comentario ABRE con una muletilla/interjección (a pesar del prompt),
+// la quita y recapitaliza. Garantía dura (no depende de que el modelo obedezca). Solo afecta a la
+// APERTURA de texto plano; sobre un JSON de /program (empieza por '[') el patrón no casa = no toca nada.
+const OPENER = /^(¡?\s*(f[ií]jate|mira|oye|ah[ií] est[aá]|¿?eh\?|¿?no te parece\??|vaya|uf+|ay+|guau|wow)(\s+(en\s+)?(c[oó]mo|como|lo|bien|qu[eé]))?\s*[,;:!¡.\-–—]*\s+)/i;
+function stripOpenerMuletilla(t: string): string {
+  const s = String(t || "").trim();
+  const m = s.match(OPENER);
+  if (m && s.length - m[0].length > 20) { const rest = s.slice(m[0].length); return rest.charAt(0).toUpperCase() + rest.slice(1); }
+  return s;
+}
 
 export type GenResult = {
   text: string;
@@ -69,7 +83,7 @@ async function geminiGen(system: string, prompt: string, maxTokens: number): Pro
   if (!res.ok && isRetryable(res)) res = await callGemini(GEMINI_FALLBACK, system, prompt, maxTokens);
   if (!res.ok) throw new Error("gemini " + res.status + " " + JSON.stringify((res.data && res.data.error) || {}).slice(0, 200));
   const data: any = res.data || {};
-  const text = ((data.candidates?.[0]?.content?.parts) || []).map((p: any) => (p && p.text) || "").join(" ").trim();
+  const text = stripOpenerMuletilla(((data.candidates?.[0]?.content?.parts) || []).map((p: any) => (p && p.text) || "").join(" ").trim());
   // Respuesta 200 pero SIN texto (bloqueo de seguridad, finishReason MAX_TOKENS con todo el
   // presupuesto en "thinking", etc.): lo tratamos como fallo para que generate() ESCALE a
   // Anthropic en vez de devolver un comentario vacío al usuario.
@@ -92,7 +106,7 @@ async function callGemini(model: string, system: string, prompt: string, maxToke
         // fallback (gemini-2.5-flash, con thinking ON por defecto) puede gastarse TODO
         // maxOutputTokens razonando y devolver texto VACÍO. flash-lite ya no piensa; esto lo
         // fija explícito para ambos.
-        generationConfig: { maxOutputTokens: maxTokens, temperature: 0.8, thinkingConfig: { thinkingBudget: 0 } },
+        generationConfig: { maxOutputTokens: maxTokens, temperature: 0.7, thinkingConfig: { thinkingBudget: 0 } },
       }),
     },
     60000
