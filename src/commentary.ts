@@ -112,6 +112,7 @@ function buildPrompt(p: any): string {
   if (p.voiceRef) s += `IMITA esta VOZ de referencia: capta su ESENCIA —registro, ritmo, vocabulario, actitud y forma de las frases— y comenta la canción HABLANDO ASÍ. NO copies sus palabras ni comentes su contenido; absorbe su VOZ y aplícala. Referencia: «${p.voiceRef}».\n`;
   if (p.catchphrase) s += `Si encaja, abre con tu muletilla: "${p.catchphrase}".\n`;
   if (p.avoidRepeat && p.recent && p.recent.length) s += `No repitas lo ya comentado sobre: ${p.recent.join("; ")}.\n`;
+  if (p.likedSamples && p.likedSamples.length) s += `GUSTOS DEL OYENTE (aprende de ellos): le han gustado ESPECIALMENTE estos comentarios tuyos anteriores (los marcó como favoritos). Capta lo que tienen en común —tono, enfoque, longitud, tipo de observación, actitud— y TIENDE hacia ese estilo, SIN copiarlos ni repetir su contenido: ${p.likedSamples.map((x: string) => `"${String(x).slice(0, 200)}"`).join(" / ")}.\n`;
   s += `Apunta a una locución de unos ${p.duration} segundos.`;
   return s;
 }
@@ -161,6 +162,7 @@ export async function commentary(req: AuthedRequest, res: Response) {
       prevTrack: cap(b.prevTrack, 200),
       recent: capArr(b.recent, 8, 200),
       recentSaid: capArr(b.recentSaid, 8, 240),
+      likedSamples: capArr(b.likedSamples, 3, 240),  // comentarios que el oyente marcó ❤ (aprende su estilo)
       style: typeof b.style === "string" ? b.style : "denso", // nombrar | ligero | denso | cita
       factsLine: "",
       reception: "",
