@@ -30,8 +30,11 @@ export const GEMINI_ENABLED = !!GEMINI_KEY;
 // dominio, solo lo refuerza; y solo se aplica al camino Gemini (Claude ya lo cumple).
 const GEMINI_FIDELITY =
   "AVISO FINAL OBLIGATORIO: entra DIRECTO con la observación; PROHIBIDO empezar con o usar las " +
-  "muletillas 'fíjate', 'mira', 'oye', '¿eh?', 'ahí está', '¿no te parece?'. NO afirmes años, fechas, " +
-  "ni el origen de un sonido (samples, quién lo toca) salvo certeza absoluta; ante la duda, describe lo que se OYE.";
+  "muletillas 'fíjate', 'mira', 'oye', '¿eh?', 'ahí está', '¿no te parece?'. " +
+  "NUNCA des el AÑO de la canción salvo que te lo hayan dado como DATO VERIFICADO en el mensaje del oyente; " +
+  "si ahí no hay año, NO menciones NINGUNO (ni 'de 2010', ni 'del 98', ni 'en los noventa'): sitúa la época solo " +
+  "por el SONIDO. Tampoco afirmes otras fechas ni el origen de un sonido (samples, quién lo toca) salvo certeza; " +
+  "ante la duda, describe lo que se OYE, no de dónde viene.";
 
 // POST-FILTRO determinista: si el comentario ABRE con una muletilla/interjección (a pesar del prompt),
 // la quita y recapitaliza. Garantía dura (no depende de que el modelo obedezca). Solo afecta a la
