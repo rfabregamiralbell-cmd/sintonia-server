@@ -5,15 +5,16 @@ import { fetchReception } from "./quotes";
 
 // Precalienta las cachés (MusicBrainz / Wikipedia) para la canción que SUENA, antes de que
 // el usuario pulse "poner en antena". Así, al pedir el comentario, el enriquecimiento ya está
-// cacheado y NO añade espera. NO llama al modelo ni consume cupo: solo rellena caché.
-// Responde al instante (fire-and-forget): las cachés siguen calentándose en segundo plano.
-export function prefetch(req: AuthedRequest, res: Response) {
+// cacheado y NO añade espera. NO llama al modelo ni consume cupo: solo consulta MusicBrainz.
+// Además DEVUELVE los datos (año/origen/género): el cliente los usa para un comentario mínimo
+// REAL (artista + álbum + dato curioso) cuando se queda SIN CUPO de IA, en vez de plantillas.
+export async function prefetch(req: AuthedRequest, res: Response) {
   const b: any = req.body ?? {};
   const track = (typeof b.track === "string" ? b.track : "").slice(0, 200);
   const artist = (typeof b.artist === "string" ? b.artist : "").slice(0, 120);
   const outLang = (typeof b.outLang === "string" ? b.outLang : "").slice(0, 30);
   if (!track) return res.json({ ok: false });
-  fetchMusicFacts(artist, track).catch(() => {});
-  if (b.cita) fetchReception(artist, track, outLang).catch(() => {});
-  res.json({ ok: true });
+  const facts = await fetchMusicFacts(artist, track).catch(() => null);
+  if (b.cita) fetchReception(artist, track, outLang).catch(() => {});   // reseñas: sigue fire-and-forget
+  res.json({ ok: true, facts });
 }
