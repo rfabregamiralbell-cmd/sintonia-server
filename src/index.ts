@@ -8,7 +8,7 @@ import { commentary } from "./commentary";
 import { program } from "./program";
 import { getUsage, setBudget, syncSave, syncLoad } from "./me";
 import { publish, browse, getOne, remove } from "./stations";
-import { checkout, webhook, status, verifyApple, verifyGoogle, diag } from "./billing";
+import { checkout, webhook, status, verifyApple, verifyGoogle } from "./billing";
 import { recognize } from "./recognize";
 import { tts } from "./tts";
 import { ttsGemini } from "./geminitts";
@@ -78,7 +78,6 @@ app.delete("/stations/:id", requireAuth, remove);
 
 // Cobro / suscripción
 app.get("/billing/status", requireAuth, status);
-app.get("/billing/diag", requireAuth, diag); // TEMPORAL: diagnóstico de config Stripe (quitar tras usar)
 app.post("/billing/checkout", requireAuth, checkout); // Stripe -> devuelve url
 app.post("/billing/apple", requireAuth, verifyApple); // App Store receipt
 app.post("/billing/google", requireAuth, verifyGoogle); // Google Play token
