@@ -83,6 +83,31 @@ export async function checkout(req: AuthedRequest, res: Response) {
   }
 }
 
+/** DIAGNÓSTICO TEMPORAL (quitar tras usar): estado de la config de Stripe SIN exponer secretos. */
+export async function diag(_req: AuthedRequest, res: Response) {
+  const out: any = {
+    secretPrefix: STRIPE_SECRET ? STRIPE_SECRET.slice(0, 8) : "(vacío)",   // sk_live_ / sk_test_ (no es la clave)
+    priceIdSet: !!STRIPE_PRICE_ID,
+    priceIdTail: STRIPE_PRICE_ID ? "…" + STRIPE_PRICE_ID.slice(-6) : "",
+    webhookSecretSet: !!STRIPE_WEBHOOK_SECRET,
+    appBaseUrl: APP_BASE_URL,
+  };
+  if (stripe && STRIPE_PRICE_ID) {
+    try {
+      const p: any = await stripe.prices.retrieve(STRIPE_PRICE_ID);
+      out.price = { ok: true, livemode: p.livemode, active: p.active, amount: p.unit_amount, currency: p.currency, recurring: p.recurring?.interval };
+    } catch (e: any) { out.price = { ok: false, error: (e?.message || String(e)).slice(0, 200) }; }
+  }
+  if (stripe) {
+    try {
+      const c: any = await stripe.customers.create({ metadata: { diag: "1" } });
+      out.keyCheck = { ok: true, livemode: c.livemode };
+      try { await stripe.customers.del(c.id); } catch {}
+    } catch (e: any) { out.keyCheck = { ok: false, error: (e?.message || String(e)).slice(0, 200) }; }
+  }
+  res.json(out);
+}
+
 /** Webhook de Stripe. Necesita el body crudo (ver index.ts). */
 export async function webhook(req: Request, res: Response) {
   // Si Stripe aún no está configurado (faltan claves), respondemos 200 para que
