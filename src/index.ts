@@ -13,6 +13,7 @@ import { recognize } from "./recognize";
 import { tts } from "./tts";
 import { ttsGemini } from "./geminitts";
 import { prefetch } from "./prefetch";
+import { edgeTts, edgeVoices } from "./edgetts";
 import { ipLimit } from "./ratelimit";
 
 const app = express();
@@ -64,6 +65,8 @@ app.post("/commentary", ipLimit(120), requireAuth, commentary); // 1 locutor (fr
 app.post("/program", ipLimit(120), requireAuth, program); // varios locutores (premium / BYOK)
 app.post("/tts", requireAuth, tts); // voces premium ElevenLabs incluidas (solo suscriptores)
 app.post("/tts-gemini", ipLimit(240), requireAuth, ttsGemini); // voz con Gemini TTS (single / multi-speaker ≤2)
+app.post("/edge-tts", ipLimit(240), requireAuth, edgeTts); // voz neural gratis (Edge) para el móvil
+app.get("/edge-voices", requireAuth, edgeVoices); // catálogo de voces Edge
 app.get("/me/usage", requireAuth, getUsage);
 app.post("/me/budget", requireAuth, setBudget);
 // /me/reset ELIMINADO: reseteaba el contador de free-tier y el gasto -> IA gratis ilimitada.
