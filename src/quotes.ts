@@ -10,7 +10,18 @@ const cache = new Map<string, { text: string; at: number }>();
 const TTL = 24 * 3600 * 1000;
 const UA = "Locutor/1.0 (radio musical; contacto rfabregamiralbell@gmail.com)";
 const ENABLED = process.env.QUOTES !== "0";
-const REC_RE = /(recepci[oó]n|cr[ií]tic|reception|critical|reviews)/i;
+// Variantes de título de sección en los 4 idiomas que buscamos: es/recepción-acogida-
+// valoración-reseñas, pt/recepção, fr/critique-accueil, en/reception-critical-reviews.
+const REC_RE = /(recepci[oó]n|recep[çc][ãa]o|acogida|valoraci[oó]n|rese[ñn]as?|cr[ií]tic|critique|accueil|reception|critical|reviews)/i;
+// Idiomas de Wikipedia que probamos (mismo set que soporta el locutor: es/en/pt/fr).
+const LANGS = ["en", "es", "pt", "fr"];
+// Orden de preferencia: el idioma del oyente primero (más probable que tenga la reseña
+// que le sirve), el resto detrás como red de seguridad.
+function prefOrder(outLang: string): string[] {
+  const o = (outLang || "").toLowerCase();
+  const primary = /espa|spanish/.test(o) ? "es" : /portugu/.test(o) ? "pt" : /franc|french/.test(o) ? "fr" : "en";
+  return [primary, ...LANGS.filter((l) => l !== primary)];
+}
 
 const clean = (s: string) => (s || "").replace(/[\[\]"]/g, " ").trim();
 
@@ -67,27 +78,25 @@ async function receptionFromWiki(lang: string, artist: string, title: string): P
   return `[${page} · ${lang}.wikipedia] ${text.slice(0, 3200)}`;
 }
 
-// Devuelve el texto de recepción crítica (en/es) o "" si no hay. `outLang` decide la
-// preferencia de idioma de la cita (para que a un oyente en español le salga, si existe,
-// una reseña en español en vez de una en inglés).
+// Devuelve el texto de recepción crítica (probando en/es/pt/fr) o "" si no hay en ninguno.
+// `outLang` decide la preferencia de idioma de la cita (para que a un oyente en español le
+// salga, si existe, una reseña en español en vez de en otro idioma).
 export async function fetchReception(artistRaw: string, titleRaw: string, outLang = ""): Promise<string> {
   if (!ENABLED) return "";
   const artist = clean(artistRaw), title = clean(titleRaw);
   if (!artist || !title) return "";
-  const preferEs = /espa|spanish|\bes\b/i.test(outLang);
-  const k = (artist + "|" + title + "|" + (preferEs ? "es" : "en")).toLowerCase();
+  const order = prefOrder(outLang);
+  const k = (artist + "|" + title + "|" + order[0]).toLowerCase();
   const hit = cache.get(k);
   if (hit && Date.now() - hit.at < TTL) return hit.text;
 
   let text = "";
   try {
-    // En PARALELO (antes era secuencial en->es, hasta ~20s). Preferimos el idioma del oyente
-    // y caemos al otro si en su idioma no hay reseña.
-    const [en, es] = await Promise.all([
-      receptionFromWiki("en", artist, title).catch(() => ""),
-      receptionFromWiki("es", artist, title).catch(() => ""),
-    ]);
-    text = preferEs ? (es || en) : (en || es);
+    // Las 4 ediciones de Wikipedia EN PARALELO (antes solo en/es): más temas tienen sección
+    // de recepción citable en algún idioma que en otro (p. ej. reguetón más cubierto en
+    // español que en inglés, o al revés con indie/rock angloparlante).
+    const results = await Promise.all(order.map((l) => receptionFromWiki(l, artist, title).catch(() => "")));
+    text = results.find((t) => t) || "";
   } catch { text = ""; }
 
   cache.set(k, { text, at: Date.now() });

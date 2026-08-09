@@ -73,16 +73,18 @@ function buildPrompt(p: any): string {
     ? `Presenta la próxima canción antes de que suene: ${p.track}${p.artist ? " de " + p.artist : ""}.\n`
     : `Comenta la canción que suena: ${p.track}${p.artist ? " de " + p.artist : ""}.\n`;
   // Tipo de locución "CITA": NO opines tú; copia una reseña REAL y atribúyela. Cero invención.
-  if (p.style === "cita") {
-    if (p.reception) {
-      s += `MODO CITA. Aquí tienes la RECEPCIÓN CRÍTICA REAL de este tema (extraída de Wikipedia, que cita medios reales): «${p.reception}».\n`;
-      s += `Tu locución: presenta el tema en media frase y luego trae ANÁLISIS ORIGINAL DE CRÍTICOS Y EXPERTOS. Busca en ese texto las frases entrecomilladas claramente atribuibles a un crítico o medio y CITA TEXTUAL —palabra por palabra, entre comillas— hasta TRES, siempre que sean de medios o autores DISTINTOS entre sí (por ejemplo Pitchfork, Rolling Stone, The Guardian, NME, AllMusic…); si solo hay una cita clara en el texto, usa solo esa, no la fuerces ni la dupliques. Atribuye cada una al medio o autor EXACTO que la firma (por ejemplo: «La revista Pitchfork escribió, cito textualmente: "…"»). Si citas más de una, enlázalas con una transición breve de radio, sin opinar tú por encima del contenido (por ejemplo: «Y no fue la única lectura: la revista Rolling Stone, por su parte, escribió, cito: "…"»). PROHIBIDO inventar, parafrasear, resumir, traducir libremente o cambiar una sola palabra de cualquier cita: cópiala LITERAL del texto de arriba; PROHIBIDO también atribuir una frase a un medio distinto del que la firma en ese texto. Tu única aportación es presentar y enlazar las citas, no comentarlas ni valorarlas tú. Si en ese texto no hay ninguna frase entrecomillada claramente atribuible a un medio o crítico, di en una frase que de este tema aún no encuentras reseñas que citar.\n`;
-    } else {
-      s += `MODO CITA, pero de este tema NO hay reseñas de crítica para citar (aún). Dilo con naturalidad en una frase ("de ${p.track} todavía no encuentro reseñas de crítica que citar") y NADA más: no inventes ninguna cita ni te la atribuyas a nadie.\n`;
-    }
+  // Si NO hay reseña citable, ya NO nos quedamos callados: avisamos de eso en una frase y
+  // seguimos con el comentario normal de abajo (mismo camino que el resto de estilos), para
+  // que el oyente siempre reciba un comentario, con el aviso incluido al principio.
+  if (p.style === "cita" && p.reception) {
+    s += `MODO CITA. Aquí tienes la RECEPCIÓN CRÍTICA REAL de este tema (extraída de Wikipedia, que cita medios reales): «${p.reception}».\n`;
+    s += `Tu locución: presenta el tema en media frase y luego trae ANÁLISIS ORIGINAL DE CRÍTICOS Y EXPERTOS. Busca en ese texto las frases entrecomilladas claramente atribuibles a un crítico o medio y CITA TEXTUAL —palabra por palabra, entre comillas— hasta TRES, siempre que sean de medios o autores DISTINTOS entre sí (por ejemplo Pitchfork, Rolling Stone, The Guardian, NME, AllMusic…); si solo hay una cita clara en el texto, usa solo esa, no la fuerces ni la dupliques. Atribuye cada una al medio o autor EXACTO que la firma (por ejemplo: «La revista Pitchfork escribió, cito textualmente: "…"»). Si citas más de una, enlázalas con una transición breve de radio, sin opinar tú por encima del contenido (por ejemplo: «Y no fue la única lectura: la revista Rolling Stone, por su parte, escribió, cito: "…"»). PROHIBIDO inventar, parafrasear, resumir, traducir libremente o cambiar una sola palabra de cualquier cita: cópiala LITERAL del texto de arriba; PROHIBIDO también atribuir una frase a un medio distinto del que la firma en ese texto. Tu única aportación es presentar y enlazar las citas, no comentarlas ni valorarlas tú. Si en ese texto no hay ninguna frase entrecomillada claramente atribuible a un medio o crítico, di en una frase que de este tema aún no encuentras reseñas que citar.\n`;
     s += `Estilo del locutor: ${p.tone}. ${p.djName ? "Te llamas " + p.djName + ". " : ""}Trata al oyente de "${p.treatment}".\n`;
     s += `Idioma de salida: ${p.outLang}. Frase hablada (sin markdown ni emojis). Apunta a unos ${p.duration} segundos.`;
     return s;
+  }
+  if (p.style === "cita" && !p.reception) {
+    s += `AVISO: de este tema no encuentras reseñas de crítica reales que citar (no inventes ninguna ni la atribuyas a nadie). Empieza tu locución con UNA frase breve y natural que lo diga (por ejemplo: "no encuentro reseñas de crítica sobre esto, pero…") y a partir de ahí sigue con tu PROPIO comentario sobre la canción, como en cualquier otro comentario tuyo.\n`;
   }
   if (p.prevTrack) s += `Acabas de pinchar "${p.prevTrack}": haz una transición de DJ, cierra esa y enlaza con la nueva.\n`;
   if (p.factsLine) s += `${p.factsLine}\n`;
@@ -183,12 +185,16 @@ export async function commentary(req: AuthedRequest, res: Response) {
 
     // Enriquecimiento (best-effort, cacheado): citas reales (Wikipedia) para style="cita";
     // datos verificados (MusicBrainz) para el resto. Si no hay nada, sigue sin ello.
+    // Modo CITA sin reseña real -> YA NO nos callamos: caemos al comentario normal (con el
+    // mismo enriquecimiento de datos que ese modo) avisando antes de que no hubo cita, así
+    // que aquí también traemos factsLine para que ese comentario de repuesto tenga la misma
+    // calidad que uno normal en vez de ir a pelo.
     if (p.moment !== "Anuncio" && p.track) {
       if (p.style === "cita") {
         try { p.reception = await fetchReception(p.artist, p.track, p.outLang); } catch { /* sin reseñas */ }
-        // Modo CITA sin reseña real -> no se dice NADA (ni mensaje ni comentario): se ahorra
-        // la llamada al modelo y el cliente no reproduce nada. NO cuenta como uso.
-        if (!p.reception) return res.json({ text: "", noQuote: true, usage: { input_tokens: 0, output_tokens: 0 } });
+        if (!p.reception) {
+          try { p.factsLine = factsLine(await fetchMusicFacts(p.artist, p.track)); } catch { /* sin datos */ }
+        }
       } else {
         try { p.factsLine = factsLine(await fetchMusicFacts(p.artist, p.track)); } catch { /* sin datos */ }
       }
