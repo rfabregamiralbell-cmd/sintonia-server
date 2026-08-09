@@ -198,11 +198,26 @@ export async function commentary(req: AuthedRequest, res: Response) {
     // mismo enriquecimiento que tendría de por sí, en vez de ir a pelo. Sin aviso: el
     // oyente no tiene por qué saber que se pidieron citas y no había.
     if (p.moment !== "Anuncio" && p.track) {
+      // MusicBrainz (para el álbum) y la recepción a nivel de CANCIÓN en paralelo: la
+      // mayoría de canciones no tienen artículo propio en Wikipedia, así que casi siempre
+      // hará falta el álbum de todos modos.
+      const factsPromise = fetchMusicFacts(p.artist, p.track).catch(() => null);
       if (p.cita) {
-        try { p.reception = await fetchReception(p.artist, p.track, p.outLang); } catch { /* sin reseñas */ }
-      }
-      if (!p.reception) {
-        try { p.factsLine = factsLine(await fetchMusicFacts(p.artist, p.track)); } catch { /* sin datos */ }
+        const [songReception, facts] = await Promise.all([
+          fetchReception(p.artist, p.track, p.outLang).catch(() => ""),
+          factsPromise,
+        ]);
+        let albumReception = "";
+        // Nivel ÁLBUM como respaldo (y complemento): los álbumes tienen MUCHA más cobertura
+        // de crítica en Wikipedia que canciones sueltas —la mayoría de temas ni tienen
+        // artículo propio—, así que sin esto la mayoría de casos se quedarían sin nada.
+        if (facts?.album) {
+          albumReception = await fetchReception(p.artist, facts.album, p.outLang).catch(() => "");
+        }
+        p.reception = [songReception, albumReception].filter(Boolean).join("\n\n");
+        if (!p.reception) p.factsLine = factsLine(facts);
+      } else {
+        try { p.factsLine = factsLine(await factsPromise); } catch { /* sin datos */ }
       }
     }
 

@@ -17,7 +17,14 @@ const UA = "Locutor/1.0 (radio musical; contacto rfabregamiralbell@gmail.com)";
 const ENABLED = process.env.QUOTES !== "0";
 // Variantes de título de sección en los 4 idiomas que buscamos: es/recepción-acogida-
 // valoración-reseñas, pt/recepção, fr/critique-accueil, en/reception-critical-reviews.
-const REC_RE = /(recepci[oó]n|recep[çc][ãa]o|acogida|valoraci[oó]n|rese[ñn]as?|cr[ií]tic|critique|accueil|reception|critical|reviews)/i;
+// Palabra de CRÍTICA propiamente dicha: si aparece, la sección vale sola (aunque diga
+// "comercial" en otra parte del título, poco probable).
+const CRITIC_WORD_RE = /cr[ií]tic|critique|critical|reviews/i;
+// "Recepción"/"acogida" a secas es AMBIGUO: Wikipedia también titula así secciones de
+// RECEPCIÓN COMERCIAL (ventas, taquilla, gira) que no tienen nada que ver con la crítica.
+// Solo cuentan si NO van acompañadas de una palabra comercial en el mismo título.
+const GENERIC_REC_RE = /(recepci[oó]n|recep[çc][ãa]o|acogida|valoraci[oó]n|rese[ñn]as?|reception)/i;
+const COMERCIAL_RE = /comercial|commercial|taquilla|box\s*office|ventas|gira|tour/i;
 // Idiomas de Wikipedia que probamos (mismo set que soporta el locutor: es/en/pt/fr).
 const LANGS = ["en", "es", "pt", "fr"];
 // Orden de preferencia: el idioma del oyente primero (más probable que tenga la reseña
@@ -29,6 +36,12 @@ function prefOrder(outLang: string): string[] {
 }
 
 const clean = (s: string) => (s || "").replace(/[\[\]"]/g, " ").trim();
+// Sin acentos y en minúsculas, para comparar títulos sin que un acento de más/de menos
+// (o mayúsculas) rompa la coincidencia exacta: quita las marcas diacríticas que deja "NFD"
+// al descomponer (e.g. é -> e + acento suelto). Rango construido por código de carácter
+// (0x300-0x36f), no como literal en el regex, para no depender de tipear el símbolo.
+const DIACRITIC_RE = new RegExp("[" + String.fromCharCode(0x300) + "-" + String.fromCharCode(0x36f) + "]", "g");
+const norm = (s: string) => (s || "").toLowerCase().normalize("NFD").replace(DIACRITIC_RE, "");
 
 // Quita marcas HTML, refs [1], notas [editar] y normaliza espacios.
 function stripHtml(html: string): string {
@@ -55,17 +68,28 @@ async function receptionFromWiki(lang: string, artist: string, title: string): P
   const d1: any = await r1.json();
   const hits: any[] = d1?.query?.search || [];
   if (!hits.length) return "";
-  // Prefiere un artículo cuyo título contenga el del tema (evita desambiguaciones raras).
-  const tl = clean(title).toLowerCase();
-  const page = (hits.find((h) => (h.title || "").toLowerCase().includes(tl)) || hits[0]).title;
+  // Prefiere el artículo cuyo título coincide EXACTO con el tema buscado (ignorando
+  // acentos/mayúsculas); si no hay exacto, cae a uno que lo contenga como subcadena. Antes
+  // solo miraba "contiene", y eso podía coger un artículo más largo relacionado pero
+  // distinto (p. ej. "X World Tour" en vez del álbum "X") si rankeaba primero en la
+  // búsqueda de Wikipedia.
+  const tl = norm(title);
+  const exact = hits.find((h) => norm(h.title || "") === tl);
+  const partial = hits.find((h) => norm(h.title || "").includes(tl));
+  const page = (exact || partial || hits[0]).title;
 
-  // 2) Localizar la sección de recepción.
+  // 2) Localizar la sección de recepción CRÍTICA (no comercial: taquilla, gira, ventas...
+  // Wikipedia también usa "Recepción" para eso, y no tiene nada que citar de un crítico).
   const r2 = await fetchT(`${base}?action=parse&page=${encodeURIComponent(page)}&prop=sections&format=json&origin=*`,
     { headers: { "User-Agent": UA, Accept: "application/json" } }, 3000);
   if (!r2.ok) return "";
   const d2: any = await r2.json();
   const sections: any[] = d2?.parse?.sections || [];
-  const sec = sections.find((s) => REC_RE.test(s.line || ""));
+  const sec = sections.find((s) => {
+    const line = s.line || "";
+    if (COMERCIAL_RE.test(line)) return false;
+    return CRITIC_WORD_RE.test(line) || GENERIC_REC_RE.test(line);
+  });
   if (!sec) return "";
 
   // 3) Traer el HTML de esa sección y limpiarlo.
