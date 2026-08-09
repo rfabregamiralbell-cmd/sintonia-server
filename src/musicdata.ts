@@ -12,6 +12,7 @@ export type MusicFacts = {
   type?: string;        // "grupo" | "solista"
   began?: string;       // año de formación/nacimiento artístico
   genres?: string[];    // géneros/etiquetas verificadas
+  album?: string;       // álbum/single en el que salió (si no coincide con el propio título del tema)
 };
 
 const cache = new Map<string, { facts: MusicFacts | null; at: number }>();
@@ -55,6 +56,14 @@ export async function fetchMusicFacts(artistRaw: string, titleRaw: string): Prom
         if (credit?.name) facts.artist = credit.name;
         const mbid = credit?.id;
 
+        // Álbum/single de origen: el release MÁS ANTIGUO entre las buenas coincidencias
+        // (evita una recopilación o reedición), y solo si el nombre difiere del propio
+        // título del tema (si no, "salió en el álbum X" cuando X == título es ruido).
+        const releases = pool.flatMap((x: any) => x.releases || []).filter((rl: any) => rl?.title && rl?.date);
+        releases.sort((a: any, b: any) => (a.date || "").localeCompare(b.date || ""));
+        const albumTitle = releases[0]?.title;
+        if (albumTitle && albumTitle.toLowerCase() !== title.toLowerCase()) facts.album = albumTitle;
+
         // 2) Ficha del artista (origen, tipo, formación, géneros). Best-effort.
         if (mbid) {
           try {
@@ -72,7 +81,7 @@ export async function fetchMusicFacts(artistRaw: string, titleRaw: string): Prom
           } catch { /* ignora: nos quedamos con lo de la grabación */ }
         }
         // Sin ningún dato útil -> trátalo como no encontrado.
-        if (!facts.year && !facts.area && !facts.genres) facts = null;
+        if (!facts.year && !facts.area && !facts.genres && !facts.album) facts = null;
       }
     }
   } catch { facts = null; }
@@ -86,6 +95,7 @@ export function factsLine(f: MusicFacts | null): string {
   if (!f) return "";
   const bits: string[] = [];
   if (f.year) bits.push(`publicado en ${f.year}`);
+  if (f.album) bits.push(`pertenece a "${f.album}"`);
   if (f.type && f.began) bits.push(`${f.artist || "el artista"} es ${f.type} (de ${f.began})`);
   else if (f.type) bits.push(`${f.artist || "el artista"} es ${f.type}`);
   if (f.area) bits.push(`origen: ${f.area}`);

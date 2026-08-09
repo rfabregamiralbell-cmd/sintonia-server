@@ -92,9 +92,16 @@ function buildPrompt(p: any): string {
   if (p.liveCtx) s += `${p.liveCtx} Hablas EN DIRECTO, reaccionando a lo que suena en este instante (no como un guion).\n`;
   if (p.recentSaid && p.recentSaid.length) s += `YA HAS DICHO ESTO en comentarios anteriores de la sesión — NO lo repitas (ni ideas, ni frases, ni la misma apertura ni estructura): busca un ángulo y unas palabras NUEVAS. Ya dicho: ${p.recentSaid.map((x: string) => `"${String(x).slice(0, 160)}"`).join(" / ")}.\n`;
   s += `Varía el RITMO: mezcla alguna frase corta con una reflexión más personal o una duda; no encadenes sentencias densas e iguales. Suena a alguien pensando en voz alta EN DIRECTO, no a un informe leído.\n`;
-  // Estilo de contenido (gratis = ligero/curioso · premium = denso).
-  if (p.style === "nombrar") s += `Modo MÍNIMO: solo di QUÉ suena —${p.track}${p.artist ? " de " + p.artist : ""}— con una pincelada de color, en UNA frase. Nada de análisis.\n`;
-  else if (p.style === "ligero") s += `Modo LIGERO: NADA de análisis denso ni enumerar varias cosas. Suelta UN solo apunte curioso, fresco y con chispa sobre lo que oyes —un detalle del sonido, una imagen, un guiño de radio—, en una o dos frases. Sugerente, no exhaustivo; deja al oyente con ganas. (Sigues FIEL: no inventes datos.)\n`;
+  // Estilo de contenido (gratis = nombrar/ligero · premium = denso). "nombrar" y "ligero" se
+  // parecían demasiado (ambos "una frase suelta") y sonaban intercambiables/genéricos entre
+  // sí y entre reproducciones. Ahora se diferencian por FUNCIÓN, no solo por longitud: nombrar
+  // es una IDENTIFICACIÓN (sin percepción alguna), ligero es SIEMPRE una observación concreta
+  // y señalable (dato real o detalle de oído), nunca una impresión vacía.
+  if (p.style === "nombrar") {
+    s += `Modo MÍNIMO: solo IDENTIFICA lo que suena —${p.track}${p.artist ? " de " + p.artist : ""}—, en UNA frase corta, como una identificación de radio. CERO percepción o análisis del sonido: nada de "suena a...", "tiene un aire...", ni adjetivos de relleno ("una pasada", "qué temazo"). Si tienes un DATO VERIFICADO abajo (año, álbum, origen, género), puedes teñir la frase con ESE dato concreto en vez de dejarla pelada; si no hay dato, la identificación sola basta y sobra.\n`;
+  } else if (p.style === "ligero") {
+    s += `Modo LIGERO: UN solo apunte, en una o dos frases, pero tiene que ser CONCRETO Y SEÑALABLE, nunca una impresión genérica que valdría para cualquier canción. Dos caminos válidos, elige uno según lo que tengas: (a) un DETALLE REAL de lo que suena —un acorde, dónde entra o calla un instrumento, cómo está colocada la voz, una palabra de la letra— con el mismo rigor de SUSTANCIA aunque sea una sola línea; o (b) si tienes abajo un DATO VERIFICADO que encaje mejor esta vez, tíralo como curiosidad con naturalidad. PROHIBIDO el relleno atmosférico sin contenido ("un detalle que engancha", "algo que se te queda", "buen rollo"): si no puedes nombrar el QUÉ exacto, no lo digas. (Sigues FIEL: no inventes datos.)\n`;
+  }
   s += `Dimensiones a analizar: ${dims}.\n`;
   if (themes) s += `Enfoque temático prioritario: ${themes}.\n`;
   s += `Estilo del locutor: ${p.tone}.\n`;
