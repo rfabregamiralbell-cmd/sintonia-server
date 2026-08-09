@@ -5,6 +5,11 @@ import { fetchT } from "./fetchT";
 // NME, AllMusic…). Devolvemos el TEXTO de esa sección para que el locutor copie una frase
 // VERBATIM y la atribuya. Best-effort: "" si el tema no tiene recepción en Wikipedia
 // (gran parte del reggaetón/novedades). NUNCA se inventa una cita.
+// (Se evaluó añadir Album of the Year como segunda fuente: su contenido es igual de válido
+// —recopilación de reseñas reales con atribución—, pero su protección antibots bloquea de
+// forma sistemática las peticiones del propio servidor (fingerprint TLS/HTTP, no cabeceras),
+// y evadir eso no es algo que debamos hacer. Se descartó; Wikipedia sigue siendo la fuente,
+// vía su API pública pensada para reutilización.)
 
 const cache = new Map<string, { text: string; at: number }>();
 const TTL = 24 * 3600 * 1000;
@@ -92,9 +97,9 @@ export async function fetchReception(artistRaw: string, titleRaw: string, outLan
 
   let text = "";
   try {
-    // Las 4 ediciones de Wikipedia EN PARALELO (antes solo en/es): más temas tienen sección
-    // de recepción citable en algún idioma que en otro (p. ej. reguetón más cubierto en
-    // español que en inglés, o al revés con indie/rock angloparlante).
+    // Las 4 ediciones de Wikipedia EN PARALELO: más temas tienen sección de recepción
+    // citable en algún idioma que en otro (p. ej. reguetón más cubierto en español que en
+    // inglés, o al revés con indie/rock angloparlante).
     const results = await Promise.all(order.map((l) => receptionFromWiki(l, artist, title).catch(() => "")));
     text = results.find((t) => t) || "";
   } catch { text = ""; }
