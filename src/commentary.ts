@@ -76,7 +76,7 @@ function buildPrompt(p: any): string {
   if (p.style === "cita") {
     if (p.reception) {
       s += `MODO CITA. Aquí tienes la RECEPCIÓN CRÍTICA REAL de este tema (extraída de Wikipedia, que cita medios reales): «${p.reception}».\n`;
-      s += `Tu locución: presenta el tema en media frase y luego CITA TEXTUAL —palabra por palabra, entre comillas— UNA (o como mucho dos) frases de un crítico o medio que aparezcan EN ESE TEXTO, atribuyéndolas al medio o autor EXACTO que las firma (por ejemplo: «La revista Pitchfork escribió, cito textualmente: "…"»). PROHIBIDO inventar, parafrasear, traducir libremente o cambiar una sola palabra de la cita: cópiala LITERAL del texto de arriba. No añadas opinión tuya. Si en ese texto no hay ninguna frase entrecomillada claramente atribuible a un medio o crítico, di en una frase que de este tema aún no encuentras reseñas que citar.\n`;
+      s += `Tu locución: presenta el tema en media frase y luego trae ANÁLISIS ORIGINAL DE CRÍTICOS Y EXPERTOS. Busca en ese texto las frases entrecomilladas claramente atribuibles a un crítico o medio y CITA TEXTUAL —palabra por palabra, entre comillas— hasta TRES, siempre que sean de medios o autores DISTINTOS entre sí (por ejemplo Pitchfork, Rolling Stone, The Guardian, NME, AllMusic…); si solo hay una cita clara en el texto, usa solo esa, no la fuerces ni la dupliques. Atribuye cada una al medio o autor EXACTO que la firma (por ejemplo: «La revista Pitchfork escribió, cito textualmente: "…"»). Si citas más de una, enlázalas con una transición breve de radio, sin opinar tú por encima del contenido (por ejemplo: «Y no fue la única lectura: la revista Rolling Stone, por su parte, escribió, cito: "…"»). PROHIBIDO inventar, parafrasear, resumir, traducir libremente o cambiar una sola palabra de cualquier cita: cópiala LITERAL del texto de arriba; PROHIBIDO también atribuir una frase a un medio distinto del que la firma en ese texto. Tu única aportación es presentar y enlazar las citas, no comentarlas ni valorarlas tú. Si en ese texto no hay ninguna frase entrecomillada claramente atribuible a un medio o crítico, di en una frase que de este tema aún no encuentras reseñas que citar.\n`;
     } else {
       s += `MODO CITA, pero de este tema NO hay reseñas de crítica para citar (aún). Dilo con naturalidad en una frase ("de ${p.track} todavía no encuentro reseñas de crítica que citar") y NADA más: no inventes ninguna cita ni te la atribuyas a nadie.\n`;
     }
@@ -204,7 +204,11 @@ export async function commentary(req: AuthedRequest, res: Response) {
 
     // La longitud escala con la duración pedida. Tope alto para permitir
     // análisis densos y largos (web/escritorio), acotado por presupuesto/cap diario.
-    const maxTokens = Math.max(120, Math.min(1200, Math.round(p.duration * 4) + 60));
+    // Modo cita: piso más alto — hasta 3 citas VERBATIM (no parafraseables/comprimibles)
+    // más sus transiciones no caben en el mismo presupuesto que un comentario normal.
+    const maxTokens = p.style === "cita"
+      ? Math.max(500, Math.min(1200, Math.round(p.duration * 4) + 200))
+      : Math.max(120, Math.min(1200, Math.round(p.duration * 4) + 60));
 
     // Motor PRINCIPAL Gemini (barato) si hay GEMINI_KEY; si no, Anthropic; BYOK usa su clave.
     let gen;

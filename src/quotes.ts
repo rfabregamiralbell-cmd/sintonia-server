@@ -61,7 +61,10 @@ async function receptionFromWiki(lang: string, artist: string, title: string): P
   const text = stripHtml(html);
   // Solo vale si hay material citable (comillas en el texto = reseñas entrecomilladas).
   if (text.length < 120 || !/["“»]/.test(html)) return "";
-  return `[${page} · ${lang}.wikipedia] ${text.slice(0, 2200)}`;
+  // Margen más amplio que antes (2200 -> 3200): las secciones de recepción con varios
+  // medios citados (Pitchfork, Rolling Stone, The Guardian…) se cortaban a mitad de la
+  // segunda o tercera cita, dejando solo una utilizable para el modo Citas.
+  return `[${page} · ${lang}.wikipedia] ${text.slice(0, 3200)}`;
 }
 
 // Devuelve el texto de recepción crítica (en/es) o "" si no hay. `outLang` decide la
