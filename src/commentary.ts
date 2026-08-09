@@ -73,18 +73,15 @@ function buildPrompt(p: any): string {
     ? `Presenta la próxima canción antes de que suene: ${p.track}${p.artist ? " de " + p.artist : ""}.\n`
     : `Comenta la canción que suena: ${p.track}${p.artist ? " de " + p.artist : ""}.\n`;
   // Tipo de locución "CITA": NO opines tú; copia una reseña REAL y atribúyela. Cero invención.
-  // Si NO hay reseña citable, ya NO nos quedamos callados: avisamos de eso en una frase y
-  // seguimos con el comentario normal de abajo (mismo camino que el resto de estilos), para
-  // que el oyente siempre reciba un comentario, con el aviso incluido al principio.
-  if (p.style === "cita" && p.reception) {
+  // Si NO hay reseña citable, ya NO avisamos de nada: caemos directo al comentario normal de
+  // abajo con el "style" real del oyente (nombrar/ligero/denso), tal cual si citas nunca se
+  // hubiera pedido — el oyente no tiene por qué notar que se intentó y no había.
+  if (p.cita && p.reception) {
     s += `MODO CITA. Aquí tienes la RECEPCIÓN CRÍTICA REAL de este tema (extraída de Wikipedia, que cita medios reales): «${p.reception}».\n`;
     s += `Tu locución: presenta el tema en media frase y luego trae ANÁLISIS ORIGINAL DE CRÍTICOS Y EXPERTOS. Busca en ese texto las frases entrecomilladas claramente atribuibles a un crítico o medio y CITA TEXTUAL —palabra por palabra, entre comillas— hasta TRES, siempre que sean de medios o autores DISTINTOS entre sí (por ejemplo Pitchfork, Rolling Stone, The Guardian, NME, AllMusic…); si solo hay una cita clara en el texto, usa solo esa, no la fuerces ni la dupliques. Atribuye cada una al medio o autor EXACTO que la firma (por ejemplo: «La revista Pitchfork escribió, cito textualmente: "…"»). Si citas más de una, enlázalas con una transición breve de radio, sin opinar tú por encima del contenido (por ejemplo: «Y no fue la única lectura: la revista Rolling Stone, por su parte, escribió, cito: "…"»). PROHIBIDO inventar, parafrasear, resumir, traducir libremente o cambiar una sola palabra de cualquier cita: cópiala LITERAL del texto de arriba; PROHIBIDO también atribuir una frase a un medio distinto del que la firma en ese texto. Tu única aportación es presentar y enlazar las citas, no comentarlas ni valorarlas tú. Si en ese texto no hay ninguna frase entrecomillada claramente atribuible a un medio o crítico, di en una frase que de este tema aún no encuentras reseñas que citar.\n`;
     s += `Estilo del locutor: ${p.tone}. ${p.djName ? "Te llamas " + p.djName + ". " : ""}Trata al oyente de "${p.treatment}".\n`;
     s += `Idioma de salida: ${p.outLang}. Frase hablada (sin markdown ni emojis). Apunta a unos ${p.duration} segundos.`;
     return s;
-  }
-  if (p.style === "cita" && !p.reception) {
-    s += `AVISO: de este tema no encuentras reseñas de crítica reales que citar (no inventes ninguna ni la atribuyas a nadie). Empieza tu locución con UNA frase breve y natural que lo diga (por ejemplo: "no encuentro reseñas de crítica sobre esto, pero…") y a partir de ahí sigue con tu PROPIO comentario sobre la canción, como en cualquier otro comentario tuyo.\n`;
   }
   if (p.prevTrack) s += `Acabas de pinchar "${p.prevTrack}": haz una transición de DJ, cierra esa y enlaza con la nueva.\n`;
   if (p.factsLine) s += `${p.factsLine}\n`;
@@ -165,7 +162,8 @@ export async function commentary(req: AuthedRequest, res: Response) {
       recent: capArr(b.recent, 8, 200),
       recentSaid: capArr(b.recentSaid, 8, 240),
       likedSamples: capArr(b.likedSamples, 3, 240),  // comentarios que el oyente marcó ❤ (aprende su estilo)
-      style: typeof b.style === "string" ? b.style : "denso", // nombrar | ligero | denso | cita
+      style: typeof b.style === "string" ? b.style : "denso", // nombrar | ligero | denso
+      cita: !!b.cita,   // pide reseñas reales citadas; si no hay, cae a "style" tal cual, SIN avisar
       factsLine: "",
       reception: "",
     };
@@ -183,19 +181,16 @@ export async function commentary(req: AuthedRequest, res: Response) {
     // Rate-limit por hora a TODOS (incluido BYOK): nadie martillea el servidor ni los servicios externos.
     if (rateLimited(userId)) return res.status(429).json({ error: "límite por hora alcanzado" });
 
-    // Enriquecimiento (best-effort, cacheado): citas reales (Wikipedia) para style="cita";
-    // datos verificados (MusicBrainz) para el resto. Si no hay nada, sigue sin ello.
-    // Modo CITA sin reseña real -> YA NO nos callamos: caemos al comentario normal (con el
-    // mismo enriquecimiento de datos que ese modo) avisando antes de que no hubo cita, así
-    // que aquí también traemos factsLine para que ese comentario de repuesto tenga la misma
-    // calidad que uno normal en vez de ir a pelo.
+    // Enriquecimiento (best-effort, cacheado): citas reales (Wikipedia) si p.cita; datos
+    // verificados (MusicBrainz) siempre que haga falta un comentario normal — incluido
+    // cuando p.cita pidió reseña y no la hay: cae a un comentario normal de "style" con el
+    // mismo enriquecimiento que tendría de por sí, en vez de ir a pelo. Sin aviso: el
+    // oyente no tiene por qué saber que se pidieron citas y no había.
     if (p.moment !== "Anuncio" && p.track) {
-      if (p.style === "cita") {
+      if (p.cita) {
         try { p.reception = await fetchReception(p.artist, p.track, p.outLang); } catch { /* sin reseñas */ }
-        if (!p.reception) {
-          try { p.factsLine = factsLine(await fetchMusicFacts(p.artist, p.track)); } catch { /* sin datos */ }
-        }
-      } else {
+      }
+      if (!p.reception) {
         try { p.factsLine = factsLine(await fetchMusicFacts(p.artist, p.track)); } catch { /* sin datos */ }
       }
     }
@@ -210,9 +205,10 @@ export async function commentary(req: AuthedRequest, res: Response) {
 
     // La longitud escala con la duración pedida. Tope alto para permitir
     // análisis densos y largos (web/escritorio), acotado por presupuesto/cap diario.
-    // Modo cita: piso más alto — hasta 3 citas VERBATIM (no parafraseables/comprimibles)
-    // más sus transiciones no caben en el mismo presupuesto que un comentario normal.
-    const maxTokens = p.style === "cita"
+    // Solo con cita Y reseña real: piso más alto — hasta 3 citas VERBATIM (no
+    // parafraseables/comprimibles) más sus transiciones no caben en el presupuesto normal.
+    // Sin reseña cae a "style" normal, así que usa el presupuesto normal de ese estilo.
+    const maxTokens = p.cita && p.reception
       ? Math.max(500, Math.min(1200, Math.round(p.duration * 4) + 200))
       : Math.max(120, Math.min(1200, Math.round(p.duration * 4) + 60));
 
