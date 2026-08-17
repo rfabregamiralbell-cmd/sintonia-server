@@ -10,7 +10,7 @@ import { dailyExceeded } from "./dailycap";
 import { generate, GEMINI_ENABLED } from "./generate";
 
 const REQUIRE_SUB = (process.env.REQUIRE_SUBSCRIPTION ?? "1") !== "0";
-const FREE_TIER_CALLS = Number(process.env.FREE_TIER_CALLS ?? "15"); // comentarios gratis antes de pedir plan
+const FREE_TIER_CALLS = Number(process.env.FREE_TIER_CALLS ?? "10"); // comentarios gratis antes de pedir plan (app cliente ya es BYOK; esto solo afecta a clientes antiguos "managed")
 // dailyExceeded ahora vive en ./dailycap (persistido en SQLite, sobrevive a reinicios).
 
 const ANTHROPIC_KEY = process.env.ANTHROPIC_KEY || "";
@@ -183,16 +183,10 @@ export async function commentary(req: AuthedRequest, res: Response) {
     // enriquecimiento, para que el modo cita SIN reseña no gaste cupo del usuario. ---
     let subscribed = true;
     if (!userKey) {
-      // Free-tier: los primeros FREE_TIER_CALLS comentarios son gratis para CUALQUIER usuario
-      // (incluidos invitados). El invitado se identifica por un deviceId = UUID estable que el
-      // cliente persiste, así que el contador (u.calls) aguanta por dispositivo; la creación de
-      // invitados está limitada por IP en /auth/guest y el gasto por el tope global. Sin esto, el
-      // móvil (que va como invitado, aún sin login) no tendría NINGÚN comentario gratis.
+      // El free-tier es SOLO para cuentas reales (Google/Apple), no para invitados.
       const isGuest = userId.startsWith("guest:");
-      const onFreeTier = u.calls < FREE_TIER_CALLS;
+      const onFreeTier = !isGuest && u.calls < FREE_TIER_CALLS;
       subscribed = (REQUIRE_SUB && !onFreeTier) ? await checkSubscribed(userId, req.email) : isSubscribed(u);
-      // Agotado el free-tier: al invitado se le pide entrar (una cuenta real da su propio free-tier
-      // y desbloquea la suscripción); a la cuenta real ya identificada, hacerse Premium.
       if (REQUIRE_SUB && !onFreeTier && !subscribed) return res.status(402).json({ error: isGuest ? "login" : "subscription" });
     }
     // Rate-limit por hora a TODOS (incluido BYOK): nadie martillea el servidor ni los servicios externos.
