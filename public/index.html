@@ -111,7 +111,8 @@
   @media (max-width:520px){ .grid{grid-template-columns:1fr} }
   .card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:22px;transition:transform .18s var(--ease),border-color .18s}
   .card:hover{transform:translateY(-3px);border-color:#3a2f1e}
-  .card .ico{font-size:26px;margin-bottom:12px}
+  .card .ico{margin-bottom:12px;height:28px}
+  .card .ico svg{width:27px;height:27px;stroke:var(--amber);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
   .card h4{margin:0 0 6px;font-family:var(--disp);font-size:18px;font-weight:700}
   .card p{margin:0;color:var(--dim);font-size:14.5px}
 
@@ -120,7 +121,9 @@
   @media (max-width:820px){ .locs{grid-template-columns:1fr 1fr} }
   @media (max-width:520px){ .locs{grid-template-columns:1fr} }
   .loc{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px;display:flex;gap:14px;align-items:flex-start}
-  .loc .av{width:46px;height:46px;border-radius:50%;flex:none;display:grid;place-items:center;font-size:22px;background:var(--surface2);border:1px solid var(--line)}
+  .loc .av{width:46px;height:46px;border-radius:50%;flex:none;display:grid;place-items:center;background:var(--surface2);border:1px solid var(--line)}
+  .loc .av svg{width:23px;height:23px;stroke:var(--amber);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+  .chip svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex:none}
   .loc h4{margin:0 0 3px;font-family:var(--disp);font-size:18px}
   .loc .tag{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;color:var(--amber);text-transform:uppercase;margin:0 0 7px}
   .loc p{margin:0;color:var(--dim);font-size:14px}
@@ -206,7 +209,7 @@
         <a class="btn ghost big" href="#como">Ver cómo funciona</a>
       </div>
       <div class="cta-row" style="margin-top:14px">
-        <span class="chip">🤖 Android muy pronto</span>
+        <span class="chip"><svg viewBox="0 0 24 24"><rect x="7" y="3" width="10" height="18" rx="2.5"/><line x1="10.5" y1="18" x2="13.5" y2="18"/></svg> Android muy pronto</span>
       </div>
       <p class="trust">Windows 10/11 · <b>Sin micrófono</b> · No da ningún permiso · Gratis</p>
     </div>
@@ -227,16 +230,16 @@
 <!-- POTENCIAL -->
 <section id="potencial"><div class="wrap">
   <div class="center"><div class="sec-lbl">QUÉ HACE</div>
-  <h2 class="big reveal">No es una IA que se inventa cosas.</h2>
-  <p class="sec-sub reveal">Es un locutor que sabe de música. Esto es lo que lo hace distinto.</p></div>
+  <h2 class="big reveal">Busca los datos en fuentes fiables.</h2>
+  <p class="sec-sub reveal">Funciona como un buscador bien documentado: consulta fuentes de verdad —y te las enseña—. Por eso puedes fiarte de lo que cuenta.</p></div>
 
   <!-- Feature 1: datos reales (tarjeta) -->
   <div class="feat rev" style="margin-top:56px">
     <div class="fig card reveal"><div class="device"><img src="img/card.png" alt="Tarjeta de un comentario con datos reales: álbum, año, género, sello, compositor y las fuentes Genius, Wikipedia y MusicBrainz" /></div></div>
     <div class="reveal">
-      <span class="kicker">Datos ciertos</span>
-      <h3>El dato que sabría un fan. No lo que una IA alucina.</h3>
-      <p>Cada comentario se apoya en fuentes de verdad —<b>Genius, Wikipedia, MusicBrainz y Last.fm</b>— y en lo que el modelo sabe con certeza. Nada de fechas inventadas ni datos de relleno.</p>
+      <span class="kicker">Con fuentes</span>
+      <h3>El dato que sabría un fan, sacado de fuentes de verdad.</h3>
+      <p>Antes de comentar, Locutor busca en fuentes fiables —<b>Genius, Wikipedia, MusicBrainz y Last.fm</b>— como un buscador bien documentado. Y cada tarjeta te enseña de dónde sale cada dato, para que puedas comprobarlo.</p>
       <ul class="ticks">
         <li>De qué va la canción, a quién va dedicada, la anécdota real</li>
         <li>Ficha con <b>álbum, año, género, sello y compositor</b></li>
@@ -277,12 +280,12 @@
 
   <!-- Rejilla de más potencial -->
   <div class="grid">
-    <div class="card reveal"><div class="ico">🎙️</div><h4>Tu locutor, a tu gusto</h4><p>Nueve personalidades listas —o crea la tuya: su enfoque, su tono, hasta una voz que imitar.</p></div>
-    <div class="card reveal"><div class="ico">🗣️</div><h4>Voces de verdad</h4><p>Voz neural gratis (Edge), la voz de tu propia IA, o premium con ElevenLabs / Cartesia. Una por locutor.</p></div>
-    <div class="card reveal"><div class="ico">🧠</div><h4>Te conoce</h4><p>Aprende tus gustos entre sesiones y los referencia con naturalidad. Tu radio, cada vez más tuya.</p></div>
-    <div class="card reveal"><div class="ico">📊</div><h4>Tu semana</h4><p>Resumen de lo que has escuchado, tu Top de artistas y una tarjeta lista para compartir.</p></div>
-    <div class="card reveal"><div class="ico">❓</div><h4>Test de tu semana</h4><p>Un juego con preguntas sobre TUS canciones, sacadas de lo que ya te han contado. Nada inventado.</p></div>
-    <div class="card reveal"><div class="ico">🔌</div><h4>Tu IA, tu elección</h4><p>Gemini, Groq, Mistral (gratis), OpenAI o Claude. Guarda varias claves: si una se agota, usa otra sola.</p></div>
+    <div class="card reveal"><div class="ico"><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M6 11.5a6 6 0 0 0 12 0M12 17.5V21M9 21h6"/></svg></div><h4>Tu locutor, a tu gusto</h4><p>Nueve personalidades listas —o crea la tuya: su enfoque, su tono, hasta una voz que imitar.</p></div>
+    <div class="card reveal"><div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2"/><path d="M8.5 8.5a5 5 0 0 0 0 7M15.5 8.5a5 5 0 0 1 0 7M6 6a8.5 8.5 0 0 0 0 12M18 6a8.5 8.5 0 0 1 0 12"/></svg></div><h4>Voces de verdad</h4><p>Voz neural gratis (Edge), la voz de tu propia IA, o premium con ElevenLabs / Cartesia. Una por locutor.</p></div>
+    <div class="card reveal"><div class="ico"><svg viewBox="0 0 24 24"><path d="M12 20s-6.8-4.2-9.1-8.4C1.3 8.7 2.8 5.7 5.6 5.4 7.5 5.2 9 6.1 12 8.6c3-2.5 4.5-3.4 6.4-3.2 2.8.3 4.3 3.3 2.7 6.2C18.8 15.8 12 20 12 20z"/></svg></div><h4>Te conoce</h4><p>Aprende tus gustos entre sesiones y los referencia con naturalidad. Tu radio, cada vez más tuya.</p></div>
+    <div class="card reveal"><div class="ico"><svg viewBox="0 0 24 24"><path d="M4 20V13M9.3 20V8M14.6 20v-5M20 20V5"/></svg></div><h4>Tu semana</h4><p>Resumen de lo que has escuchado, tu Top de artistas y una tarjeta lista para compartir.</p></div>
+    <div class="card reveal"><div class="ico"><svg viewBox="0 0 24 24"><path d="M4.5 5h15v10H9l-4.5 3.5z"/><path d="M9.6 8.6a2.4 2.4 0 1 1 2.9 2.4v.9"/><circle cx="12.4" cy="13.4" r=".7" fill="#E8A13A" stroke="none"/></svg></div><h4>Test de tu semana</h4><p>Un juego con preguntas sobre TUS canciones, sacadas de lo que ya te han contado y de sus fuentes.</p></div>
+    <div class="card reveal"><div class="ico"><svg viewBox="0 0 24 24"><circle cx="8" cy="8" r="4.5"/><path d="M11.2 11.2 20 20M16.7 16.7 18.7 14.7M14.2 14.2 16.2 12.2"/></svg></div><h4>Tu IA, tu elección</h4><p>Gemini, Groq, Mistral (gratis), OpenAI o Claude. Guarda varias claves: si una se agota, usa otra sola.</p></div>
   </div>
 </div></section>
 
@@ -314,12 +317,12 @@
   <h2 class="big reveal">Cada uno oye la canción a su manera.</h2>
   <p class="sec-sub reveal">Elige el que va contigo —o crea el tuyo desde cero.</p>
   <div class="locs" style="text-align:left">
-    <div class="loc reveal"><div class="av">🎧</div><div><h4>El Melómano</h4><div class="tag">Influencias · Apasionado</div><p>Conecta la canción con su linaje: de dónde bebe y a quién marcó.</p></div></div>
-    <div class="loc reveal"><div class="av">📚</div><div><h4>El Profesor</h4><div class="tag">Historia · Didáctico</div><p>De qué va de verdad y qué hay detrás: el dato que sabe un fan.</p></div></div>
-    <div class="loc reveal"><div class="av">🎚️</div><div><h4>El Productor</h4><div class="tag">Producción · Sobrio</div><p>Cómo está hecha por dentro: arreglos y decisiones de estudio.</p></div></div>
-    <div class="loc reveal"><div class="av">❤️</div><div><h4>El Devoto</h4><div class="tag">Escena · Fan fiel</div><p>La mira con los ojos del fan de siempre: por qué se venera.</p></div></div>
-    <div class="loc reveal"><div class="av">✍️</div><div><h4>La Letrista</h4><div class="tag">Letra · Poética</div><p>El verso que gira el sentido, lo que confiesa quien canta.</p></div></div>
-    <div class="loc reveal"><div class="av">＋</div><div><h4>Crea el tuyo</h4><div class="tag">Personalizable</div><p>Elige su enfoque, su tono y hasta la forma de hablar de alguien.</p></div></div>
+    <div class="loc reveal"><div class="av"><svg viewBox="0 0 24 24"><path d="M4 13v-1a8 8 0 0 1 16 0v1"/><rect x="3" y="13" width="4.6" height="7" rx="2"/><rect x="16.4" y="13" width="4.6" height="7" rx="2"/></svg></div><div><h4>El Melómano</h4><div class="tag">Influencias · Apasionado</div><p>Conecta la canción con su linaje: de dónde bebe y a quién marcó.</p></div></div>
+    <div class="loc reveal"><div class="av"><svg viewBox="0 0 24 24"><path d="M12 6.6C10.4 5.2 7.8 4.7 4 5.3v13c3.8-.6 6.4-.1 8 1.3 1.6-1.4 4.2-1.9 8-1.3v-13c-3.8-.6-6.4-.1-8 1.3z"/><path d="M12 6.6V19.6"/></svg></div><div><h4>El Profesor</h4><div class="tag">Historia · Didáctico</div><p>De qué va de verdad y qué hay detrás: el dato que sabe un fan.</p></div></div>
+    <div class="loc reveal"><div class="av"><svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2.2"/><circle cx="8" cy="17" r="2.2"/></svg></div><div><h4>El Productor</h4><div class="tag">Producción · Sobrio</div><p>Cómo está hecha por dentro: arreglos y decisiones de estudio.</p></div></div>
+    <div class="loc reveal"><div class="av"><svg viewBox="0 0 24 24"><path d="M12 20s-6.8-4.2-9.1-8.4C1.3 8.7 2.8 5.7 5.6 5.4 7.5 5.2 9 6.1 12 8.6c3-2.5 4.5-3.4 6.4-3.2 2.8.3 4.3 3.3 2.7 6.2C18.8 15.8 12 20 12 20z"/></svg></div><div><h4>El Devoto</h4><div class="tag">Escena · Fan fiel</div><p>La mira con los ojos del fan de siempre: por qué se venera.</p></div></div>
+    <div class="loc reveal"><div class="av"><svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg></div><div><h4>La Letrista</h4><div class="tag">Letra · Poética</div><p>El verso que gira el sentido, lo que confiesa quien canta.</p></div></div>
+    <div class="loc reveal"><div class="av"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></div><div><h4>Crea el tuyo</h4><div class="tag">Personalizable</div><p>Elige su enfoque, su tono y hasta la forma de hablar de alguien.</p></div></div>
   </div>
 </div></section>
 
@@ -327,7 +330,7 @@
 <section id="privacidad"><div class="wrap">
   <div class="privacy reveal">
     <svg class="shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 5-3 7.6-7 9-4-1.4-7-4-7-9V6z"/><path d="M8.5 12l2.3 2.3 4.7-4.7"/></svg>
-    <h2 class="big">Tu música es tuya.</h2>
+    <h2 class="big">Sin micrófono, sin permisos.</h2>
     <p>Locutor <b>no usa el micrófono y no graba sonido</b>. Solo lee el título y el artista de lo que ya suena, para poder comentarlo. <b>No da ningún permiso</b> —ni cámara, ni archivos, ni cuentas—. Tu clave se guarda <b>cifrada en tu propio equipo</b>, nunca en el servidor. Nada de publicidad, nada de vender datos.</p>
     <p style="margin-top:14px"><a href="privacy.html">Leer la política de privacidad →</a></p>
   </div>
@@ -374,11 +377,11 @@
 <!-- FAQ -->
 <section id="faq"><div class="wrap center">
   <div class="sec-lbl">DUDAS</div>
-  <h2 class="big reveal">Lo que sueles preguntar.</h2>
+  <h2 class="big reveal">Preguntas frecuentes.</h2>
   <div class="faq" style="text-align:left">
     <details open><summary>¿Usa el micrófono o graba lo que escucho?</summary><p>No. Locutor solo lee el <b>título y el artista</b> de la canción que ya está sonando, a través de Windows. No accede al micrófono ni graba ningún audio, y <b>no pide ni da ningún permiso</b>.</p></details>
     <details><summary>¿Necesito una clave de inteligencia artificial? ¿Es difícil?</summary><p>Sí, la tuya propia — y es fácil: pega tu clave y la app la reconoce sola. Hay <b>varias gratis y sin tarjeta</b>: Gemini (aistudio.google.com), Groq (console.groq.com) o Mistral (console.mistral.ai). También valen OpenAI o Claude. Puedes guardar <b>varias</b>: si una se queda sin cuota, la app usa otra sola.</p></details>
-    <details><summary>¿Qué es eso de que "no se inventa" los datos?</summary><p>Los comentarios se apoyan en fuentes reales —<b>Genius, Wikipedia, MusicBrainz y Last.fm</b>— más lo que el modelo sabe con certeza. La app evita soltar fechas o datos inventados: si no lo sabe seguro, no lo dice. Aun así, la IA puede equivocarse; por eso cada tarjeta muestra sus fuentes.</p></details>
+    <details><summary>¿De dónde saca los datos? ¿Me puedo fiar?</summary><p>Locutor funciona como un <b>buscador bien documentado</b>: antes de comentar, consulta fuentes fiables —<b>Genius, Wikipedia, MusicBrainz y Last.fm</b>— y se apoya en ellas. Cada tarjeta te enseña de dónde sale cada dato, así que puedes comprobarlo tú mismo.</p></details>
     <details><summary>¿Funciona con Spotify gratis?</summary><p>Sí. Funciona con Spotify (gratis o Premium), YouTube Music y la mayoría de apps que muestran la canción en Windows. Locutor solo necesita saber qué suena.</p></details>
     <details><summary>¿Qué voces puedo usar?</summary><p>Varias, y eliges una por locutor: la <b>voz neural gratis</b> (Microsoft Edge, cientos de voces), la <b>voz de tu propia IA</b> (OpenAI, Gemini o Groq), o voces premium con tu clave de <b>Cartesia</b> o <b>ElevenLabs</b>. También la voz de Windows sin conexión.</p></details>
     <details><summary>¿Qué incluye Premium?</summary><p>Premium (4,99€/mes) desbloquea el <b>comentario a fondo</b>, el <b>sofá sonoro</b>, las voces premium y el <b>Test de tu semana</b> sin límite, y quita el tope diario. La IA sigue siendo tu clave; Premium paga los modos avanzados de la app.</p></details>
@@ -393,7 +396,7 @@
   <h2 class="big reveal">Pon la radio. La tuya.</h2>
   <p class="sec-sub reveal" style="margin-bottom:28px">Descárgala para Windows y deja que tus canciones tengan quien las cuente.</p>
   <a class="btn big" href="https://github.com/rfabregamiralbell-cmd/sintonia-server/releases/download/v1.0.0/Locutor-Setup.exe" id="downloadBtn">▶ Descargar para Windows · Gratis</a>
-  <div class="cta-row center" style="justify-content:center;margin-top:14px"><span class="chip">🤖 Android muy pronto</span></div>
+  <div class="cta-row center" style="justify-content:center;margin-top:14px"><span class="chip"><svg viewBox="0 0 24 24"><rect x="7" y="3" width="10" height="18" rx="2.5"/><line x1="10.5" y1="18" x2="13.5" y2="18"/></svg> Android muy pronto</span></div>
   <p class="trust" style="margin-top:18px">Windows 10/11 · Sin micrófono · Se instala y se abre solo</p>
   <p class="trust" style="margin-top:8px;opacity:.8;max-width:620px;margin-left:auto;margin-right:auto">Al terminar la descarga, <b style="color:var(--text)">ábrelo</b>: se instala solo y Locutor se abre al terminar. La primera vez Windows avisa (“editor desconocido”): pulsa <b style="color:var(--text)">Más información → Ejecutar de todas formas</b>.</p>
 </div></section>
