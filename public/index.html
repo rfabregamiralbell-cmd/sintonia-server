@@ -104,6 +104,13 @@
   ul.ticks li{position:relative;padding-left:26px;margin:8px 0;color:var(--dim)}
   ul.ticks li::before{content:"";position:absolute;left:0;top:7px;width:14px;height:9px;border-left:2.5px solid var(--green);border-bottom:2.5px solid var(--green);transform:rotate(-45deg)}
   ul.ticks li b{color:var(--text)}
+  /* Flujo NUMERADO ordenado (el proceso: reconoce -> fuentes -> lo cuenta) */
+  ol.flow{list-style:none;counter-reset:f;padding:0;margin:14px 0 0}
+  ol.flow li{counter-increment:f;position:relative;padding:2px 0 0 46px;margin:0 0 15px;color:var(--dim);line-height:1.5;font-size:15px}
+  ol.flow li:last-child{margin-bottom:0}
+  ol.flow li::before{content:counter(f);position:absolute;left:0;top:0;width:31px;height:31px;border-radius:50%;background:var(--surface2);border:1px solid var(--amber);color:var(--amber);font-family:var(--disp);font-weight:700;display:grid;place-items:center;font-size:15px;z-index:1}
+  ol.flow li:not(:last-child)::after{content:"";position:absolute;left:15px;top:34px;bottom:-15px;width:2px;background:linear-gradient(var(--amber),transparent 90%);opacity:.4}
+  ol.flow li b{color:var(--text)}
 
   /* Rejilla de más features */
   .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:38px}
@@ -263,18 +270,18 @@
     </div>
   </div>
 
-  <!-- Y con datos de verdad detrás -->
+  <!-- De dónde sale lo que cuenta: el proceso, ordenado y centrado en el locutor -->
   <div class="feat" style="margin-top:64px">
     <div class="fig card reveal"><div class="device"><img src="img/card.png" alt="Tarjeta de un comentario con datos reales: álbum, año, género, sello, compositor y las fuentes Genius, Wikipedia y MusicBrainz" /></div></div>
     <div class="reveal">
-      <span class="kicker">Con fuentes</span>
-      <h3>Y con datos de verdad detrás.</h3>
-      <p>No habla por hablar: consulta fuentes de referencia —<b>Genius, Wikipedia, MusicBrainz y Last.fm</b>— y cada tarjeta te enseña de dónde sale cada dato.</p>
-      <ul class="ticks">
-        <li>De qué va la canción, a quién va dedicada, la anécdota real</li>
-        <li>Ficha con <b>álbum, año, género, sello y compositor</b></li>
-        <li>Comparte cada comentario como <b>tarjeta</b>, con sus fuentes</li>
-      </ul>
+      <span class="kicker">De dónde sale</span>
+      <h3>Tu locutor sabe de lo que habla.</h3>
+      <p>No habla por hablar. Antes de comentar una canción, hace esto:</p>
+      <ol class="flow">
+        <li><b>Reconoce lo que suena</b> — lee el título y el artista de la canción, sin micrófono.</li>
+        <li><b>Consulta las fuentes</b> — busca los datos en <b>Genius, Wikipedia, MusicBrainz y Last.fm</b>.</li>
+        <li><b>Lo cuenta con su estilo</b> — en voz alta, y en cada tarjeta te enseña de dónde ha salido el dato.</li>
+      </ol>
     </div>
   </div>
 
