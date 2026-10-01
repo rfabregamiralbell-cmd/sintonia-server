@@ -105,11 +105,10 @@
   ul.ticks li::before{content:"";position:absolute;left:0;top:7px;width:14px;height:9px;border-left:2.5px solid var(--green);border-bottom:2.5px solid var(--green);transform:rotate(-45deg)}
   ul.ticks li b{color:var(--text)}
   /* Flujo NUMERADO ordenado (el proceso: reconoce -> fuentes -> lo cuenta) */
-  ol.flow{list-style:none;counter-reset:f;padding:0;margin:14px 0 0}
-  ol.flow li{counter-increment:f;position:relative;padding:2px 0 0 46px;margin:0 0 15px;color:var(--dim);line-height:1.5;font-size:15px}
+  ol.flow{list-style:none;counter-reset:f;padding:0;margin:16px 0 0}
+  ol.flow li{counter-increment:f;position:relative;padding:0 0 0 40px;margin:0 0 13px;color:var(--dim);line-height:1.55;font-size:16px}
   ol.flow li:last-child{margin-bottom:0}
-  ol.flow li::before{content:counter(f);position:absolute;left:0;top:0;width:31px;height:31px;border-radius:50%;background:var(--surface2);border:1px solid var(--amber);color:var(--amber);font-family:var(--disp);font-weight:700;display:grid;place-items:center;font-size:15px;z-index:1}
-  ol.flow li:not(:last-child)::after{content:"";position:absolute;left:15px;top:34px;bottom:-15px;width:2px;background:linear-gradient(var(--amber),transparent 90%);opacity:.4}
+  ol.flow li::before{content:counter(f);position:absolute;left:2px;top:-4px;font-family:var(--disp);font-weight:700;font-size:25px;line-height:1;color:var(--amber)}
   ol.flow li b{color:var(--text)}
 
   /* Rejilla de más features */
