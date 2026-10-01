@@ -105,11 +105,10 @@
   ul.ticks li::before{content:"";position:absolute;left:0;top:7px;width:14px;height:9px;border-left:2.5px solid var(--green);border-bottom:2.5px solid var(--green);transform:rotate(-45deg)}
   ul.ticks li b{color:var(--text)}
   /* Flujo NUMERADO ordenado (el proceso: reconoce -> fuentes -> lo cuenta) */
-  ol.flow{list-style:none;counter-reset:f;padding:0;margin:16px 0 0}
-  ol.flow li{counter-increment:f;position:relative;padding:0 0 0 40px;margin:0 0 13px;color:var(--dim);line-height:1.55;font-size:16px}
-  ol.flow li:last-child{margin-bottom:0}
-  ol.flow li::before{content:counter(f);position:absolute;left:2px;top:-4px;font-family:var(--disp);font-weight:700;font-size:25px;line-height:1;color:var(--amber)}
-  ol.flow li b{color:var(--text)}
+  /* Diagrama de proceso "de dónde sale" (estilo sistema: nodos + flechas) */
+  .process{margin:0 auto}
+  .flowdiag{display:block;width:100%;max-width:880px;height:auto;margin:22px auto 0}
+  .flowdiag text{letter-spacing:.01em}
 
   /* Rejilla de más features */
   .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:38px}
@@ -269,19 +268,39 @@
     </div>
   </div>
 
-  <!-- De dónde sale lo que cuenta: el proceso, ordenado y centrado en el locutor -->
-  <div class="feat" style="margin-top:64px">
-    <div class="fig card reveal"><div class="device"><img src="img/card.png" alt="Tarjeta de un comentario con datos reales: álbum, año, género, sello, compositor y las fuentes Genius, Wikipedia y MusicBrainz" /></div></div>
-    <div class="reveal">
-      <span class="kicker">De dónde sale</span>
-      <h3>Tu locutor sabe de lo que habla.</h3>
-      <p>No habla por hablar. Antes de comentar una canción, hace esto:</p>
-      <ol class="flow">
-        <li><b>Reconoce lo que suena</b> — lee el título y el artista de la canción, sin micrófono.</li>
-        <li><b>Consulta las fuentes</b> — busca los datos en <b>Genius, Wikipedia, MusicBrainz y Last.fm</b>.</li>
-        <li><b>Lo cuenta con su estilo</b> — en voz alta, y en cada tarjeta te enseña de dónde ha salido el dato.</li>
-      </ol>
-    </div>
+  <!-- De dónde sale: diagrama de sistema (nodos + flechas), estilo coherente ámbar/carbón -->
+  <div class="process reveal center" style="margin-top:64px">
+    <span class="kicker">De dónde sale</span>
+    <h3 style="margin:10px 0 8px">Tu locutor sabe de lo que habla.</h3>
+    <p class="sec-sub" style="margin:0 auto">No habla por hablar: reconoce la canción, consulta fuentes de referencia y lo cuenta con su estilo.</p>
+    <svg class="flowdiag" viewBox="0 0 940 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="La canción (Locutor lee título y artista, sin micrófono) → Locutor consulta Genius, Wikipedia, MusicBrainz y Last.fm → lo cuenta en voz alta, con tarjeta y fuentes">
+      <defs><marker id="fdah" markerWidth="10" markerHeight="10" refX="7.5" refY="4.5" orient="auto"><path d="M0 0L9 4.5L0 9Z" fill="#E8A13A"/></marker></defs>
+      <!-- fuentes (consulta) -->
+      <rect x="316" y="16" width="308" height="64" rx="14" fill="rgba(232,161,58,0.07)" stroke="#E8A13A" stroke-width="1.4"/>
+      <text x="470" y="44" text-anchor="middle" fill="#F0C071" font-family="system-ui,'Segoe UI',sans-serif" font-size="16" font-weight="600">Genius · Wikipedia</text>
+      <text x="470" y="68" text-anchor="middle" fill="#F0C071" font-family="system-ui,'Segoe UI',sans-serif" font-size="16" font-weight="600">MusicBrainz · Last.fm</text>
+      <line x1="470" y1="140" x2="470" y2="86" stroke="#E8A13A" stroke-width="1.8" stroke-dasharray="5 5" marker-end="url(#fdah)"/>
+      <text x="486" y="120" fill="#E8A13A" font-family="system-ui,sans-serif" font-size="13" font-style="italic">consulta</text>
+      <!-- flujo principal -->
+      <line x1="182" y1="210" x2="396" y2="210" stroke="#E8A13A" stroke-width="2.2" marker-end="url(#fdah)"/>
+      <text x="289" y="190" text-anchor="middle" fill="#8A7D63" font-family="system-ui,sans-serif" font-size="13">lee título y artista</text>
+      <text x="289" y="240" text-anchor="middle" fill="#8A7D63" font-family="system-ui,sans-serif" font-size="12">sin micrófono</text>
+      <line x1="544" y1="210" x2="758" y2="210" stroke="#E8A13A" stroke-width="2.2" marker-end="url(#fdah)"/>
+      <text x="651" y="190" text-anchor="middle" fill="#8A7D63" font-family="system-ui,sans-serif" font-size="13">lo cuenta con su estilo</text>
+      <text x="651" y="240" text-anchor="middle" fill="#8A7D63" font-family="system-ui,sans-serif" font-size="12">en voz alta</text>
+      <!-- nodos -->
+      <circle cx="120" cy="210" r="58" fill="#E8A13A"/>
+      <text x="120" y="205" text-anchor="middle" fill="#1b140b" font-family="Bahnschrift,'Arial Narrow',sans-serif" font-size="16" font-weight="700">LA</text>
+      <text x="120" y="224" text-anchor="middle" fill="#1b140b" font-family="Bahnschrift,'Arial Narrow',sans-serif" font-size="16" font-weight="700">CANCIÓN</text>
+      <circle cx="470" cy="210" r="70" fill="#E8A13A"/>
+      <text x="470" y="217" text-anchor="middle" fill="#1b140b" font-family="Bahnschrift,'Arial Narrow',sans-serif" font-size="20" font-weight="700">LOCUTOR</text>
+      <circle cx="820" cy="210" r="58" fill="#E8A13A"/>
+      <text x="820" y="205" text-anchor="middle" fill="#1b140b" font-family="Bahnschrift,'Arial Narrow',sans-serif" font-size="16" font-weight="700">EN VOZ</text>
+      <text x="820" y="224" text-anchor="middle" fill="#1b140b" font-family="Bahnschrift,'Arial Narrow',sans-serif" font-size="16" font-weight="700">ALTA</text>
+      <!-- etiquetas bajo los nodos -->
+      <text x="120" y="292" text-anchor="middle" fill="#8A7D63" font-family="system-ui,sans-serif" font-size="12.5">lo que suena</text>
+      <text x="820" y="292" text-anchor="middle" fill="#8A7D63" font-family="system-ui,sans-serif" font-size="12.5">tu comentario, con fuentes</text>
+    </svg>
   </div>
 
   <!-- Rejilla de más potencial -->
