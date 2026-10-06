@@ -23,7 +23,7 @@
 </head>
 <body>
   <h1>LOCUTOR · Política de privacidad</h1>
-  <p class="upd">Última actualización: 29 de agosto de 2026</p>
+  <p class="upd">Última actualización: 6 de octubre de 2026</p>
 
   <p>Locutor es una aplicación para Windows y Android que reconoce la canción que estás
   escuchando (en Spotify, YouTube Music, etc.) y hace que unos «locutores» con inteligencia
@@ -45,46 +45,61 @@
   <ul>
     <li><strong>Título y artista de la canción</strong> que suena. Lo lee el sistema de
     «reproduciendo ahora» del dispositivo (en Windows, SMTC; en Android, el acceso a
-    notificaciones). Con ese título/artista, la app consulta servicios musicales públicos
-    (<strong>MusicBrainz, Wikipedia y Genius</strong>) para elaborar una ficha con datos reales
-    del tema (año, significado, contexto, reseñas); esa ficha, junto al título/artista, se envía
-    a la <strong>inteligencia artificial que tú conectes</strong> (OpenAI, Google/Gemini o
-    Anthropic, con tu clave) para que escriba el comentario. <strong>No se accede al audio, no se
-    graba nada, no se usa el micrófono.</strong></li>
+    notificaciones, del que solo se usa la información de la música, nunca tus mensajes). Con ese
+    título/artista, la app consulta fuentes musicales públicas (<strong>MusicBrainz, Wikipedia,
+    Genius, Last.fm, iTunes, Deezer y LRCLIB</strong>) para elaborar una ficha con datos reales del
+    tema (año, autoría, significado, contexto, carátula y letra sincronizada); esa ficha, junto al
+    título/artista, se envía a la <strong>inteligencia artificial que tú conectes</strong> (Google
+    Gemini, Groq, Mistral, OpenAI o Anthropic, con tu clave) para que escriba el comentario.
+    <strong>No se accede al audio, no se graba nada, no se usa el micrófono.</strong></li>
     <li><strong>Correo electrónico</strong>: solo si decides <em>Entrar con Google</em>.
     Sirve para identificarte y gestionar tu plan. Sin iniciar sesión, usas la app como
     invitado.</li>
     <li><strong>Identificador anónimo de dispositivo</strong>: un código aleatorio generado
-    en tu propio PC para la sesión de invitado. No te identifica personalmente.</li>
-    <li><strong>Datos de uso del plan</strong>: cuántos comentarios has generado, para
-    aplicar los límites del plan gratuito.</li>
+    en tu dispositivo para la sesión de invitado. No te identifica personalmente.</li>
+    <li><strong>Datos de uso del plan</strong>: cuántos comentarios de IA has generado hoy, para
+    aplicar el límite del plan gratuito. Se cuentan en tu dispositivo.</li>
     <li><strong>Datos de pago</strong>: si te suscribes a Premium, el pago lo procesa
-    <strong>Stripe</strong>. <strong>No almacenamos tu tarjeta</strong>; la gestiona Stripe.</li>
-    <li><strong>Tus claves propias (opcional)</strong>: si conectas tu propia clave de IA o
-    de ElevenLabs, se guarda <strong>cifrada únicamente en tu PC</strong> (cifrado DPAPI de
-    Windows). No se almacena en nuestro servidor; solo se reenvía al proveedor que tú elijas
-    para atender tu petición.</li>
+    <strong>Stripe</strong> (en Windows) o <strong>Google Play</strong> (en Android).
+    <strong>No almacenamos tu tarjeta</strong>.</li>
+    <li><strong>Tus claves propias</strong>: la clave de IA que conectes (y, si las usas, las de
+    ElevenLabs o Cartesia) se guarda <strong>cifrada únicamente en tu dispositivo</strong>: en
+    Windows, con el cifrado DPAPI del sistema; en Android, con el almacén de claves del sistema
+    (Android Keystore), desde la versión 2.28. No se almacena en nuestro servidor: va directamente
+    al proveedor que tú elijas para atender tu petición.</li>
   </ul>
 
   <h2>3. Con quién se comparten (encargados y destinatarios)</h2>
   <p>Para que la app funcione, algunos datos se envían a servicios de terceros, cada uno con
   su propia política de privacidad:</p>
   <ul>
-    <li><strong>El proveedor de IA que tú conectes</strong> (OpenAI, Google/Gemini o Anthropic)
-    — escribe el comentario. Recibe el título/artista y la ficha de datos del tema (contexto,
-    significado y, en el modo «Citas», la reseña crítica). La petición se hace con TU clave; no
-    recibe tu identidad.</li>
-    <li><strong>Genius</strong> — recibe el título/artista para traer el «About» del tema (su
-    significado, historia y contexto, escrito por su comunidad).</li>
+    <li><strong>El proveedor de IA que tú conectes</strong> (Google Gemini, Groq, Mistral, OpenAI
+    o Anthropic) — escribe el comentario y, si eliges «la voz de tu IA», lo convierte en voz.
+    Recibe el título/artista y la ficha de datos del tema (contexto, significado y, en el modo
+    «Con crítica real», la reseña crítica). La petición se hace con TU clave; no recibe tu
+    identidad.</li>
+    <li><strong>Genius</strong> — recibe el título/artista para traer el «About» del tema y las
+    notas revisadas de su comunidad (significado, historia y contexto).</li>
     <li><strong>MusicBrainz</strong> — base de datos musical abierta. Recibe el título/artista
-    para devolver datos verificados (año, origen, género).</li>
+    para devolver datos verificados (año, autoría, créditos, origen, género).</li>
     <li><strong>Wikipedia</strong> — recibe el título/artista para traer el contexto del tema y
-    (en el modo «Citas») la reseña crítica, y poder citarla con su fuente.</li>
-    <li><strong>Google</strong> — solo para <em>Entrar con Google</em> (verifica tu correo).</li>
-    <li><strong>Stripe</strong> — procesa los pagos de la suscripción.</li>
-    <li><strong>Microsoft (Edge / Windows)</strong> — convierte el texto en voz neural.</li>
-    <li><strong>ElevenLabs</strong> — solo si activas voces premium con tu propia clave.</li>
-    <li><strong>Render</strong> — aloja nuestro servidor.</li>
+    (en el modo «Con crítica real») la reseña crítica, y poder citarla con su fuente.</li>
+    <li><strong>Last.fm</strong> — recibe el título/artista para traer etiquetas de estilo y la
+    biografía del artista.</li>
+    <li><strong>Apple (iTunes) y Deezer</strong> — reciben el título/artista para traer el año,
+    el álbum y la carátula.</li>
+    <li><strong>LRCLIB</strong> — recibe el título/artista para traer la letra sincronizada (puedes
+    desactivarla en Ajustes).</li>
+    <li><strong>Google</strong> — solo para <em>Entrar con Google</em> (verifica tu correo) y, en
+    Android, <strong>Google Play</strong> para los pagos.</li>
+    <li><strong>Stripe</strong> — procesa los pagos de la suscripción en Windows.</li>
+    <li><strong>Microsoft (Edge)</strong> — convierte el texto del comentario en voz natural
+    gratis.</li>
+    <li><strong>ElevenLabs y Cartesia</strong> — solo si activas sus voces con tu propia clave.</li>
+    <li><strong>Nuestro servidor</strong> (alojado en <strong>Render</strong>) — recibe el
+    título/artista para preparar datos del tema, gestiona tu plan y, en Android, hace de puente
+    para la voz natural gratis (recibe el texto del comentario para convertirlo en voz). No recibe
+    ni guarda tus claves.</li>
   </ul>
   <p>No vendemos tus datos ni los usamos para publicidad.</p>
 
@@ -95,9 +110,9 @@
 
   <h2>5. Cuánto tiempo se conservan</h2>
   <p>Los datos del servidor se conservan solo el tiempo necesario para prestar el servicio
-  y se reinician con frecuencia. Los datos guardados en tu PC (tu sesión, tus locutores, tu
-  historial, tus claves) viven <strong>en tu equipo</strong> hasta que cierras sesión, los
-  borras o desinstalas la app.</p>
+  y se reinician con frecuencia. Los datos guardados en tu dispositivo (tu sesión, tus locutores,
+  tu historial, tus claves) viven <strong>en tu equipo</strong> hasta que cierras sesión, los
+  borras o desinstalas la app. En Android no se incluyen en las copias de seguridad en la nube.</p>
 
   <h2>6. Tus derechos</h2>
   <p>Puedes ejercer tus derechos de <strong>acceso, rectificación, supresión, oposición,
