@@ -100,6 +100,12 @@
   .fig{display:flex;justify-content:center}
   .fig .device{max-width:300px}
   .fig.card .device{max-width:270px;border-radius:24px}
+  /* Abanico de tarjetas para compartir (Mi semana · Cita · Mi top) */
+  .fan{position:relative;width:100%;max-width:470px;aspect-ratio:470/410;margin:0 auto}
+  .fan img{position:absolute;width:47%;border-radius:16px;border:1px solid rgba(255,255,255,.07);box-shadow:0 30px 60px -22px rgba(0,0,0,.85)}
+  .fan .f1{left:0;top:15%;transform:rotate(-7deg)}
+  .fan .f3{right:0;top:15%;transform:rotate(7deg)}
+  .fan .f2{left:50%;top:0;width:56%;transform:translateX(-50%);z-index:2}
   ul.ticks{list-style:none;padding:0;margin:12px 0 0}
   ul.ticks li{position:relative;padding-left:26px;margin:8px 0;color:var(--dim)}
   ul.ticks li::before{content:"";position:absolute;left:0;top:7px;width:14px;height:9px;border-left:2.5px solid var(--green);border-bottom:2.5px solid var(--green);transform:rotate(-45deg)}
@@ -238,7 +244,7 @@
   <div class="feat" style="margin-top:56px">
     <div class="fig reveal"><div class="device tilt"><img src="img/lyrics.png" alt="Letra sincronizada: se resalta el verso que suena en ese momento bajo el título de la canción" /></div></div>
     <div class="reveal">
-      <span class="kicker"><span class="new">NUEVO</span> Letra sincronizada</span>
+      <span class="kicker">Letra sincronizada</span>
       <h3>Reacciona al verso que suena.</h3>
       <p>La letra sincronizada resalta la <b>línea exacta</b> que suena en cada momento, y tu locutor <b>entra por lo que dice</b> ese verso. Como un karaoke con quien te lo explica.</p>
       <ul class="ticks">
@@ -266,7 +272,7 @@
 
   <!-- De dónde sale: MISMO formato que las otras filas (mockup + ticks), aclarando el proceso -->
   <div class="feat" style="margin-top:64px">
-    <div class="fig card reveal"><div class="device"><img src="img/card.jpg" alt="Tarjeta de un comentario con sus datos: álbum, año, género, sello, compositor y las fuentes Genius, Wikipedia y MusicBrainz" loading="lazy" /></div></div>
+    <div class="fig card reveal"><div class="device"><img src="img/card.jpg" alt="Tarjeta Carta de un comentario con sus datos: álbum, año, género, sello, compositor y las fuentes Genius, Wikipedia y MusicBrainz" loading="lazy" /></div></div>
     <div class="reveal">
       <span class="kicker">De dónde sale</span>
       <h3>Tu locutor sabe de lo que habla.</h3>
@@ -279,12 +285,31 @@
     </div>
   </div>
 
+  <!-- Para compartir: las tarjetas (Cita, Mi semana, Mi top) -->
+  <div class="feat rev" style="margin-top:64px">
+    <div class="fig reveal"><div class="fan">
+      <img class="f1" src="img/share-semana.jpg" alt="Tarjeta Mi semana: la canción de la semana con su carátula, tus cifras, la semana día a día y tus artistas" loading="lazy" />
+      <img class="f3" src="img/share-top.jpg" alt="Tarjeta Mi top: tu número 1 con su carátula y del 2 al 5 con sus estrellas" loading="lazy" />
+      <img class="f2" src="img/share-cita.jpg" alt="Tarjeta Cita: el comentario del locutor de protagonista, con la carátula, tus estrellas y los datos del disco" loading="lazy" />
+    </div></div>
+    <div class="reveal">
+      <span class="kicker"><span class="new">NUEVO</span> Para compartir</span>
+      <h3>Cada canción, en una tarjeta que da gusto enseñar.</h3>
+      <p>Guarda el comentario como una <b>Carta</b> —la canción con todo: carátula, tus estrellas, el comentario y la ficha del disco— o compártelo como una <b>Cita</b>, pensada para redes.</p>
+      <ul class="ticks">
+        <li><b>Carta</b> o <b>Cita</b>, en formato historia o post</li>
+        <li><b>Mi semana</b>, <b>Mi top</b> y tu <b>test musical</b>, con el mismo estilo</li>
+        <li>Las ves antes de compartir, con la fuente de cada dato</li>
+      </ul>
+    </div>
+  </div>
+
   <!-- Rejilla de más potencial -->
   <div class="grid">
     <div class="card reveal"><div class="ico"><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M6 11.5a6 6 0 0 0 12 0M12 17.5V21M9 21h6"/></svg></div><h4>Tu locutor, a tu gusto</h4><p>Nueve personalidades listas —o crea la tuya: su enfoque, su tono y su personalidad.</p></div>
     <div class="card reveal"><div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2"/><path d="M8.5 8.5a5 5 0 0 0 0 7M15.5 8.5a5 5 0 0 1 0 7M6 6a8.5 8.5 0 0 0 0 12M18 6a8.5 8.5 0 0 1 0 12"/></svg></div><h4>Voces de verdad</h4><p>Voz natural gratis (Microsoft), la voz de tu propia IA, o premium con ElevenLabs / Cartesia. Una por locutor.</p></div>
     <div class="card reveal"><div class="ico"><svg viewBox="0 0 24 24"><path d="M12 20s-6.8-4.2-9.1-8.4C1.3 8.7 2.8 5.7 5.6 5.4 7.5 5.2 9 6.1 12 8.6c3-2.5 4.5-3.4 6.4-3.2 2.8.3 4.3 3.3 2.7 6.2C18.8 15.8 12 20 12 20z"/></svg></div><h4>Te conoce</h4><p>Aprende tus gustos entre sesiones y los referencia con naturalidad. Tu radio, cada vez más tuya.</p></div>
-    <div class="card reveal"><div class="ico"><svg viewBox="0 0 24 24"><path d="M4 20V13M9.3 20V8M14.6 20v-5M20 20V5"/></svg></div><h4>Tu semana</h4><p>Tu resumen, tu semana y tu top, en tarjetas que ves antes de compartir.</p></div>
+    <div class="card reveal"><div class="ico"><svg viewBox="0 0 24 24"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4M10 12h5M10 15.5h5"/></svg></div><h4>Comentario a fondo</h4><p>Un análisis por aspectos —la letra, la producción, la historia…— que te guardas en PDF, con su carátula y tu nota. En Premium.</p></div>
     <div class="card reveal"><div class="ico"><svg viewBox="0 0 24 24"><path d="M4.5 5h15v10H9l-4.5 3.5z"/><path d="M9.6 8.6a2.4 2.4 0 1 1 2.9 2.4v.9"/><circle cx="12.4" cy="13.4" r=".7" fill="#E8A13A" stroke="none"/></svg></div><h4>Test musical</h4><p>Un juego con preguntas sobre TUS canciones, sacadas de lo que ya te han contado y de sus fuentes.</p></div>
     <div class="card reveal"><div class="ico"><svg viewBox="0 0 24 24"><circle cx="8" cy="8" r="4.5"/><path d="M11.2 11.2 20 20M16.7 16.7 18.7 14.7M14.2 14.2 16.2 12.2"/></svg></div><h4>Tu IA, tu elección</h4><p>Gemini, Groq, Mistral (gratis), OpenAI o Claude. Si tu IA va saturada o sin cupo, prueba sola su modelo ligero u otra de tus claves.</p></div>
   </div>
