@@ -197,6 +197,7 @@
 <nav><div class="wrap">
   <div class="brand"><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round"><circle cx="32" cy="32" r="6" fill="currentColor" stroke="none"/><path d="M20 21 a19 19 0 0 0 0 22"/><path d="M44 21 a19 19 0 0 1 0 22"/></svg>LOCUTOR</div>
   <div class="nav-links">
+    <a href="#demo">Pruébalo</a>
     <a href="#como">Cómo funciona</a>
     <a href="#novedades">Novedades</a>
     <a href="#potencial">Qué hace</a>
@@ -215,7 +216,7 @@
       <p class="lead">Unos locutores con IA comentan en voz alta lo que suena en tu ordenador, con datos de <b>fuentes de referencia</b>. <b>Sin micrófono, sin permisos</b>, y <b>gratis</b> con tu propia clave.</p>
       <div class="cta-row">
         <a class="btn big" href="https://apps.microsoft.com/detail/9MT9Z36X7MC4" rel="noopener">▶ Descargar en Microsoft Store</a>
-        <a class="btn ghost big" href="#como">Ver cómo funciona</a>
+        <a class="btn ghost big" href="#demo">▶ Escúchalo ahora</a>
       </div>
       <div class="cta-row" style="margin-top:14px">
         <a class="chip" href="https://apps.microsoft.com/detail/9MT9Z36X7MC4" rel="noopener" style="text-decoration:none"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8"/><rect x="13" y="3" width="8" height="8"/><rect x="3" y="13" width="8" height="8"/><rect x="13" y="13" width="8" height="8"/></svg> Ya en Microsoft Store</a>
@@ -236,6 +237,94 @@
   <span><span class="i">✓</span><b>Tu clave, tu equipo</b> — cifrada, nunca en el servidor</span>
   <span><span class="i">✓</span><b>Gratis</b> — con opciones de IA sin tarjeta</span>
 </div></div>
+
+<!-- DEMO: pruébalo sin instalar (comentarios pregenerados y verificados: sin IA en directo, sin coste por visita) -->
+<style>
+  #demo .demo-box{display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);gap:28px;align-items:start;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:24px;margin-top:26px}
+  #demo .demo-search{width:100%;box-sizing:border-box;background:var(--bg);border:1px solid var(--line);color:var(--text);border-radius:10px;padding:12px 14px;font-size:15px;font-family:var(--sans)}
+  #demo .demo-search:focus{outline:2px solid var(--amber);outline-offset:1px}
+  #demo .demo-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  #demo .demo-chip{background:var(--surface2);border:1px solid var(--line);color:var(--text);border-radius:999px;padding:7px 13px;font-size:13.5px;cursor:pointer;font-family:var(--sans);text-align:left}
+  #demo .demo-chip small{color:var(--dim)}
+  #demo .demo-chip:hover,#demo .demo-chip.on{border-color:var(--amber);color:var(--amber2)}
+  #demo .demo-card{width:100%;border-radius:14px;box-shadow:0 18px 40px rgba(0,0,0,.45);display:block;margin-top:16px}
+  #demo .demo-now{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:12px;letter-spacing:.14em;color:var(--onair)}
+  #demo .demo-now .dot{width:8px;height:8px;border-radius:50%;background:var(--onair)}
+  #demo .demo-title{font-family:var(--disp);font-size:30px;margin:6px 0 2px;line-height:1.1}
+  #demo .demo-meta{color:var(--amber);font-family:var(--disp);letter-spacing:.08em;font-size:14px;text-transform:uppercase}
+  #demo .demo-host{color:var(--dim);font-size:13.5px;margin-top:4px}
+  #demo .demo-play{display:flex;align-items:center;gap:14px;margin:18px 0 8px}
+  #demo .demo-btn{width:58px;height:58px;border-radius:50%;border:0;background:var(--amber);color:#211404;font-size:20px;cursor:pointer;flex:none}
+  #demo .demo-bar{flex:1;height:6px;background:var(--line);border-radius:3px;overflow:hidden}
+  #demo .demo-bar i{display:block;height:100%;width:0;background:var(--amber)}
+  #demo .demo-text{color:var(--text);font-size:15px;line-height:1.65;margin-top:12px;white-space:pre-line}
+  #demo .demo-note{color:var(--dim);font-size:12.5px;margin-top:10px}
+  #demo .demo-miss,#demo .demo-end{background:var(--surface2);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-top:14px;font-size:14.5px}
+  #demo .hidden{display:none}
+  @media (max-width:760px){#demo .demo-box{grid-template-columns:1fr;padding:16px;gap:18px}#demo .demo-title{font-size:25px}}
+</style>
+<section id="demo"><div class="wrap center">
+  <div class="sec-lbl">PRUÉBALO AHORA · SIN INSTALAR NADA</div>
+  <h2 class="big reveal">Elige una canción y escucha a tu locutor.</h2>
+  <p class="sec-sub reveal">Así suena Locutor cuando esa canción aparece en tu PC: la historia de verdad, en voz alta, en menos de un minuto.</p>
+  <div class="demo-box">
+    <div>
+      <input id="demoSearch" class="demo-search" type="search" placeholder="Busca una canción o un artista…" aria-label="Busca una canción o un artista" autocomplete="off">
+      <div id="demoList" class="demo-list"></div>
+      <div id="demoMiss" class="demo-miss hidden">Esa todavía no la tengo aquí, pero <b>la app te cuenta cualquier canción</b> al momento.<br>
+        <a class="btn" style="margin-top:10px" href="https://apps.microsoft.com/detail/9MT9Z36X7MC4" rel="noopener">Descargar gratis en Microsoft Store</a>
+        <div class="demo-note">O pídemela en comentarios en <a href="https://www.instagram.com/locutor.app/" rel="noopener">Instagram</a> o <a href="https://www.tiktok.com/@locutor.app" rel="noopener">TikTok</a> y la subo.</div></div>
+      <img id="demoCard" class="demo-card" alt="" loading="lazy">
+    </div>
+    <div>
+      <div class="demo-now"><span class="dot"></span>EN ANTENA</div>
+      <div id="demoTitle" class="demo-title"></div>
+      <div id="demoMeta" class="demo-meta"></div>
+      <div id="demoHost" class="demo-host"></div>
+      <div class="demo-play">
+        <button id="demoBtn" class="demo-btn" aria-label="Escuchar el comentario">▶</button>
+        <div class="demo-bar"><i id="demoProg"></i></div>
+      </div>
+      <div id="demoEnd" class="demo-end hidden">Así, con <b>cada canción que suena en tu PC</b>: Spotify, YouTube Music o donde quieras. Sin micrófono.<br>
+        <a class="btn" style="margin-top:10px" href="https://apps.microsoft.com/detail/9MT9Z36X7MC4" rel="noopener">▶ Descargar gratis en Microsoft Store</a></div>
+      <div id="demoText" class="demo-text"></div>
+      <div class="demo-note">Comentario y voz generados con IA a partir de datos verificados (Wikipedia, Genius, MusicBrainz). En la app lo genera tu propia IA al momento, con la canción que esté sonando.</div>
+    </div>
+  </div>
+  <audio id="demoAudio" preload="none"></audio>
+</div></section>
+<script>
+(function () {
+  var cat = [], cur = null;
+  var $ = function (id) { return document.getElementById(id); };
+  var audio = $("demoAudio"), btn = $("demoBtn"), prog = $("demoProg");
+  function norm(s) { return String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase(); }
+  function select(c, play) {
+    cur = c; audio.pause(); audio.src = "demo/" + c.id + ".mp3"; prog.style.width = "0"; btn.textContent = "▶";
+    $("demoCard").src = "demo/" + c.id + ".jpg"; $("demoCard").alt = "Tarjeta de Locutor: " + c.title + " de " + c.artist;
+    $("demoTitle").textContent = c.title; $("demoMeta").textContent = c.artist + " · " + c.year;
+    $("demoHost").textContent = c.host ? "Lo cuenta " + c.host : ""; $("demoText").textContent = c.text;
+    $("demoEnd").classList.add("hidden");
+    document.querySelectorAll("#demoList .demo-chip").forEach(function (b) { b.classList.toggle("on", b.dataset.id === c.id); });
+    if (play) audio.play().then(function () { btn.textContent = "❚❚"; }).catch(function () {});
+  }
+  function render(q) {
+    var list = $("demoList"); list.innerHTML = ""; var n = 0;
+    cat.forEach(function (c) {
+      if (q && norm(c.title + " " + c.artist).indexOf(norm(q)) < 0) return; n++;
+      var b = document.createElement("button"); b.className = "demo-chip" + (cur && cur.id === c.id ? " on" : ""); b.dataset.id = c.id;
+      b.innerHTML = c.title + " <small>· " + c.artist + "</small>"; b.onclick = function () { select(c, true); };
+      list.appendChild(b);
+    });
+    $("demoMiss").classList.toggle("hidden", n > 0 || !q);
+  }
+  btn.onclick = function () { if (!cur) return; if (audio.paused) { audio.play(); btn.textContent = "❚❚"; } else { audio.pause(); btn.textContent = "▶"; } };
+  audio.ontimeupdate = function () { if (audio.duration) prog.style.width = (100 * audio.currentTime / audio.duration) + "%"; };
+  audio.onended = function () { btn.textContent = "▶"; $("demoEnd").classList.remove("hidden"); };
+  $("demoSearch").oninput = function (e) { render(e.target.value.trim()); };
+  fetch("demo/catalogo.json").then(function (r) { return r.json(); }).then(function (d) { cat = d; render(""); select(cat[0], false); }).catch(function () {});
+})();
+</script>
 
 <!-- NOVEDADES 2.30.1 -->
 <section id="novedades"><div class="wrap center">
