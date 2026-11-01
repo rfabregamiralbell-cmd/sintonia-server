@@ -141,6 +141,17 @@
   .loc p{margin:0;color:var(--dim);font-size:14px}
 
   /* Cómo funciona */
+  .guia8{display:grid;grid-template-columns:1fr 1.15fr;gap:28px;align-items:center;margin:44px auto 0;max-width:980px;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:26px}
+  @media (max-width:820px){ .guia8{grid-template-columns:1fr} }
+  .guia8 .g8-lbl{font-family:var(--mono);font-size:12px;letter-spacing:.14em;color:var(--amber)}
+  .guia8 h3{margin:8px 0 8px;font-size:23px;line-height:1.2}
+  .guia8 p{margin:0 0 16px;color:var(--dim);font-size:15px}
+  .guia8-play{position:relative;display:block;width:100%;aspect-ratio:16/9;border:1px solid var(--line);border-radius:14px;cursor:pointer;overflow:hidden;background:radial-gradient(circle at 70% 30%,rgba(232,161,58,.22),transparent 60%),linear-gradient(160deg,#2a2216,#120e07);color:var(--text);font-family:var(--disp)}
+  .guia8-play .g8-icon{position:absolute;left:50%;top:44%;transform:translate(-50%,-50%);width:74px;height:74px;border-radius:50%;background:var(--amber);color:#211404;display:grid;place-items:center;font-size:28px;padding-left:5px;box-shadow:0 12px 32px rgba(232,161,58,.35);transition:transform .15s var(--ease)}
+  .guia8-play:hover .g8-icon{transform:translate(-50%,-50%) scale(1.07)}
+  .guia8-play .g8-cap{position:absolute;left:0;right:0;bottom:16px;text-align:center;font-size:17px;letter-spacing:.04em}
+  .guia8-play .g8-dur{position:absolute;right:12px;top:12px;font-family:var(--mono);font-size:12px;color:var(--dim);background:rgba(0,0,0,.4);border-radius:6px;padding:2px 7px}
+  .guia8 iframe{display:block;width:100%;aspect-ratio:16/9;border:0;border-radius:14px}
   .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:40px;counter-reset:s}
   @media (max-width:820px){ .steps{grid-template-columns:1fr} }
   .step{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:24px;position:relative}
@@ -203,6 +214,7 @@
   <div class="nav-links">
     <a href="#demo">Pruébalo</a>
     <a href="#como">Cómo funciona</a>
+    <a href="#primeros-pasos">Primeros pasos</a>
     <a href="#novedades">Novedades</a>
     <a href="#potencial">Qué hace</a>
     <a href="#precios">Precios</a>
@@ -432,7 +444,7 @@
   <div class="steps" style="text-align:left">
     <div class="step reveal">
       <h3>Pon música</h3>
-      <p>En Spotify, YouTube Music o lo que uses. Locutor <b style="color:var(--text)">reconoce solo</b> lo que está sonando, por Windows. Sin micrófono.</p>
+      <p>En Spotify, YouTube Music o lo que uses. Locutor <b style="color:var(--text)">reconoce solo</b> lo que está sonando: en Windows, sin permisos; en Android, con uno (saber qué canción suena). Sin micrófono.</p>
       <span class="free">✓ empieza gratis</span>
     </div>
     <div class="step reveal">
@@ -443,6 +455,16 @@
       <h3>Pon tu clave gratis</h3>
       <p>Sin clave nombra las canciones con datos de sus fuentes. Con una <b style="color:var(--text)">gratis y sin tarjeta</b> (Gemini o Groq) las comenta con IA: la app te guía y la reconoce sola.</p>
     </div>
+  </div>
+  <div class="guia8 reveal" id="primeros-pasos">
+    <div>
+      <div class="g8-lbl">PRIMEROS PASOS · VÍDEO DE 2 MIN</div>
+      <h3>¿Acabas de instalarla y no te comenta nada?</h3>
+      <p>La clave gratis, el permiso de Android, la música en el mismo móvil y el botón ▶. Y qué hacer con los mensajes más habituales: límite de uso, IA saturada o anuncios.</p>
+      <a class="btn ghost" href="https://youtu.be/vO9KMzOwCGs" rel="noopener">Ver en YouTube</a>
+      <a href="https://www.youtube.com/playlist?list=PLPwxpn6zY0lw" rel="noopener" style="margin-left:14px;font-size:14px;font-weight:600">Todas las guías →</a>
+    </div>
+    <button class="guia8-play" type="button" id="g8play" aria-label="Ver el vídeo de primeros pasos de Locutor"><span class="g8-dur">2:17</span><span class="g8-icon">▶</span><span class="g8-cap">Primeros pasos con Locutor</span></button>
   </div>
 </div></section>
 
@@ -515,7 +537,8 @@
   <div class="sec-lbl">DUDAS</div>
   <h2 class="big reveal">Preguntas frecuentes.</h2>
   <div class="faq" style="text-align:left">
-    <details open><summary>¿Usa el micrófono o graba lo que escucho?</summary><p>No. Locutor solo lee el <b>título y el artista</b> de la canción que ya está sonando, a través de Windows. No accede al micrófono ni graba ningún audio, y <b>no pide ni da ningún permiso</b>.</p></details>
+    <details open><summary>¿Usa el micrófono o graba lo que escucho?</summary><p>No. Locutor solo lee el <b>título y el artista</b> de la canción que ya está sonando, a través de Windows. No accede al micrófono ni graba ningún audio. En Windows <b>no pide ningún permiso</b>; en Android, solo el que Android llama <b>«Acceso a notificaciones»</b>, la única forma de saber qué canción suena (no lee tus mensajes).</p></details>
+    <details><summary>Lo he instalado y no me comenta nada. ¿Qué hago?</summary><p>Casi siempre es uno de estos cuatro pasos: <b>pon tu clave gratis</b>, da el permiso (en Android), pon la música <b>en el mismo dispositivo</b> (no en un altavoz o en la tele) y pulsa <b>▶ sobre la carátula</b>. Lo explicamos en <a href="#primeros-pasos" style="color:var(--text)">un vídeo de 2 minutos</a>, con los mensajes más habituales y qué hacer con cada uno.</p></details>
     <details><summary>¿Necesito una clave de inteligencia artificial? ¿Es difícil?</summary><p>Sí, la tuya propia — y es fácil: pega tu clave y la app la reconoce sola. Hay <b>opciones gratis y sin tarjeta</b>: Gemini (aistudio.google.com) o Groq (console.groq.com). También valen Mistral, OpenAI o Claude. Puedes guardar <b>varias</b>: si una se queda sin cuota, la app usa otra sola.</p></details>
     <details><summary>¿De dónde saca los datos?</summary><p>Locutor funciona como un <b>buscador bien documentado</b>: antes de comentar, consulta fuentes de referencia —<b>Genius, Wikipedia, MusicBrainz, Last.fm e iTunes</b>— y se apoya en ellas. Cada tarjeta te enseña de dónde sale cada dato.</p></details>
     <details><summary>¿Funciona con Spotify gratis?</summary><p>Sí. Funciona con Spotify (gratis o Premium), YouTube Music y la mayoría de apps que muestran la canción en Windows. Locutor solo necesita saber qué suena.</p></details>
@@ -535,7 +558,8 @@
   <a class="btn big" href="https://apps.microsoft.com/detail/9MT9Z36X7MC4" id="downloadBtn" rel="noopener">▶ Descargar gratis en Microsoft Store</a>
   <div class="cta-row center" style="justify-content:center;margin-top:14px"><a class="chip" href="https://apps.microsoft.com/detail/9MT9Z36X7MC4" rel="noopener" style="text-decoration:none"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8"/><rect x="13" y="3" width="8" height="8"/><rect x="3" y="13" width="8" height="8"/><rect x="13" y="13" width="8" height="8"/></svg> Ya en Microsoft Store</a>
         <a class="chip" href="https://play.google.com/store/apps/details?id=com.locutor.app" rel="noopener" style="text-decoration:none"><svg viewBox="0 0 24 24"><rect x="7" y="3" width="10" height="18" rx="2.5"/><line x1="10.5" y1="18" x2="13.5" y2="18"/></svg> Ya en Google Play (Android)</a></div>
-  <p class="trust" style="margin-top:18px">Windows 10/11 · Sin micrófono · Gratis</p>
+  <p class="trust" style="margin-top:18px">Windows 10/11 · Android · Sin micrófono · Gratis</p>
+  <p class="trust" style="margin-top:8px"><a href="#primeros-pasos">¿Primera vez? Mira los primeros pasos en 2 minutos →</a></p>
   <p class="trust" style="margin-top:8px;opacity:.8;max-width:620px;margin-left:auto;margin-right:auto">Desde la Microsoft Store se instala con un clic y se actualiza sola. En Android, desde Google Play.</p>
 </div></section>
 
@@ -558,6 +582,9 @@
     var io=new IntersectionObserver(function(en){en.forEach(function(x){if(x.isIntersecting){x.target.classList.add('in');io.unobserve(x.target);}})},{threshold:.12});
     els.forEach(function(e){io.observe(e)});
   })();
+</script>
+<script>
+(function(){ var b=document.getElementById("g8play"); if(!b) return; b.addEventListener("click",function(){ var f=document.createElement("iframe"); f.src="https://www.youtube-nocookie.com/embed/vO9KMzOwCGs?autoplay=1&rel=0"; f.title="Primeros pasos con Locutor"; f.allow="autoplay; encrypted-media; picture-in-picture; fullscreen"; f.allowFullscreen=true; b.replaceWith(f); }); })();
 </script>
 </body>
 </html>
