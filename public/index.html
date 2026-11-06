@@ -135,6 +135,16 @@
   .loc{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px;display:flex;gap:14px;align-items:flex-start}
   .loc .av{width:46px;height:46px;border-radius:50%;flex:none;display:grid;place-items:center;background:var(--surface2);border:1px solid var(--line)}
   .loc .av svg{width:23px;height:23px;stroke:var(--amber);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+
+  /* Funciona con todo: apps de música del mundo, IA y voces */
+  .compat{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-top:26px;text-align:left}
+  @media (max-width:860px){ .compat{grid-template-columns:1fr} }
+  .compat .box{border:1px solid var(--line);border-radius:16px;padding:22px 22px 18px;background:rgba(255,255,255,.015)}
+  .compat h3{margin:0 0 12px;font-size:20px}
+  .compat .grp{margin:0 0 10px;font-size:15px;line-height:1.55;color:var(--dim)}
+  .compat .grp b{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--amber);font-weight:700;margin-bottom:2px}
+  .compat .grp span{color:var(--text)}
+  .ftag{display:inline-block;padding:1px 7px;border-radius:5px;background:rgba(95,208,138,.16);color:#5FD08A;font-size:10.5px;font-weight:800;letter-spacing:.06em;vertical-align:1px}
   .chip svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex:none}
   .loc h4{margin:0 0 3px;font-family:var(--disp);font-size:18px}
   .loc .tag{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;color:var(--amber);text-transform:uppercase;margin:0 0 7px}
@@ -301,7 +311,7 @@
         <button id="demoBtn" class="demo-btn" aria-label="Escuchar el comentario">▶</button>
         <div class="demo-bar"><i id="demoProg"></i></div>
       </div>
-      <div id="demoEnd" class="demo-end hidden">Así, con <b>cada canción que suena en tu móvil o tu PC</b>: Spotify, YouTube Music o donde quieras. Sin micrófono.<br>
+      <div id="demoEnd" class="demo-end hidden">Así, con <b>cada canción que suena en tu móvil o tu PC</b>: Spotify, YouTube Music, JioSaavn, Anghami, QQ Música… la que uses. Sin micrófono.<br>
         <a class="btn store-btn" style="margin-top:10px" href="https://apps.microsoft.com/detail/9MT9Z36X7MC4" rel="noopener">▶ Descargar gratis en Microsoft Store</a></div>
       <div id="demoText" class="demo-text"></div>
       <div class="demo-note">Comentario y voz generados con IA a partir de datos verificados (Wikipedia, Genius, MusicBrainz). En la app lo genera tu propia IA al momento, con la canción que esté sonando.</div>
@@ -432,7 +442,7 @@
     <div class="card reveal"><div class="ico"><svg viewBox="0 0 24 24"><path d="M12 20s-6.8-4.2-9.1-8.4C1.3 8.7 2.8 5.7 5.6 5.4 7.5 5.2 9 6.1 12 8.6c3-2.5 4.5-3.4 6.4-3.2 2.8.3 4.3 3.3 2.7 6.2C18.8 15.8 12 20 12 20z"/></svg></div><h4>Te conoce</h4><p>Aprende tus gustos entre sesiones y los referencia con naturalidad. Tu radio, cada vez más tuya.</p></div>
     <div class="card reveal"><div class="ico"><svg viewBox="0 0 24 24"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4M10 12h5M10 15.5h5"/></svg></div><h4>Comentario a fondo</h4><p>Un análisis por aspectos —la letra, la producción, la historia…— que te guardas en PDF, con su carátula y tu nota. En Premium.</p></div>
     <div class="card reveal"><div class="ico"><svg viewBox="0 0 24 24"><path d="M4.5 5h15v10H9l-4.5 3.5z"/><path d="M9.6 8.6a2.4 2.4 0 1 1 2.9 2.4v.9"/><circle cx="12.4" cy="13.4" r=".7" fill="#E8A13A" stroke="none"/></svg></div><h4>Test musical</h4><p>Un juego con preguntas sobre TUS canciones, sacadas de lo que ya te han contado y de sus fuentes.</p></div>
-    <div class="card reveal"><div class="ico"><svg viewBox="0 0 24 24"><circle cx="8" cy="8" r="4.5"/><path d="M11.2 11.2 20 20M16.7 16.7 18.7 14.7M14.2 14.2 16.2 12.2"/></svg></div><h4>Tu IA, tu elección</h4><p>Gemini o Groq gratis, o Mistral, OpenAI o Claude. Si tu IA va saturada o sin cupo, prueba sola su modelo ligero u otra de tus claves.</p></div>
+    <div class="card reveal"><div class="ico"><svg viewBox="0 0 24 24"><circle cx="8" cy="8" r="4.5"/><path d="M11.2 11.2 20 20M16.7 16.7 18.7 14.7M14.2 14.2 16.2 12.2"/></svg></div><h4>Tu IA, tu elección</h4><p>20 proveedores de todo el mundo: Gemini, Groq, Mistral, Cerebras u OpenRouter gratis, o OpenAI, Claude, DeepSeek, Grok, Kimi, Sarvam… Si tu IA va saturada o sin cupo, prueba sola su modelo ligero u otra de tus claves.</p></div>
   </div>
 </div></section>
 
@@ -444,7 +454,7 @@
   <div class="steps" style="text-align:left">
     <div class="step reveal">
       <h3>Pon música</h3>
-      <p>En Spotify, YouTube Music o lo que uses. Locutor <b style="color:var(--text)">reconoce solo</b> lo que está sonando: en Windows, sin permisos; en Android, con uno (saber qué canción suena). Sin micrófono.</p>
+      <p>En la app que uses: Spotify, YouTube Music, Apple Music, Deezer, JioSaavn, Anghami, Boomplay, QQ Música… Locutor <b style="color:var(--text)">reconoce solo</b> lo que está sonando: en Windows, sin permisos; en Android, con uno (saber qué canción suena). Sin micrófono.</p>
       <span class="free">✓ empieza gratis</span>
     </div>
     <div class="step reveal">
@@ -465,6 +475,36 @@
       <a href="https://www.youtube.com/playlist?list=PLPwxpn6zY0lw" rel="noopener" style="margin-left:14px;font-size:14px;font-weight:600">Todas las guías →</a>
     </div>
     <button class="guia8-play" type="button" id="g8play" aria-label="Ver el vídeo de primeros pasos de Locutor"><span class="g8-dur">2:17</span><span class="g8-icon">▶</span><span class="g8-cap">Primeros pasos con Locutor</span></button>
+  </div>
+</div></section>
+
+<!-- FUNCIONA CON TODO -->
+<section id="compatible"><div class="wrap center">
+  <div class="sec-lbl">FUNCIONA CON TODO</div>
+  <h2 class="big reveal">Con tu app de música, en tu país.</h2>
+  <p class="sec-sub reveal">Locutor reconoce lo que suena en <b style="color:var(--text)">cualquier app de música</b> del móvil o del PC, y la IA la eliges tú entre proveedores de todo el mundo: primero te enseña los que más se usan donde vives.</p>
+  <div class="compat">
+    <div class="box reveal"><h3>Apps de música</h3>
+      <p class="grp"><b>En todo el mundo</b><span>Spotify · YouTube Music · Apple Music · Amazon Music · Deezer · Tidal · SoundCloud · Pandora · Qobuz</span></p>
+      <p class="grp"><b>India</b><span>JioSaavn · Gaana · Wynk · Hungama</span></p>
+      <p class="grp"><b>China</b><span>QQ 音乐 · 网易云音乐 · 酷狗 · 酷我</span></p>
+      <p class="grp"><b>Mundo árabe</b><span>Anghami</span></p>
+      <p class="grp"><b>África</b><span>Boomplay · Audiomack · Mdundo</span></p>
+      <p class="grp"><b>Rusia</b><span>Яндекс Музыка · VK Музыка · Звук</span></p>
+      <p class="grp"><b>Corea · Japón</b><span>Melon · Genie · FLO · Bugs · VIBE · LINE MUSIC · AWA</span></p>
+      <p class="grp"><b>Sudeste asiático · Taiwán</b><span>JOOX · KKBOX · Resso</span></p>
+      <p class="grp"><b>Latinoamérica</b><span>Palco MP3 · Sua Música · Claro Música</span></p>
+      <p class="grp"><b>Reproductores</b><span>Samsung · Xiaomi · Huawei · Oppo · Poweramp · VLC · foobar2000 · MusicBee · AIMP · Winamp · y la web en el navegador</span></p>
+    </div>
+    <div class="box reveal"><h3>Inteligencia artificial</h3>
+      <p class="grp"><b><span class="ftag">GRATIS</span> sin pagar</b><span>Gemini · Groq · Mistral · Cerebras · OpenRouter · Hugging Face · SiliconFlow · SEA-LION</span></p>
+      <p class="grp"><b>De pago</b><span>OpenAI / ChatGPT · Claude · Grok · DeepSeek · Kimi · GLM · Sarvam · Solar · PLaMo · Sabiá</span></p>
+      <p class="grp" style="margin-top:14px">Pegas tu clave y la app reconoce de qué IA es. Puedes guardar varias: si una se queda sin cuota, usa otra.</p>
+      <h3 style="margin-top:20px">Voces</h3>
+      <p class="grp"><span>Voz natural gratis · La voz de tu IA (OpenAI, Gemini, Groq, Sarvam) · Microsoft Azure · Google Cloud · ElevenLabs · Cartesia · Deepgram · Voz del sistema</span></p>
+      <h3 style="margin-top:20px">Idiomas</h3>
+      <p class="grp"><span>La app en español, English, 中文, हिन्दी y العربية. El locutor habla en más de 50 idiomas.</span></p>
+    </div>
   </div>
 </div></section>
 
@@ -503,7 +543,7 @@
       <div class="tag">GRATIS</div>
       <div class="amt">0€</div>
       <ul>
-        <li>Con tu clave (Gemini o Groq, gratis)</li>
+        <li>Con tu clave (Gemini, Groq, Mistral, Cerebras… gratis)</li>
         <li>Un locutor comentando</li>
         <li>Comentario <b>breve</b></li>
         <li>Voz natural gratis o la voz de tu IA</li>
@@ -529,7 +569,7 @@
       <a class="btn" href="#descargar" style="width:100%;justify-content:center">Empezar</a>
     </div>
   </div>
-  <p style="color:var(--dim);font-size:13px;margin-top:22px;max-width:640px;margin-left:auto;margin-right:auto">La IA es siempre <b style="color:var(--text)">tu clave</b> (Gemini y Groq tienen opción gratis). Premium solo desbloquea los modos avanzados de la app; no guardamos tus claves en el servidor.</p>
+  <p style="color:var(--dim);font-size:13px;margin-top:22px;max-width:640px;margin-left:auto;margin-right:auto">La IA es siempre <b style="color:var(--text)">tu clave</b> (Gemini, Groq, Mistral, Cerebras, OpenRouter y más tienen opción gratis). Premium solo desbloquea los modos avanzados de la app; no guardamos tus claves en el servidor.</p>
 </div></section>
 
 <!-- FAQ -->
@@ -539,11 +579,11 @@
   <div class="faq" style="text-align:left">
     <details open><summary>¿Usa el micrófono o graba lo que escucho?</summary><p>No. Locutor solo lee el <b>título y el artista</b> de la canción que ya está sonando, a través de Windows. No accede al micrófono ni graba ningún audio. En Windows <b>no pide ningún permiso</b>; en Android, solo el que Android llama <b>«Acceso a notificaciones»</b>, la única forma de saber qué canción suena (no lee tus mensajes).</p></details>
     <details><summary>Lo he instalado y no me comenta nada. ¿Qué hago?</summary><p>Casi siempre es uno de estos cuatro pasos: <b>pon tu clave gratis</b>, da el permiso (en Android), pon la música <b>en el mismo dispositivo</b> (no en un altavoz o en la tele) y pulsa <b>▶ sobre la carátula</b>. Lo explicamos en <a href="#primeros-pasos" style="color:var(--text)">un vídeo de 2 minutos</a>, con los mensajes más habituales y qué hacer con cada uno.</p></details>
-    <details><summary>¿Necesito una clave de inteligencia artificial? ¿Es difícil?</summary><p>Sí, la tuya propia — y es fácil: pega tu clave y la app la reconoce sola. Hay <b>opciones gratis y sin tarjeta</b>: Gemini (aistudio.google.com) o Groq (console.groq.com). También valen Mistral, OpenAI o Claude. Puedes guardar <b>varias</b>: si una se queda sin cuota, la app usa otra sola.</p></details>
+    <details><summary>¿Necesito una clave de inteligencia artificial? ¿Es difícil?</summary><p>Sí, la tuya propia — y es fácil: pega tu clave y la app la reconoce sola. Hay <b>opciones gratis y sin tarjeta</b>: Gemini (aistudio.google.com), Groq (console.groq.com), Mistral, Cerebras, OpenRouter, Hugging Face, SiliconFlow o SEA-LION. También valen OpenAI, Claude, Grok, DeepSeek, Kimi, GLM, Sarvam, Solar, PLaMo o Sabiá. Puedes guardar <b>varias</b>: si una se queda sin cuota, la app usa otra sola.</p></details>
     <details><summary>¿De dónde saca los datos?</summary><p>Locutor funciona como un <b>buscador bien documentado</b>: antes de comentar, consulta fuentes de referencia —<b>Genius, Wikipedia, MusicBrainz, Last.fm e iTunes</b>— y se apoya en ellas. Cada tarjeta te enseña de dónde sale cada dato.</p></details>
-    <details><summary>¿Funciona con Spotify gratis?</summary><p>Sí. Funciona con Spotify (gratis o Premium), YouTube Music y la mayoría de apps que muestran la canción en Windows. Locutor solo necesita saber qué suena.</p></details>
+    <details><summary>¿Funciona con Spotify gratis? ¿Y con la app de mi país?</summary><p>Sí. Funciona con Spotify (gratis o Premium), YouTube Music, Apple Music, Deezer, Amazon Music, JioSaavn, Gaana, QQ Música, NetEase, Anghami, Boomplay, Yandex Music, Melon, KKBOX, Palco MP3… y con casi cualquier app que muestre la canción que suena en Windows o en Android. Locutor solo necesita saber qué suena.</p></details>
     <details><summary>¿Comenta podcasts o vídeos?</summary><p>No: tu locutor comenta <b>canciones</b>. Si lo que suena es un podcast, te lo dice y no se pone a comentarlo como si fuera un tema.</p></details>
-    <details><summary>¿Qué voces puedo usar?</summary><p>Varias, y eliges una por locutor: la <b>voz de tu propia IA</b> (OpenAI o Gemini; con una clave gratis de Gemini ya suena muy natural), una <b>voz natural gratis</b> o voces premium con tu clave de <b>Cartesia</b> o <b>ElevenLabs</b>. Si la voz gratis no está disponible en ese momento, Locutor usa una alternativa o deja el comentario escrito en pantalla.</p></details>
+    <details><summary>¿Qué voces puedo usar?</summary><p>Varias, y eliges una por locutor: la <b>voz de tu propia IA</b> (OpenAI o Gemini; con una clave gratis de Gemini ya suena muy natural), una <b>voz natural gratis</b> o voces con tu clave de <b>Microsoft Azure</b> (400 voces en 140 idiomas), <b>Google Cloud</b>, <b>Deepgram</b>, <b>Sarvam</b> (idiomas de la India), <b>Cartesia</b> o <b>ElevenLabs</b>. Si la voz gratis no está disponible en ese momento, Locutor usa una alternativa o deja el comentario escrito en pantalla.</p></details>
     <details><summary>¿Qué incluye Premium?</summary><p>Premium (4,99€/mes) desbloquea el <b>comentario largo y a fondo</b>, las voces premium y el <b>test musical</b> sin límite, y quita el tope diario. La IA sigue siendo tu clave; Premium paga los modos avanzados de la app.</p></details>
     <details><summary>¿Y en Android?</summary><p><b>Sí.</b> Locutor ya está en <a href="https://play.google.com/store/apps/details?id=com.locutor.app&amp;referrer=utm_source%3Dweb%26utm_medium%3Dlanding" rel="noopener" style="color:var(--text)">Google Play</a> para Android, y en Microsoft Store para Windows 10 y 11.</p></details>
     <details><summary>¿Guardáis mi clave?</summary><p>No en nuestro servidor. Tu clave se guarda <b>cifrada en tu propio equipo</b> y se usa directamente contra tu proveedor de IA. Puedes borrarla, junto a tu historial, desde Ajustes → <b>Borrar mis datos</b>. Nada de publicidad ni de vender datos.</p></details>
