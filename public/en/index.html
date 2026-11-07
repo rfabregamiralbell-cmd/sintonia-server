@@ -8,7 +8,15 @@
 <meta property="og:type" content="website">
 <meta property="og:title" content="Locutor — Your personal radio: the story of every song you play">
 <meta property="og:description" content="An AI host tells you the story of every song you listen to, with its sources. Free on Microsoft Store (Windows) and Google Play (Android). No microphone.">
-<meta property="og:locale" content="es_ES">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="es_ES">
+<meta property="og:locale:alternate" content="zh_CN">
+<meta property="og:locale:alternate" content="hi_IN">
+<meta property="og:locale:alternate" content="ar_AR">
+<meta property="og:url" content="https://sintonia-server-44kc.onrender.com/en/">
+<meta property="og:image" content="https://sintonia-server-44kc.onrender.com/en/img/card.jpg">
+<meta name="twitter:image" content="https://sintonia-server-44kc.onrender.com/en/img/card.jpg">
+<link rel="canonical" href="https://sintonia-server-44kc.onrender.com/en/">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
@@ -303,7 +311,7 @@
 <section id="demo"><div class="wrap center">
   <div class="sec-lbl">TRY IT NOW · NOTHING TO INSTALL</div>
   <h2 class="big reveal">Pick a song and hear your host.</h2>
-  <p class="sec-sub reveal">This is how Locutor sounds when that song comes on: the real story, out loud, in under a minute. (Demo audio in Spanish — in the app your host speaks your language.)</p>
+  <p class="sec-sub reveal">This is how Locutor sounds when that song comes on: the real story, out loud, in under a minute.</p>
   <div class="demo-box">
     <div>
       <input id="demoSearch" class="demo-search" type="search" placeholder="Search for a song or artist…" aria-label="Search for a song or artist" autocomplete="off">
@@ -337,8 +345,8 @@
   var audio = $("demoAudio"), btn = $("demoBtn"), prog = $("demoProg");
   function norm(s) { return String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase(); }
   function select(c, play) {
-    cur = c; audio.pause(); audio.src = "../demo/" + c.id + ".mp3"; prog.style.width = "0"; btn.textContent = "▶";
-    $("demoCard").src = "../demo/" + c.id + ".jpg"; $("demoCard").alt = "Locutor card: " + c.title + " by " + c.artist;
+    cur = c; audio.pause(); audio.src = "../demo/en/" + c.id + ".mp3"; prog.style.width = "0"; btn.textContent = "▶";
+    $("demoCard").src = "../demo/en/" + c.id + ".jpg"; $("demoCard").alt = "Locutor card: " + c.title + " by " + c.artist;
     $("demoTitle").textContent = c.title; $("demoMeta").textContent = c.artist + " · " + c.year;
     $("demoHost").textContent = c.host ? "Told by " + c.host : ""; $("demoText").textContent = c.text;
     $("demoEnd").classList.add("hidden");

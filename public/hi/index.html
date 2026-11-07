@@ -8,7 +8,15 @@
 <meta property="og:type" content="website">
 <meta property="og:title" content="Locutor — आपका निजी रेडियो: हर बजते गाने की कहानी">
 <meta property="og:description" content="एक AI होस्ट आपके सुने हर गाने की कहानी स्रोतों के साथ सुनाता है। Microsoft Store (Windows) और Google Play (Android) पर मुफ़्त। बिना माइक्रोफ़ोन।">
-<meta property="og:locale" content="es_ES">
+<meta property="og:locale" content="hi_IN">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="og:locale:alternate" content="zh_CN">
+<meta property="og:locale:alternate" content="es_ES">
+<meta property="og:locale:alternate" content="ar_AR">
+<meta property="og:url" content="https://sintonia-server-44kc.onrender.com/hi/">
+<meta property="og:image" content="https://sintonia-server-44kc.onrender.com/hi/img/card.jpg">
+<meta name="twitter:image" content="https://sintonia-server-44kc.onrender.com/hi/img/card.jpg">
+<link rel="canonical" href="https://sintonia-server-44kc.onrender.com/hi/">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
@@ -303,7 +311,7 @@
 <section id="demo"><div class="wrap center">
   <div class="sec-lbl">अभी सुनें · कुछ इंस्टॉल नहीं करना</div>
   <h2 class="big reveal">एक गाना चुनें और अपने होस्ट को सुनें।</h2>
-  <p class="sec-sub reveal">जब वह गाना बजता है तो Locutor ऐसा सुनाई देता है: असली कहानी, बोलकर, एक मिनट से कम में। (डेमो ऑडियो स्पेनिश में है — ऐप में होस्ट आपकी भाषा बोलता है।)</p>
+  <p class="sec-sub reveal">जब वह गाना बजता है तो Locutor ऐसा सुनाई देता है: असली कहानी, बोलकर, एक मिनट से कम में।</p>
   <div class="demo-box">
     <div>
       <input id="demoSearch" class="demo-search" type="search" placeholder="कोई गाना या कलाकार खोजें…" aria-label="कोई गाना या कलाकार खोजें" autocomplete="off">
@@ -337,8 +345,8 @@
   var audio = $("demoAudio"), btn = $("demoBtn"), prog = $("demoProg");
   function norm(s) { return String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase(); }
   function select(c, play) {
-    cur = c; audio.pause(); audio.src = "../demo/" + c.id + ".mp3"; prog.style.width = "0"; btn.textContent = "▶";
-    $("demoCard").src = "../demo/" + c.id + ".jpg"; $("demoCard").alt = "Locutor कार्ड: " + c.title + " — " + c.artist;
+    cur = c; audio.pause(); audio.src = "../demo/hi/" + c.id + ".mp3"; prog.style.width = "0"; btn.textContent = "▶";
+    $("demoCard").src = "../demo/hi/" + c.id + ".jpg"; $("demoCard").alt = "Locutor कार्ड: " + c.title + " — " + c.artist;
     $("demoTitle").textContent = c.title; $("demoMeta").textContent = c.artist + " · " + c.year;
     $("demoHost").textContent = c.host ? "सुना रहे हैं: " + c.host : ""; $("demoText").textContent = c.text;
     $("demoEnd").classList.add("hidden");

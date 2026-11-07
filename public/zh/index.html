@@ -8,7 +8,15 @@
 <meta property="og:type" content="website">
 <meta property="og:title" content="Locutor — 你的私人电台：每首歌的故事">
 <meta property="og:description" content="AI 主播讲述你听的每首歌的故事，并附出处。在 Microsoft Store（Windows）和 Google Play（安卓）免费下载。不用麦克风。">
-<meta property="og:locale" content="es_ES">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="og:locale:alternate" content="es_ES">
+<meta property="og:locale:alternate" content="hi_IN">
+<meta property="og:locale:alternate" content="ar_AR">
+<meta property="og:url" content="https://sintonia-server-44kc.onrender.com/zh/">
+<meta property="og:image" content="https://sintonia-server-44kc.onrender.com/zh/img/card.jpg">
+<meta name="twitter:image" content="https://sintonia-server-44kc.onrender.com/zh/img/card.jpg">
+<link rel="canonical" href="https://sintonia-server-44kc.onrender.com/zh/">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
@@ -303,7 +311,7 @@
 <section id="demo"><div class="wrap center">
   <div class="sec-lbl">现在试听 · 无需安装</div>
   <h2 class="big reveal">选一首歌，听听你的主播。</h2>
-  <p class="sec-sub reveal">当这首歌响起时，Locutor 就是这样说的：真实的故事，大声讲出来，不到一分钟。（示例音频为西班牙语——在应用里，主播会说你的语言。）</p>
+  <p class="sec-sub reveal">当这首歌响起时，Locutor 就是这样说的：真实的故事，大声讲出来，不到一分钟。</p>
   <div class="demo-box">
     <div>
       <input id="demoSearch" class="demo-search" type="search" placeholder="搜索歌曲或歌手…" aria-label="搜索歌曲或歌手" autocomplete="off">
@@ -337,8 +345,8 @@
   var audio = $("demoAudio"), btn = $("demoBtn"), prog = $("demoProg");
   function norm(s) { return String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase(); }
   function select(c, play) {
-    cur = c; audio.pause(); audio.src = "../demo/" + c.id + ".mp3"; prog.style.width = "0"; btn.textContent = "▶";
-    $("demoCard").src = "../demo/" + c.id + ".jpg"; $("demoCard").alt = "Locutor 卡片：" + c.title + " — " + c.artist;
+    cur = c; audio.pause(); audio.src = "../demo/zh/" + c.id + ".mp3"; prog.style.width = "0"; btn.textContent = "▶";
+    $("demoCard").src = "../demo/zh/" + c.id + ".jpg"; $("demoCard").alt = "Locutor 卡片：" + c.title + " — " + c.artist;
     $("demoTitle").textContent = c.title; $("demoMeta").textContent = c.artist + " · " + c.year;
     $("demoHost").textContent = c.host ? "讲述者：" + c.host : ""; $("demoText").textContent = c.text;
     $("demoEnd").classList.add("hidden");
