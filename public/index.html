@@ -58,7 +58,7 @@
   .btn.ghost{background:transparent;color:var(--text);border:1px solid var(--line)}
   .btn.ghost:hover{border-color:var(--amber);background:transparent;box-shadow:none}
   .btn.big{padding:16px 30px;font-size:16.5px}
-  @media (max-width:720px){ .nav-links a:not(.btn){display:none} }
+  @media (max-width:720px){ .nav-links a:not(.btn){display:none} .nav-links .langs a{display:inline-block} .nav-links{gap:10px} }
 
   /* Hero */
   header{position:relative;overflow:hidden;padding:64px 0 40px}
@@ -134,6 +134,11 @@
   @media (max-width:520px){ .locs{grid-template-columns:1fr} }
   .loc{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px;display:flex;gap:14px;align-items:flex-start}
   .loc .av{width:46px;height:46px;border-radius:50%;flex:none;display:grid;place-items:center;background:var(--surface2);border:1px solid var(--line)}
+  .loc .av.face{background:#fff;border:0;overflow:hidden}
+  .loc .av.face svg{width:46px;height:46px;stroke:none}
+  .langs{display:flex;gap:4px;flex-wrap:wrap;align-items:center;font-size:12.5px}
+  .langs a{color:var(--dim);text-decoration:none;padding:3px 7px;border-radius:6px}
+  .langs a.on,.langs a:hover{color:var(--amber);background:rgba(232,161,58,.08)}
   .loc .av svg{width:23px;height:23px;stroke:var(--amber);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 
   /* Funciona con todo: apps de música del mundo, IA y voces */
@@ -216,6 +221,13 @@
   .reveal.in{opacity:1;transform:none}
   @media (prefers-reduced-motion:reduce){ .reveal{opacity:1;transform:none;transition:none} .dot{animation:none} }
 </style>
+<link rel="alternate" hreflang="es" href="https://sintonia-server-44kc.onrender.com/" />
+<link rel="alternate" hreflang="en" href="https://sintonia-server-44kc.onrender.com/en/" />
+<link rel="alternate" hreflang="zh" href="https://sintonia-server-44kc.onrender.com/zh/" />
+<link rel="alternate" hreflang="hi" href="https://sintonia-server-44kc.onrender.com/hi/" />
+<link rel="alternate" hreflang="ar" href="https://sintonia-server-44kc.onrender.com/ar/" />
+<link rel="alternate" hreflang="x-default" href="https://sintonia-server-44kc.onrender.com/en/" />
+<script>(function(){try{var p=location.pathname,L=(navigator.language||"es").slice(0,2).toLowerCase(),ok={en:1,zh:1,hi:1,ar:1},es={es:1,ca:1,gl:1,eu:1};var chosen=localStorage.getItem("locutorLang");document.addEventListener("click",function(e){var a=e.target.closest&&e.target.closest("#langs a");if(a)localStorage.setItem("locutorLang",a.dataset.l);});if(p==="/"&&!chosen&&!es[L]){location.replace("/"+(ok[L]?L:"en")+"/"+location.hash);}}catch(_){}})();</script>
 </head>
 <body>
 
@@ -229,7 +241,7 @@
     <a href="#potencial">Qué hace</a>
     <a href="#precios">Precios</a>
     <a href="#faq">Dudas</a>
-    <a class="btn" href="#descargar">Descargar</a>
+    <a class="btn" href="#descargar">Descargar</a><span class="langs" id="langs"><a class="on" href="/" hreflang="es" data-l="es">ES</a><a href="/en/" hreflang="en" data-l="en">EN</a><a href="/zh/" hreflang="zh" data-l="zh">中文</a><a href="/hi/" hreflang="hi" data-l="hi">हिन्दी</a><a href="/ar/" hreflang="ar" data-l="ar">العربية</a></span>
   </div>
 </div></nav>
 
@@ -354,33 +366,33 @@
 
 <!-- NOVEDADES 2.30.1 -->
 <section id="novedades"><div class="wrap center">
-  <div class="sec-lbl"><span class="new-lbl">NUEVO</span> NOVEDADES · 2.30.1</div>
-  <h2 class="big reveal">Más rápida, y mejor contada.</h2>
-  <p class="sec-sub reveal">Lo nuevo de esta versión, después de probarla a fondo con decenas de canciones y varias IA.</p>
+  <div class="sec-lbl"><span class="new-lbl">NUEVO</span> NOVEDADES · 2.31</div>
+  <h2 class="big reveal">Ahora, para todo el mundo.</h2>
+  <p class="sec-sub reveal">Lo nuevo de esta versión, probada como si fuéramos usuarios de India, China, Brasil, Arabia Saudí y Kenia.</p>
   <div class="grid">
-    <div class="card reveal"><div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M10 2h4"/></svg></div><h4>Pulsas ▶ y habla antes</h4><p>La ficha de cada canción se prepara mientras suena y se guarda en tu equipo: si la canción vuelve a sonar, la comenta al momento.</p></div>
-    <div class="card reveal"><div class="ico"><svg viewBox="0 0 24 24"><path d="M5 4h10a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h10M9 8h5"/></svg></div><h4>Cada canción, su historia</h4><p>Cada comentario parte de la historia principal de la canción y la cuenta con el estilo de tu locutor: los años en cifras y sin relleno.</p></div>
-    <div class="card reveal"><div class="ico"><svg viewBox="0 0 24 24"><circle cx="8.5" cy="8" r="3.2"/><circle cx="16.5" cy="9.5" r="2.6"/><path d="M3 19c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5M14.5 14.6c.6-.3 1.3-.5 2-.5 2.2 0 3.9 1.5 4.5 4.4"/></svg></div><h4>Con todos los artistas</h4><p>Colaboraciones escritas con «&amp;», «x» o «feat.»: ahora también encuentra sus fuentes.</p></div>
+    <div class="card reveal"><div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M10 2h4"/></svg></div><h4>Tu idioma, tu música</h4><p>La app en español, English, 中文, हिन्दी y العربية, y el locutor habla más de 50 idiomas. Reconoce cualquier app de música, de Spotify a JioSaavn, Anghami o QQ Música.</p></div>
+    <div class="card reveal"><div class="ico"><svg viewBox="0 0 24 24"><path d="M5 4h10a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h10M9 8h5"/></svg></div><h4>Cada canción, su historia</h4><p>Cada comentario cuenta la historia de la canción —no el segundo exacto en que la pides—, recto, con datos y sin repetir arranques.</p></div>
+    <div class="card reveal"><div class="ico"><svg viewBox="0 0 24 24"><circle cx="8.5" cy="8" r="3.2"/><circle cx="16.5" cy="9.5" r="2.6"/><path d="M3 19c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5M14.5 14.6c.6-.3 1.3-.5 2-.5 2.2 0 3.9 1.5 4.5 4.4"/></svg></div><h4>Compartir con imagen y voz</h4><p>Un botón: la tarjeta y la voz del comentario juntas, a WhatsApp, Instagram o donde quieras. O guárdalas en tu galería.</p></div>
   </div>
-  <p class="mono" style="color:var(--dim);font-size:13px;margin-top:22px">Y en la 2.30.1: tarjetas con el disco y la carátula originales, y «Gestionar mi suscripción» para Premium. Además: Groq al día (Qwen 3.8 por defecto), claves nuevas de Gemini, el comentario sale aunque tu IA vaya saturada, «Con crítica real» avisa si no hay críticas y voces nuevas.</p>
+  <p class="mono" style="color:var(--dim);font-size:13px;margin-top:22px">Y además: 20 proveedores de IA (los gratis, bien marcados), voces nuevas (Microsoft Azure, Google Cloud, Deepgram, Sarvam), locutores con cara nueva, velocidad de la voz y un aviso si llevas unos días sin escuchar nada.</p>
 </div></section>
 
 <!-- POTENCIAL -->
 <section id="potencial"><div class="wrap">
   <div class="center"><div class="sec-lbl">QUÉ HACE</div>
   <h2 class="big reveal">Suena como una emisora, no como un robot.</h2>
-  <p class="sec-sub reveal">Tu locutor tiene personalidad: reacciona al verso que suena, decide contigo cuándo habla y sabe de lo que habla.</p></div>
+  <p class="sec-sub reveal">Tu locutor tiene personalidad: cuenta la historia de cada canción, decide contigo cuándo habla y sabe de lo que habla.</p></div>
 
   <!-- Reacciona al verso: letra sincronizada -->
   <div class="feat" style="margin-top:56px">
     <div class="fig reveal"><div class="device tilt"><img src="img/lyrics.png" alt="Letra sincronizada: se resalta el verso que suena en ese momento bajo el título de la canción" /></div></div>
     <div class="reveal">
       <span class="kicker">Letra sincronizada</span>
-      <h3>Reacciona al verso que suena.</h3>
-      <p>La letra sincronizada resalta la <b>línea exacta</b> que suena en cada momento, y tu locutor <b>entra por lo que dice</b> ese verso. Como un karaoke con quien te lo explica.</p>
+      <h3>Sigue la letra mientras suena.</h3>
+      <p>La letra sincronizada resalta la <b>línea exacta</b> que suena en cada momento, mientras tu locutor <b>te cuenta la historia</b> de la canción. Como un karaoke con quien te la explica.</p>
       <ul class="ticks">
         <li>Sigue la canción en tiempo real y resalta el verso que suena</li>
-        <li>Si encaja, tu locutor entra por lo que dice ese verso</li>
+        <li>El comentario va de la canción entera, no de un verso suelto</li>
         <li>Gratis, y se puede apagar cuando quieras</li>
       </ul>
     </div>
@@ -438,8 +450,8 @@
   <!-- Rejilla de más potencial -->
   <div class="grid">
     <div class="card reveal"><div class="ico"><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M6 11.5a6 6 0 0 0 12 0M12 17.5V21M9 21h6"/></svg></div><h4>Tu locutor, a tu gusto</h4><p>Nueve personalidades listas —o crea la tuya: su enfoque, su tono y su personalidad.</p></div>
-    <div class="card reveal"><div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2"/><path d="M8.5 8.5a5 5 0 0 0 0 7M15.5 8.5a5 5 0 0 1 0 7M6 6a8.5 8.5 0 0 0 0 12M18 6a8.5 8.5 0 0 1 0 12"/></svg></div><h4>Voces de verdad</h4><p>La voz de tu propia IA (con una clave gratis de Gemini), una voz natural gratis o premium con ElevenLabs / Cartesia. Una por locutor.</p></div>
-    <div class="card reveal"><div class="ico"><svg viewBox="0 0 24 24"><path d="M12 20s-6.8-4.2-9.1-8.4C1.3 8.7 2.8 5.7 5.6 5.4 7.5 5.2 9 6.1 12 8.6c3-2.5 4.5-3.4 6.4-3.2 2.8.3 4.3 3.3 2.7 6.2C18.8 15.8 12 20 12 20z"/></svg></div><h4>Te conoce</h4><p>Aprende tus gustos entre sesiones y los referencia con naturalidad. Tu radio, cada vez más tuya.</p></div>
+    <div class="card reveal"><div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2"/><path d="M8.5 8.5a5 5 0 0 0 0 7M15.5 8.5a5 5 0 0 1 0 7M6 6a8.5 8.5 0 0 0 0 12M18 6a8.5 8.5 0 0 1 0 12"/></svg></div><h4>Voces de verdad</h4><p>La voz de tu propia IA (con una clave gratis de Gemini), una voz natural gratis o voces con tu clave: Microsoft Azure, Google Cloud, ElevenLabs, Cartesia, Deepgram o Sarvam. Una por locutor.</p></div>
+    <div class="card reveal"><div class="ico"><svg viewBox="0 0 24 24"><path d="M12 20s-6.8-4.2-9.1-8.4C1.3 8.7 2.8 5.7 5.6 5.4 7.5 5.2 9 6.1 12 8.6c3-2.5 4.5-3.4 6.4-3.2 2.8.3 4.3 3.3 2.7 6.2C18.8 15.8 12 20 12 20z"/></svg></div><h4>Compártelo con voz</h4><p>La tarjeta y la voz del comentario en un solo envío, o guardadas en tu galería. Con o sin la voz, como prefieras.</p></div>
     <div class="card reveal"><div class="ico"><svg viewBox="0 0 24 24"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4M10 12h5M10 15.5h5"/></svg></div><h4>Comentario a fondo</h4><p>Un análisis por aspectos —la letra, la producción, la historia…— que te guardas en PDF, con su carátula y tu nota. En Premium.</p></div>
     <div class="card reveal"><div class="ico"><svg viewBox="0 0 24 24"><path d="M4.5 5h15v10H9l-4.5 3.5z"/><path d="M9.6 8.6a2.4 2.4 0 1 1 2.9 2.4v.9"/><circle cx="12.4" cy="13.4" r=".7" fill="#E8A13A" stroke="none"/></svg></div><h4>Test musical</h4><p>Un juego con preguntas sobre TUS canciones, sacadas de lo que ya te han contado y de sus fuentes.</p></div>
     <div class="card reveal"><div class="ico"><svg viewBox="0 0 24 24"><circle cx="8" cy="8" r="4.5"/><path d="M11.2 11.2 20 20M16.7 16.7 18.7 14.7M14.2 14.2 16.2 12.2"/></svg></div><h4>Tu IA, tu elección</h4><p>20 proveedores de todo el mundo: Gemini, Groq, Mistral, Cerebras u OpenRouter gratis, o OpenAI, Claude, DeepSeek, Grok, Kimi, Sarvam… Si tu IA va saturada o sin cupo, prueba sola su modelo ligero u otra de tus claves.</p></div>
@@ -506,11 +518,11 @@
   <h2 class="big reveal">Cada uno oye la canción a su manera.</h2>
   <p class="sec-sub reveal">Elige el que va contigo —o crea el tuyo desde cero.</p>
   <div class="locs" style="text-align:left">
-    <div class="loc reveal"><div class="av"><svg viewBox="0 0 24 24"><path d="M4 13v-1a8 8 0 0 1 16 0v1"/><rect x="3" y="13" width="4.6" height="7" rx="2"/><rect x="16.4" y="13" width="4.6" height="7" rx="2"/></svg></div><div><h4>El Melómano</h4><div class="tag">Influencias · Didáctico</div><p>Conecta la canción con su linaje: de dónde bebe y a quién marcó.</p></div></div>
-    <div class="loc reveal"><div class="av"><svg viewBox="0 0 24 24"><path d="M12 6.6C10.4 5.2 7.8 4.7 4 5.3v13c3.8-.6 6.4-.1 8 1.3 1.6-1.4 4.2-1.9 8-1.3v-13c-3.8-.6-6.4-.1-8 1.3z"/><path d="M12 6.6V19.6"/></svg></div><div><h4>El Profesor</h4><div class="tag">Teoría · Didáctico</div><p>Te enseña a oírla: un par de cosas que no habrías notado, sin que parezca una clase.</p></div></div>
-    <div class="loc reveal"><div class="av"><svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2.2"/><circle cx="8" cy="17" r="2.2"/></svg></div><div><h4>El Productor</h4><div class="tag">Producción · Apasionado</div><p>Cómo se hizo: quién la produjo, la decisión de estudio y la toma que se quedó.</p></div></div>
-    <div class="loc reveal"><div class="av"><svg viewBox="0 0 24 24"><path d="M12 20s-6.8-4.2-9.1-8.4C1.3 8.7 2.8 5.7 5.6 5.4 7.5 5.2 9 6.1 12 8.6c3-2.5 4.5-3.4 6.4-3.2 2.8.3 4.3 3.3 2.7 6.2C18.8 15.8 12 20 12 20z"/></svg></div><div><h4>El Devoto</h4><div class="tag">Escena · Fan fiel</div><p>La mira con los ojos del fan de siempre: la cara B, el directo legendario, el detalle que solo sabe quien la quiere.</p></div></div>
-    <div class="loc reveal"><div class="av"><svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg></div><div><h4>La Letrista</h4><div class="tag">Letra · Poética</div><p>El verso que gira el sentido, lo que confiesa quien canta.</p></div></div>
+    <div class="loc reveal"><div class="av face"><svg viewBox="0 0 100 100" class="loc-face" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs><clipPath id="disco"><circle cx="50" cy="50" r="48"/></clipPath></defs><circle cx="50" cy="50" r="48" fill="#fff"/><g clip-path="url(#disco)"><g transform="translate(50 50) scale(1.13) translate(-50 -46)"><path d="M43.5 58 L38 100" fill="none" stroke="#111" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M56.5 58 L62 100" fill="none" stroke="#111" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M41.3 72 Q37 86 35.5 99" fill="none" stroke="#111" stroke-width="3.3" stroke-linecap="round" stroke-linejoin="round"/><ellipse cx="50" cy="38" rx="20" ry="21.5" fill="#fff" stroke="#111" stroke-width="3.8"/><path d="M38.5 37 q4 -3 8 0" fill="none" stroke="#111" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M53.5 37 q4 -3 8 0" fill="none" stroke="#111" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M44 47 q6 4.5 12 0" fill="none" stroke="#111" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M30.5 38 C30.5 12 69.5 12 69.5 38" fill="none" stroke="#111" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/><rect x="26" y="31" width="8" height="14" rx="4" fill="#111"/><rect x="66" y="31" width="8" height="14" rx="4" fill="#111"/><path d="M58.7 72 Q74 64 71 48" fill="none" stroke="#111" stroke-width="3.3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="71" cy="47" r="2.6" fill="#111"/></g></g></svg></div><div><h4>El Melómano</h4><div class="tag">Influencias · Didáctico</div><p>Conecta la canción con su linaje: de dónde bebe y a quién marcó.</p></div></div>
+    <div class="loc reveal"><div class="av face"><svg viewBox="0 0 100 100" class="loc-face" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs><clipPath id="disco"><circle cx="50" cy="50" r="48"/></clipPath></defs><circle cx="50" cy="50" r="48" fill="#fff"/><g clip-path="url(#disco)"><g transform="translate(50 50) scale(1.13) translate(-50 -46)"><path d="M43.5 58 L38 100" fill="none" stroke="#111" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M56.5 58 L62 100" fill="none" stroke="#111" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M41.3 72 Q37 86 35.5 99" fill="none" stroke="#111" stroke-width="3.3" stroke-linecap="round" stroke-linejoin="round"/><ellipse cx="50" cy="38" rx="20" ry="21.5" fill="#fff" stroke="#111" stroke-width="3.8"/><circle cx="42.5" cy="37" r="2.3" fill="#111"/><circle cx="57.5" cy="37" r="2.3" fill="#111"/><circle cx="42.5" cy="37" r="6.2" fill="none" stroke="#111" stroke-width="2.8"/><circle cx="57.5" cy="37" r="6.2" fill="none" stroke="#111" stroke-width="2.8"/><path d="M48.7 36 h2.6" fill="none" stroke="#111" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M37 28.5 h8 M55 28.5 h8" fill="none" stroke="#111" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M45 48 q5 2.5 10 0" fill="none" stroke="#111" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M58.7 72 Q76 68 77 52" fill="none" stroke="#111" stroke-width="3.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M77 52 v-7" fill="none" stroke="#111" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="77" cy="52" r="2.6" fill="#111"/></g></g></svg></div><div><h4>El Profesor</h4><div class="tag">Teoría · Didáctico</div><p>Te enseña a oírla: un par de cosas que no habrías notado, sin que parezca una clase.</p></div></div>
+    <div class="loc reveal"><div class="av face"><svg viewBox="0 0 100 100" class="loc-face" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs><clipPath id="disco"><circle cx="50" cy="50" r="48"/></clipPath></defs><circle cx="50" cy="50" r="48" fill="#fff"/><g clip-path="url(#disco)"><g transform="translate(50 50) scale(1.13) translate(-50 -46)"><path d="M43.5 58 L38 100" fill="none" stroke="#111" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M56.5 58 L62 100" fill="none" stroke="#111" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M41.3 72 L30 79 L38 89" fill="none" stroke="#111" stroke-width="3.3" stroke-linecap="round" stroke-linejoin="round"/><ellipse cx="50" cy="38" rx="20" ry="21.5" fill="#fff" stroke="#111" stroke-width="3.8"/><path d="M38 31 h8" fill="none" stroke="#111" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M54 30.5 h8" fill="none" stroke="#111" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="42.5" cy="37" r="2.7" fill="#111"/><circle cx="57.5" cy="37" r="2.7" fill="#111"/><path d="M44 47 q7 3 12 -2.5" fill="none" stroke="#111" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M46 17 q1 -6 6 -7 M51 17 q4 -5 8 -3.5" fill="none" stroke="#111" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M58.7 72 Q73 66 86 62" fill="none" stroke="#111" stroke-width="3.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M86 62 l5 -1.5" fill="none" stroke="#111" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></g></g></svg></div><div><h4>El Productor</h4><div class="tag">Producción · Apasionado</div><p>Cómo se hizo: quién la produjo, la decisión de estudio y la toma que se quedó.</p></div></div>
+    <div class="loc reveal"><div class="av face"><svg viewBox="0 0 100 100" class="loc-face" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs><clipPath id="disco"><circle cx="50" cy="50" r="48"/></clipPath></defs><circle cx="50" cy="50" r="48" fill="#fff"/><g clip-path="url(#disco)"><g transform="translate(50 50) scale(1.13) translate(-50 -46)"><path d="M43.5 58 L38 100" fill="none" stroke="#111" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M56.5 58 L62 100" fill="none" stroke="#111" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M41.3 72 Q37 86 35.5 99" fill="none" stroke="#111" stroke-width="3.3" stroke-linecap="round" stroke-linejoin="round"/><ellipse cx="50" cy="38" rx="20" ry="21.5" fill="#fff" stroke="#111" stroke-width="3.8"/><path d="M38.5 37.5 q4 -3.2 8 0" fill="none" stroke="#111" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M53.5 37.5 q4 -3.2 8 0" fill="none" stroke="#111" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M37.5 29 q4.5 -2 9 0 M53.5 29 q4.5 -2 9 0" fill="none" stroke="#111" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M44.5 47 q5.5 4 11 0" fill="none" stroke="#111" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M58.7 72 Q68 84 50 80" fill="none" stroke="#111" stroke-width="3.3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="49.5" cy="80" r="2.6" fill="#111"/></g></g></svg></div><div><h4>El Devoto</h4><div class="tag">Escena · Fan fiel</div><p>La mira con los ojos del fan de siempre: la cara B, el directo legendario, el detalle que solo sabe quien la quiere.</p></div></div>
+    <div class="loc reveal"><div class="av face"><svg viewBox="0 0 100 100" class="loc-face" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs><clipPath id="disco"><circle cx="50" cy="50" r="48"/></clipPath></defs><circle cx="50" cy="50" r="48" fill="#fff"/><g clip-path="url(#disco)"><g transform="translate(50 50) scale(1.13) translate(-50 -46)"><path d="M43.5 58 L38 100" fill="none" stroke="#111" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M56.5 58 L62 100" fill="none" stroke="#111" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M41.3 72 Q37 86 35.5 99" fill="none" stroke="#111" stroke-width="3.3" stroke-linecap="round" stroke-linejoin="round"/><ellipse cx="50" cy="38" rx="20" ry="21.5" fill="#fff" stroke="#111" stroke-width="3.8"/><circle cx="43" cy="34.5" r="2.7" fill="#111"/><circle cx="58" cy="34.5" r="2.7" fill="#111"/><path d="M38 28 q4.5 -2.5 9 -1 M53 27 q4.5 -1.5 9 1" fill="none" stroke="#111" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M46 48 h8" fill="none" stroke="#111" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M31 33 C27 54 32 74 28 100 M69 33 C73 54 68 74 72 100" fill="none" stroke="#111" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M58.7 72 Q70 64 56 61" fill="none" stroke="#111" stroke-width="3.3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="55.5" cy="61" r="2.6" fill="#111"/></g></g></svg></div><div><h4>La Letrista</h4><div class="tag">Letra · Poética</div><p>El verso que gira el sentido, lo que confiesa quien canta.</p></div></div>
     <div class="loc reveal"><div class="av"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></div><div><h4>Crea el tuyo</h4><div class="tag">Personalizable</div><p>Elige su enfoque, su tono y hasta la forma de hablar de alguien.</p></div></div>
   </div>
 </div></section>
@@ -586,7 +598,7 @@
 <section id="descargar" class="final"><div class="wrap">
   <div class="sec-lbl">EMPIEZA</div>
   <h2 class="big reveal">Pon la radio. La tuya.</h2>
-  <p class="sec-sub reveal" style="margin-bottom:28px">Descárgala para Windows y deja que tus canciones tengan quien las cuente.</p>
+  <p class="sec-sub reveal" style="margin-bottom:28px">Descárgala para Android o Windows y deja que tus canciones tengan quien las cuente.</p>
   <a class="btn big store-btn" href="https://apps.microsoft.com/detail/9MT9Z36X7MC4" id="downloadBtn" rel="noopener">▶ Descargar gratis en Microsoft Store</a>
   <div class="cta-row center" style="justify-content:center;margin-top:14px"><a class="chip" href="https://apps.microsoft.com/detail/9MT9Z36X7MC4" rel="noopener" style="text-decoration:none"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8"/><rect x="13" y="3" width="8" height="8"/><rect x="3" y="13" width="8" height="8"/><rect x="13" y="13" width="8" height="8"/></svg> Ya en Microsoft Store</a>
         <a class="chip" href="https://play.google.com/store/apps/details?id=com.locutor.app&amp;referrer=utm_source%3Dweb%26utm_medium%3Dlanding" rel="noopener" style="text-decoration:none"><svg viewBox="0 0 24 24"><rect x="7" y="3" width="10" height="18" rx="2.5"/><line x1="10.5" y1="18" x2="13.5" y2="18"/></svg> Ya en Google Play (Android)</a></div>
