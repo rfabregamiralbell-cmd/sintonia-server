@@ -13,7 +13,7 @@ import { fetchT } from "./fetchT";
 
 const cache = new Map<string, { text: string; at: number }>();
 const TTL = 24 * 3600 * 1000;
-const UA = "Locutor/1.0 (radio musical; contacto rfabregamiralbell@gmail.com)";
+const UA = "Locutor/1.0 ( https://sintonia-server-44kc.onrender.com )";
 const ENABLED = process.env.QUOTES !== "0";
 // Variantes de título de sección en los 4 idiomas que buscamos: es/recepción-acogida-
 // valoración-reseñas, pt/recepção, fr/critique-accueil, en/reception-critical-reviews.

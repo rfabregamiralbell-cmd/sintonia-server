@@ -17,7 +17,7 @@ export type MusicFacts = {
 
 const cache = new Map<string, { facts: MusicFacts | null; at: number }>();
 const TTL = 24 * 3600 * 1000; // 1 día
-const UA = "Locutor/1.0 (radio musical; contacto rfabregamiralbell@gmail.com)";
+const UA = "Locutor/1.0 ( https://sintonia-server-44kc.onrender.com )";
 const MB = "https://musicbrainz.org/ws/2";
 const ENABLED = process.env.MUSICDATA !== "0";
 
