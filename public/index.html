@@ -65,16 +65,20 @@
   /* Nav */
   nav{position:sticky;top:0;z-index:50;background:rgba(20,17,9,.86);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
   nav .wrap{display:flex;align-items:center;justify-content:space-between;height:62px}
-  .brand{display:flex;align-items:center;gap:10px;font-family:var(--disp);font-weight:700;font-size:19px;letter-spacing:.16em}
+  .brand{display:flex;align-items:center;gap:10px;flex-shrink:0;margin-inline-end:32px;font-family:var(--disp);font-weight:700;font-size:19px;letter-spacing:.16em}
   .brand svg{color:var(--amber);width:26px;height:26px}
-  .nav-links{display:flex;gap:26px;align-items:center}
-  .nav-links a{color:var(--dim);font-size:14px;font-weight:600}
+  .nav-links{display:flex;gap:22px;align-items:center;flex-wrap:nowrap;min-width:0}
+  .nav-links a{color:var(--dim);font-size:14px;font-weight:600;white-space:nowrap}
   .nav-links a:hover{color:var(--text)}
   .btn{display:inline-flex;align-items:center;gap:9px;background:var(--amber);color:#211404;font-weight:700;padding:12px 22px;border-radius:10px;font-size:14.5px;border:0;cursor:pointer;transition:transform .12s var(--ease),background .12s,box-shadow .16s;font-family:var(--sans)}
   .btn:hover{background:var(--amber2);transform:translateY(-2px);box-shadow:0 10px 28px rgba(232,161,58,.28)}
   .btn.ghost{background:transparent;color:var(--text);border:1px solid var(--line)}
   .btn.ghost:hover{border-color:var(--amber);background:transparent;box-shadow:none}
   .btn.big{padding:16px 30px;font-size:16.5px}
+  /* Menú en una línea: a medida que falta ancho se ocultan primero los enlaces secundarios (nunca se parten en dos líneas) */
+  @media (max-width:1260px){ .nav-links a[href="#novedades"], .nav-links a[href="#potencial"]{display:none} }
+  @media (max-width:1060px){ .nav-links a[href="#primeros-pasos"], .nav-links a[href="#dudas"], .nav-links a[href="#faq"]{display:none} }
+  @media (max-width:880px){ .nav-links a[href="#como"], .nav-links a[href="#precios"]{display:none} }
   @media (max-width:720px){ .nav-links a:not(.btn){display:none} .nav-links .langs a{display:inline-block} .nav-links{gap:10px} }
 
   /* Hero */
@@ -153,7 +157,7 @@
   .loc .av{width:46px;height:46px;border-radius:50%;flex:none;display:grid;place-items:center;background:var(--surface2);border:1px solid var(--line)}
   .loc .av.face{background:#fff;border:0;overflow:hidden}
   .loc .av.face svg{width:46px;height:46px;stroke:none}
-  .langs{display:flex;gap:4px;flex-wrap:wrap;align-items:center;font-size:12.5px}
+  .langs{display:flex;gap:2px;flex-wrap:nowrap;white-space:nowrap;align-items:center;font-size:12.5px}
   .langs a{color:var(--dim);text-decoration:none;padding:3px 7px;border-radius:6px}
   .langs a.on,.langs a:hover{color:var(--amber);background:rgba(232,161,58,.08)}
   .loc .av svg{width:23px;height:23px;stroke:var(--amber);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
