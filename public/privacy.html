@@ -27,8 +27,9 @@
 <meta name="theme-color" content="#141109" />
 </head>
 <body>
+  <p style="float:right;font-size:13px"><a href="/en/privacy.html" hreflang="en">English</a></p>
   <h1>LOCUTOR · Política de privacidad</h1>
-  <p class="upd">Última actualización: 6 de octubre de 2026</p>
+  <p class="upd">Última actualización: 11 de noviembre de 2026</p>
 
   <p>Locutor es una aplicación para Windows y Android que reconoce la canción que estás
   escuchando (en Spotify, YouTube Music, etc.) y hace que unos «locutores» con inteligencia
@@ -42,8 +43,9 @@
   </div>
 
   <h2>1. Quién es el responsable</h2>
-  <p>El responsable del tratamiento es el desarrollador de Locutor. Para cualquier asunto
-  de privacidad puedes escribir a:
+  <p>El responsable del tratamiento es el desarrollador de Locutor, cuyos datos de operador figuran
+  en la ficha de Locutor en Google Play. Para cualquier asunto de
+  privacidad puedes escribir a:
   <a href="mailto:rfabregamiralbell@gmail.com">rfabregamiralbell@gmail.com</a>.</p>
 
   <h2>2. Qué datos tratamos</h2>
@@ -54,8 +56,8 @@
     título/artista, la app consulta fuentes musicales públicas (<strong>MusicBrainz, Wikipedia,
     Genius, Last.fm, iTunes, Deezer y LRCLIB</strong>) para elaborar una ficha con datos reales del
     tema (año, autoría, significado, contexto, carátula y letra sincronizada); esa ficha, junto al
-    título/artista, se envía a la <strong>inteligencia artificial que tú conectes</strong> (Google
-    Gemini, Groq, Mistral, OpenAI o Anthropic, con tu clave) para que escriba el comentario.
+    título/artista, se envía a la <strong>inteligencia artificial que tú conectes</strong> (el proveedor
+    que elijas entre los de la app, con tu clave) para que escriba el comentario.
     <strong>No se accede al audio, no se graba nada, no se usa el micrófono.</strong></li>
     <li><strong>Correo electrónico</strong>: solo si decides <em>Entrar con Google</em>.
     Sirve para identificarte y gestionar tu plan. Sin iniciar sesión, usas la app como
@@ -68,7 +70,7 @@
     <strong>Stripe</strong> (en Windows) o <strong>Google Play</strong> (en Android).
     <strong>No almacenamos tu tarjeta</strong>.</li>
     <li><strong>Tus claves propias</strong>: la clave de IA que conectes (y, si las usas, las de
-    ElevenLabs o Cartesia) se guarda <strong>cifrada únicamente en tu dispositivo</strong>: en
+    tus servicios de voz: ElevenLabs, Cartesia, Microsoft Azure, Google Cloud o Deepgram) se guarda <strong>cifrada únicamente en tu dispositivo</strong>: en
     Windows, con el cifrado DPAPI del sistema; en Android, con el almacén de claves del sistema
     (Android Keystore), desde la versión 2.28. No se almacena en nuestro servidor: va directamente
     al proveedor que tú elijas para atender tu petición.</li>
@@ -78,8 +80,10 @@
   <p>Para que la app funcione, algunos datos se envían a servicios de terceros, cada uno con
   su propia política de privacidad:</p>
   <ul>
-    <li><strong>El proveedor de IA que tú conectes</strong> (Google Gemini, Groq, Mistral, OpenAI
-    o Anthropic) — escribe el comentario y, si eliges «la voz de tu IA», lo convierte en voz.
+    <li><strong>El proveedor de IA que tú conectes</strong>, entre los que ofrece la app: Google
+    Gemini, Groq, Mistral, OpenAI, Anthropic, DeepSeek, xAI, Cerebras, OpenRouter, Hugging Face,
+    SiliconFlow, Moonshot, Z.ai, Sarvam, Upstage, PLaMo, SEA-LION o Maritaca (o un modelo que
+    ejecutes en tu propio equipo) — escribe el comentario y, si eliges «la voz de tu IA», lo convierte en voz.
     Recibe el título/artista y la ficha de datos del tema (contexto, significado y, en el modo
     «Con crítica real», la reseña crítica). La petición se hace con TU clave; no recibe tu
     identidad.</li>
@@ -99,40 +103,55 @@
     Android, <strong>Google Play</strong> para los pagos.</li>
     <li><strong>Stripe</strong> — procesa los pagos de la suscripción en Windows.</li>
     <li><strong>Microsoft (Edge)</strong> — convierte el texto del comentario en voz natural
-    gratis.</li>
-    <li><strong>ElevenLabs y Cartesia</strong> — solo si activas sus voces con tu propia clave.</li>
+    gratis. Si no está disponible, la voz se genera <strong>en tu propio dispositivo</strong>: en
+    Windows con <strong>Piper</strong> (cuyas voces se descargan una vez desde
+    <strong>Hugging Face</strong>, sin enviar ningún texto) y en Android con la voz del sistema del
+    teléfono.</li>
+    <li><strong>Servicios de voz con tu propia clave</strong> (ElevenLabs, Cartesia, Microsoft
+    Azure, Google Cloud, Deepgram, o la voz de tu proveedor de IA: OpenAI, Gemini, Groq o Sarvam)
+    — solo si los activas; reciben el texto del comentario para leerlo en voz alta.</li>
     <li><strong>Nuestro servidor</strong> (alojado en <strong>Render</strong>) — recibe el
     título/artista para preparar datos del tema, gestiona tu plan y, en Android, hace de puente
     para la voz natural gratis (recibe el texto del comentario para convertirlo en voz). No recibe
     ni guarda tus claves.</li>
   </ul>
-  <p>No vendemos tus datos ni los usamos para publicidad.</p>
+  <p>No vendemos tus datos ni los usamos para publicidad. Locutor <strong>no recoge estadísticas
+  de uso</strong>.</p>
 
-  <h2>4. Para qué y con qué base legal</h2>
+  <h2>4. Transferencias fuera del Espacio Económico Europeo</h2>
+  <p>Algunos de estos servicios están fuera del Espacio Económico Europeo (por ejemplo, en Estados
+  Unidos, China, India, Corea, Japón, Singapur o Brasil, según el proveedor de IA o de voz que
+  elijas). Lo que reciben es la información de la canción y la petición del comentario, junto con
+  la dirección IP de tu conexión. Esas transferencias se hacen porque tú eliges ese proveedor para
+  que te preste el servicio, y cada uno aplica sus propias garantías. Si prefieres que tus datos no
+  salgan de Europa, elige un proveedor europeo (por ejemplo, Mistral) o un modelo en tu propio
+  equipo.</p>
+
+  <h2>5. Para qué y con qué base legal</h2>
   <p>Tratamos estos datos para <strong>prestarte el servicio</strong> que has pedido
   (ejecución del contrato) y, cuando aplica, sobre la base de tu <strong>consentimiento</strong>,
   que puedes retirar en cualquier momento cerrando sesión o desinstalando la app.</p>
 
-  <h2>5. Cuánto tiempo se conservan</h2>
+  <h2>6. Cuánto tiempo se conservan</h2>
   <p>Los datos del servidor se conservan solo el tiempo necesario para prestar el servicio
   y se reinician con frecuencia. Los datos guardados en tu dispositivo (tu sesión, tus locutores,
   tu historial, tus claves) viven <strong>en tu equipo</strong> hasta que cierras sesión, los
   borras o desinstalas la app. En Android no se incluyen en las copias de seguridad en la nube.</p>
 
-  <h2>6. Tus derechos</h2>
+  <h2>7. Tus derechos</h2>
   <p>Puedes ejercer tus derechos de <strong>acceso, rectificación, supresión, oposición,
   limitación y portabilidad</strong> escribiendo a
   <a href="mailto:rfabregamiralbell@gmail.com">rfabregamiralbell@gmail.com</a>. También puedes
   reclamar ante la autoridad de protección de datos de tu país (en España, la AEPD).</p>
 
-  <h2>7. Menores</h2>
+  <h2>8. Menores</h2>
   <p>Locutor no está dirigido a menores de 14 años y no recoge datos de ellos a sabiendas.</p>
 
-  <h2>8. Cambios</h2>
+  <h2>9. Cambios</h2>
   <p>Si actualizamos esta política, cambiaremos la fecha de arriba y, si el cambio es
   importante, te lo mostraremos en la app.</p>
 
-  <h2>9. Contacto</h2>
+  <h2>10. Contacto</h2>
   <p><a href="mailto:rfabregamiralbell@gmail.com">rfabregamiralbell@gmail.com</a></p>
 </body>
 </html>

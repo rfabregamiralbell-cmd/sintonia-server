@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Locutor · Privacy policy</title>
+<style>
+  :root { color-scheme: light dark; }
+  body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    max-width: 760px; margin: 0 auto; padding: 32px 22px 80px; line-height: 1.6;
+    color: #1a1713; background: #f6f1e7; }
+  @media (prefers-color-scheme: dark) { body { color: #e9e3d6; background: #16130f; } }
+  h1 { font-size: 26px; letter-spacing: .04em; margin: 0 0 4px; }
+  h2 { font-size: 18px; margin: 30px 0 8px; }
+  .upd { color: #998f7d; font-size: 13px; margin: 0 0 24px; }
+  .lang { float: right; font-size: 13px; }
+  a { color: #d98a17; }
+  ul { padding-left: 20px; }
+  li { margin: 5px 0; }
+  .box { background: rgba(150,140,120,.12); border-radius: 10px; padding: 14px 16px; margin: 16px 0; }
+  strong { font-weight: 600; }
+</style>
+<link rel="icon" href="/favicon.ico" sizes="48x48" />
+<link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+<meta name="theme-color" content="#141109" />
+</head>
+<body>
+  <p class="lang"><a href="/privacy.html" hreflang="es">Español</a></p>
+  <h1>LOCUTOR · Privacy policy</h1>
+  <p class="upd">Last updated: 11 November 2026</p>
+
+  <p>Locutor is an app for Windows and Android that recognises the song you are listening to (on
+  Spotify, YouTube Music, etc.) and has AI “radio hosts” talk about it out loud, like a personal
+  radio station. This policy explains, in plain language, what data the app processes and why.
+  The Spanish version is the reference version; this translation is provided for convenience.</p>
+
+  <div class="box">
+    <strong>The essentials, in one sentence:</strong> Locutor <strong>does not use the microphone
+    or record sound</strong>. It only reads the <strong>title and artist</strong> of what is
+    already playing so it can talk about it.
+  </div>
+
+  <h2>1. Who is responsible</h2>
+  <p>The data controller is the developer of Locutor, whose trader details are shown on Locutor’s
+  Google Play listing. For any privacy matter you can write to:
+  <a href="mailto:rfabregamiralbell@gmail.com">rfabregamiralbell@gmail.com</a>.</p>
+
+  <h2>2. What data we process</h2>
+  <ul>
+    <li><strong>Title and artist of the song</strong> that is playing. It is read from the device’s
+    “now playing” system (on Windows, SMTC; on Android, notification access, of which only the
+    music information is used, never your messages). With that title/artist, the app queries
+    public music sources (<strong>MusicBrainz, Wikipedia, Genius, Last.fm, iTunes, Deezer and
+    LRCLIB</strong>) to build a fact sheet about the song (year, authorship, meaning, context,
+    cover and synced lyrics); that sheet, with the title/artist, is sent to the <strong>AI you
+    connect</strong> (the provider you choose in the app, with your key) to write the comment.
+    <strong>No audio is accessed, nothing is recorded, the microphone is not used.</strong></li>
+    <li><strong>Email address</strong>: only if you choose <em>Sign in with Google</em>. It is used
+    to identify you and manage your plan. Without signing in, you use the app as a guest.</li>
+    <li><strong>Anonymous device identifier</strong>: a random code generated on your device for the
+    guest session. It does not identify you personally.</li>
+    <li><strong>Plan usage data</strong>: how many AI comments you have created today, to apply the
+    free plan’s limit. It is counted on your device.</li>
+    <li><strong>Payment data</strong>: if you subscribe to Premium, payment is processed by
+    <strong>Stripe</strong> (Windows) or <strong>Google Play</strong> (Android). <strong>We do not
+    store your card</strong>.</li>
+    <li><strong>Your own keys</strong>: the AI key you connect (and, if you use them, those of your
+    voice services: ElevenLabs, Cartesia, Microsoft Azure, Google Cloud or Deepgram) is stored
+    <strong>encrypted only on your device</strong>: on Windows with the system’s DPAPI
+    encryption; on Android with the system key store (Android Keystore). It is not stored on our
+    server: it goes directly to the provider you choose.</li>
+  </ul>
+
+  <h2>3. Who it is shared with</h2>
+  <p>For the app to work, some data is sent to third-party services, each with its own privacy
+  policy:</p>
+  <ul>
+    <li><strong>The AI provider you connect</strong>, among those offered in the app: Google
+    Gemini, Groq, Mistral, OpenAI, Anthropic, DeepSeek, xAI, Cerebras, OpenRouter, Hugging Face,
+    SiliconFlow, Moonshot, Z.ai, Sarvam, Upstage, PLaMo, SEA-LION or Maritaca (or a model you run
+    on your own computer) — it writes the comment and, if you choose “your AI’s voice”, turns it
+    into speech. It receives the title/artist and the song’s fact sheet. The request is made with
+    YOUR key; it does not receive your identity.</li>
+    <li><strong>Genius</strong>, <strong>MusicBrainz</strong>, <strong>Wikipedia</strong> and
+    <strong>Last.fm</strong> — receive the title/artist to return facts, context, critics’ reviews
+    and the artist’s biography.</li>
+    <li><strong>Apple (iTunes) and Deezer</strong> — receive the title/artist to return the year,
+    album and cover.</li>
+    <li><strong>LRCLIB</strong> — receives the title/artist to return synced lyrics (you can turn
+    this off in Settings).</li>
+    <li><strong>Google</strong> — only for <em>Sign in with Google</em> and, on Android,
+    <strong>Google Play</strong> for payments.</li>
+    <li><strong>Stripe</strong> — processes subscription payments on Windows.</li>
+    <li><strong>Microsoft (Edge)</strong> — turns the comment text into a free natural voice. If it
+    is not available, the voice is generated <strong>on your own device</strong>: on Windows with
+    <strong>Piper</strong> (its voices are downloaded once from <strong>Hugging Face</strong>,
+    without sending any text) and on Android with the phone’s system voice.</li>
+    <li><strong>Voice services with your own key</strong> (ElevenLabs, Cartesia, Microsoft Azure,
+    Google Cloud, Deepgram, or your AI provider’s voice: OpenAI, Gemini, Groq or Sarvam) — only if
+    you turn them on; they receive the comment text to read it aloud.</li>
+    <li><strong>Our server</strong> (hosted on <strong>Render</strong>) — receives the title/artist
+    to prepare song data, manages your plan and, on Android, acts as a bridge for the free natural
+    voice (it receives the comment text to turn it into speech). It does not receive or keep your
+    keys.</li>
+  </ul>
+  <p>We do not sell your data or use it for advertising. Locutor <strong>does not collect usage
+  statistics</strong>.</p>
+
+  <h2>4. Transfers outside the European Economic Area</h2>
+  <p>Some of these services are outside the European Economic Area (for example in the United
+  States, China, India, Korea, Japan, Singapore or Brazil, depending on the AI or voice provider
+  you choose). What they receive is the song information and the comment request, together with
+  your connection’s IP address. These transfers happen because you choose that provider to serve
+  you, and each one applies its own safeguards. If you prefer your data not to leave Europe, choose
+  a European provider (for example Mistral) or a model on your own computer.</p>
+
+  <h2>5. Purposes and legal basis</h2>
+  <p>We process this data to <strong>provide the service</strong> you asked for (performance of the
+  contract) and, where applicable, on the basis of your <strong>consent</strong>, which you can
+  withdraw at any time by signing out or uninstalling the app.</p>
+
+  <h2>6. How long it is kept</h2>
+  <p>Server data is kept only as long as needed to provide the service and is reset frequently.
+  Data stored on your device (your session, your hosts, your history, your keys) stays <strong>on
+  your device</strong> until you sign out, delete it or uninstall the app. On Android it is not
+  included in cloud backups.</p>
+
+  <h2>7. Your rights</h2>
+  <p>You can exercise your rights of <strong>access, rectification, erasure, objection,
+  restriction and portability</strong> by writing to
+  <a href="mailto:rfabregamiralbell@gmail.com">rfabregamiralbell@gmail.com</a>. You can also
+  complain to the data protection authority of your country (in Spain, the AEPD).</p>
+
+  <h2>8. Children</h2>
+  <p>Locutor is not directed at children under 14 and does not knowingly collect their data.</p>
+
+  <h2>9. Changes</h2>
+  <p>If we update this policy, we will change the date above and, if the change is important, show
+  it in the app.</p>
+
+  <h2>10. Contact</h2>
+  <p><a href="mailto:rfabregamiralbell@gmail.com">rfabregamiralbell@gmail.com</a></p>
+</body>
+</html>
